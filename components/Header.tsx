@@ -1,7 +1,8 @@
 import { FontAwesome } from '@expo/vector-icons';
-import { Platform, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, LinearGradient, Path, Stop, Text as SvgText } from 'react-native-svg';
+import { useIsMobileLayout } from '@/hooks/useDeviceType';
 
 interface HeaderProps {
   onSearchPress?: () => void;
@@ -77,17 +78,17 @@ function LogoWordmark({ height = 40 }: { height?: number }) {
 
 export function Header({ onSearchPress }: HeaderProps) {
   const insets = useSafeAreaInsets();
-  const isWeb = Platform.OS === 'web';
+  const isMobile = useIsMobileLayout();
 
   return (
     <View
-      style={{ paddingTop: isWeb ? 16 : insets.top + 8 }}
+      style={{ paddingTop: isMobile ? insets.top + 8 : 16 }}
     >
       {/* Top row: Logo, badges, and Search */}
       <View className="flex-row items-center justify-between px-4 pb-4">
         {/* Logo and badges grouped together */}
         <View className="flex-row items-center">
-          <LogoWordmark height={isWeb ? 44 : 36} />
+          <LogoWordmark height={isMobile ? 36 : 44} />
 
           {/* Three feature badges */}
           <View className="flex-row items-center gap-2 ml-4">

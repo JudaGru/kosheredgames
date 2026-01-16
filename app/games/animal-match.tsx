@@ -16,6 +16,7 @@ import Animated, {
   withTiming
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDeviceType } from '@/hooks/useDeviceType';
 
 // Animals data with Hebrew names including nekudos
 const ANIMALS_DATA = [
@@ -831,7 +832,7 @@ function VictoryScreen({
 }
 
 export default function AnimalMatchGame() {
-  const isWeb = Platform.OS === 'web';
+  const { isMobile } = useDeviceType();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const [gameStarted, setGameStarted] = useState(false);
   const [playerCount, setPlayerCount] = useState(1);
@@ -851,20 +852,20 @@ export default function AnimalMatchGame() {
 
   const calculateCardSize = useCallback(() => {
     const padding = 32;
-    const headerHeight = isWeb ? 160 : 200;
+    const headerHeight = isMobile ? 200 : 160;
     const availableWidth = screenWidth - padding;
     const availableHeight = screenHeight - headerHeight - padding;
 
-    if (isWeb) {
-      const maxCardWidth = (availableWidth - 60) / 6;
-      const maxCardHeight = (availableHeight - 40) / 4 / 1.25;
-      return Math.min(maxCardWidth, maxCardHeight, 80);
-    } else {
+    if (isMobile) {
       const maxCardWidth = (availableWidth - 30) / 4;
       const maxCardHeight = (availableHeight - 50) / 6 / 1.25;
       return Math.min(maxCardWidth, maxCardHeight, 65);
+    } else {
+      const maxCardWidth = (availableWidth - 60) / 6;
+      const maxCardHeight = (availableHeight - 40) / 4 / 1.25;
+      return Math.min(maxCardWidth, maxCardHeight, 80);
     }
-  }, [screenWidth, screenHeight, isWeb]);
+  }, [screenWidth, screenHeight, isMobile]);
 
   const cardSize = calculateCardSize();
 
@@ -1001,7 +1002,7 @@ export default function AnimalMatchGame() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const columns = isWeb ? 6 : 4;
+  const columns = isMobile ? 4 : 6;
   const gridWidth = columns * (cardSize + (cardSize > 60 ? 10 : 6));
   const allMatched = Array.from(playerMatches.values()).reduce(
     (acc, set) => new Set([...acc, ...set]),
@@ -1041,8 +1042,8 @@ export default function AnimalMatchGame() {
               setGameStarted(false);
               setPlayerCount(1);
             }}
-            onHoverIn={isWeb ? () => setBackButtonHovered(true) : undefined}
-            onHoverOut={isWeb ? () => setBackButtonHovered(false) : undefined}
+            onHoverIn={!isMobile ? () => setBackButtonHovered(true) : undefined}
+            onHoverOut={!isMobile ? () => setBackButtonHovered(false) : undefined}
             style={{
               width: 40,
               height: 40,
@@ -1056,15 +1057,15 @@ export default function AnimalMatchGame() {
           </Pressable>
 
           <View className="items-center flex-1 mx-4">
-            <Text className={`font-bold text-amber-900 ${isWeb ? 'text-xl' : 'text-lg'}`}>
+            <Text className={`font-bold text-amber-900 ${isMobile ? 'text-lg' : 'text-xl'}`}>
               Animals
             </Text>
           </View>
 
           <Pressable
             onPress={() => initializeGame()}
-            onHoverIn={isWeb ? () => setRefreshButtonHovered(true) : undefined}
-            onHoverOut={isWeb ? () => setRefreshButtonHovered(false) : undefined}
+            onHoverIn={!isMobile ? () => setRefreshButtonHovered(true) : undefined}
+            onHoverOut={!isMobile ? () => setRefreshButtonHovered(false) : undefined}
             style={{
               width: 40,
               height: 40,
@@ -1098,17 +1099,17 @@ export default function AnimalMatchGame() {
         {/* Stats Bar */}
         <View
           className="flex-row justify-center py-3 bg-amber-50 border-t border-amber-100"
-          style={{ gap: isWeb ? 48 : 32 }}
+          style={{ gap: isMobile ? 32 : 48 }}
         >
           <View className="items-center">
             <Text className="text-xs text-amber-600 uppercase tracking-wide font-semibold">Time</Text>
-            <Text className={`font-bold text-amber-900 ${isWeb ? 'text-2xl' : 'text-xl'} mt-1`}>
+            <Text className={`font-bold text-amber-900 ${isMobile ? 'text-xl' : 'text-2xl'} mt-1`}>
               {formatTime(elapsedTime)}
             </Text>
           </View>
           <View className="items-center">
             <Text className="text-xs text-amber-600 uppercase tracking-wide font-semibold">Matched</Text>
-            <Text className={`font-bold text-amber-600 ${isWeb ? 'text-2xl' : 'text-xl'} mt-1`}>
+            <Text className={`font-bold text-amber-600 ${isMobile ? 'text-xl' : 'text-2xl'} mt-1`}>
               {Math.floor(allMatched.size / 2)}/12
             </Text>
           </View>

@@ -18,136 +18,263 @@ import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-g
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Defs, G, LinearGradient, Path, Rect, Stop, Circle, Ellipse } from 'react-native-svg';
 
+// Animated icon button with hover/press effects
+function AnimatedIconButton({
+  onPress,
+  iconName,
+  iconColor,
+  bgColor,
+  activeBgColor,
+  spinOnPress = false,
+}: {
+  onPress: () => void;
+  iconName: 'arrow-left' | 'refresh';
+  iconColor: string;
+  bgColor: string;
+  activeBgColor: string;
+  spinOnPress?: boolean;
+}) {
+  const scale = useSharedValue(1);
+  const rotation = useSharedValue(0);
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.9, { damping: 15, stiffness: 300 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+  };
+
+  const handlePress = () => {
+    if (spinOnPress) {
+      rotation.value = withSequence(
+        withTiming(rotation.value + 360, { duration: 500, easing: Easing.out(Easing.cubic) })
+      );
+    }
+    onPress();
+  };
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: scale.value },
+      { rotate: `${rotation.value}deg` },
+    ],
+  }));
+
+  return (
+    <Pressable
+      onPress={handlePress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      style={{ width: 40, height: 40 }}
+    >
+      <Animated.View
+        style={[
+          animatedStyle,
+          {
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            backgroundColor: bgColor,
+            alignItems: 'center',
+            justifyContent: 'center',
+          },
+        ]}
+      >
+        <FontAwesome name={iconName} size={18} color={iconColor} />
+      </Animated.View>
+    </Pressable>
+  );
+}
+
 // Menorah illustration - the golden Menorah from the Beis Hamikdash
 function MenorahImage({ width, height }: { width: number; height: number }) {
   return (
     <Svg width={width} height={height} viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice">
       <Defs>
         <LinearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <Stop offset="0%" stopColor="#1e3a5f" />
-          <Stop offset="50%" stopColor="#0f2744" />
-          <Stop offset="100%" stopColor="#0a1628" />
+          <Stop offset="0%" stopColor="#1a237e" />
+          <Stop offset="50%" stopColor="#0d1b4a" />
+          <Stop offset="100%" stopColor="#060d24" />
         </LinearGradient>
         <LinearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
           <Stop offset="0%" stopColor="#ffd700" />
-          <Stop offset="30%" stopColor="#ffec8b" />
+          <Stop offset="25%" stopColor="#ffec8b" />
           <Stop offset="50%" stopColor="#ffd700" />
-          <Stop offset="70%" stopColor="#daa520" />
+          <Stop offset="75%" stopColor="#daa520" />
           <Stop offset="100%" stopColor="#b8860b" />
+        </LinearGradient>
+        <LinearGradient id="goldLight" x1="0%" y1="0%" x2="0%" y2="100%">
+          <Stop offset="0%" stopColor="#fff8dc" />
+          <Stop offset="50%" stopColor="#ffd700" />
+          <Stop offset="100%" stopColor="#daa520" />
         </LinearGradient>
         <LinearGradient id="goldDark" x1="0%" y1="0%" x2="0%" y2="100%">
           <Stop offset="0%" stopColor="#daa520" />
           <Stop offset="100%" stopColor="#8b6914" />
         </LinearGradient>
         <LinearGradient id="flameGrad" x1="0%" y1="100%" x2="0%" y2="0%">
-          <Stop offset="0%" stopColor="#ff6b35" />
-          <Stop offset="40%" stopColor="#ff8c42" />
-          <Stop offset="70%" stopColor="#ffd700" />
-          <Stop offset="100%" stopColor="#fff8dc" />
+          <Stop offset="0%" stopColor="#ff4500" />
+          <Stop offset="30%" stopColor="#ff6b35" />
+          <Stop offset="60%" stopColor="#ffa500" />
+          <Stop offset="85%" stopColor="#ffd700" />
+          <Stop offset="100%" stopColor="#fffacd" />
+        </LinearGradient>
+        <LinearGradient id="flameInner" x1="0%" y1="100%" x2="0%" y2="0%">
+          <Stop offset="0%" stopColor="#ffcc00" />
+          <Stop offset="50%" stopColor="#fff8dc" />
+          <Stop offset="100%" stopColor="#ffffff" />
         </LinearGradient>
       </Defs>
 
       {/* Background */}
       <Rect x="0" y="0" width="400" height="400" fill="url(#bgGrad)" />
 
-      {/* Stars in the background */}
-      <Circle cx="50" cy="40" r="1.5" fill="white" opacity="0.7" />
-      <Circle cx="120" cy="25" r="1" fill="white" opacity="0.5" />
-      <Circle cx="280" cy="35" r="1.5" fill="white" opacity="0.6" />
-      <Circle cx="350" cy="50" r="1" fill="white" opacity="0.8" />
-      <Circle cx="380" cy="20" r="1.2" fill="white" opacity="0.5" />
-      <Circle cx="30" cy="80" r="1" fill="white" opacity="0.6" />
-      <Circle cx="320" cy="75" r="1.3" fill="white" opacity="0.7" />
+      {/* Stars */}
+      <Circle cx="45" cy="35" r="1.5" fill="white" opacity="0.8" />
+      <Circle cx="90" cy="55" r="1" fill="white" opacity="0.5" />
+      <Circle cx="130" cy="25" r="1.2" fill="white" opacity="0.6" />
+      <Circle cx="270" cy="30" r="1.5" fill="white" opacity="0.7" />
+      <Circle cx="310" cy="55" r="1" fill="white" opacity="0.5" />
+      <Circle cx="355" cy="40" r="1.3" fill="white" opacity="0.8" />
+      <Circle cx="375" cy="75" r="1" fill="white" opacity="0.4" />
+      <Circle cx="25" cy="85" r="1.2" fill="white" opacity="0.6" />
+      <Circle cx="60" cy="120" r="0.8" fill="white" opacity="0.4" />
+      <Circle cx="340" cy="110" r="0.8" fill="white" opacity="0.4" />
 
-      {/* Base platform */}
-      <Rect x="100" y="360" width="200" height="20" rx="3" fill="url(#goldDark)" />
-      <Rect x="120" y="350" width="160" height="15" rx="2" fill="url(#goldGrad)" />
+      {/* Stepped base - three tiers like the Beis Hamikdash menorah */}
+      <Rect x="90" y="365" width="220" height="18" rx="2" fill="url(#goldDark)" />
+      <Rect x="105" y="352" width="190" height="16" rx="2" fill="url(#goldGrad)" />
+      <Rect x="120" y="340" width="160" height="14" rx="2" fill="url(#goldLight)" />
 
-      {/* Main stem base */}
-      <Ellipse cx="200" cy="345" rx="30" ry="8" fill="url(#goldDark)" />
-      <Rect x="185" y="280" width="30" height="70" fill="url(#goldGrad)" />
+      {/* Main central stem with decorative elements */}
+      <Rect x="188" y="150" width="24" height="190" fill="url(#goldGrad)" />
 
-      {/* Decorative bulbs on stem */}
-      <Ellipse cx="200" cy="300" rx="18" ry="10" fill="url(#goldGrad)" />
-      <Ellipse cx="200" cy="320" rx="15" ry="8" fill="url(#goldGrad)" />
+      {/* Central stem decorative knobs (kaftorim) */}
+      <Ellipse cx="200" cy="320" rx="20" ry="12" fill="url(#goldLight)" />
+      <Ellipse cx="200" cy="290" rx="16" ry="9" fill="url(#goldGrad)" />
+      <Ellipse cx="200" cy="260" rx="14" ry="8" fill="url(#goldLight)" />
+      <Ellipse cx="200" cy="230" rx="12" ry="7" fill="url(#goldGrad)" />
 
-      {/* Central branch top */}
-      <Rect x="190" y="90" width="20" height="195" fill="url(#goldGrad)" />
+      {/* Seven branches - proper curved branches */}
+      {/* Outer left branch */}
+      <Path
+        d="M 188 290 C 140 290 70 250 70 150 L 70 95"
+        stroke="url(#goldGrad)"
+        strokeWidth="14"
+        fill="none"
+        strokeLinecap="round"
+      />
+      {/* Middle left branch */}
+      <Path
+        d="M 188 260 C 150 260 110 230 110 150 L 110 115"
+        stroke="url(#goldGrad)"
+        strokeWidth="14"
+        fill="none"
+        strokeLinecap="round"
+      />
+      {/* Inner left branch */}
+      <Path
+        d="M 188 230 C 160 230 150 200 150 150 L 150 135"
+        stroke="url(#goldGrad)"
+        strokeWidth="14"
+        fill="none"
+        strokeLinecap="round"
+      />
 
-      {/* Central cup */}
-      <Path d="M 185 90 Q 185 80 200 75 Q 215 80 215 90 L 210 100 L 190 100 Z" fill="url(#goldGrad)" />
+      {/* Outer right branch */}
+      <Path
+        d="M 212 290 C 260 290 330 250 330 150 L 330 95"
+        stroke="url(#goldGrad)"
+        strokeWidth="14"
+        fill="none"
+        strokeLinecap="round"
+      />
+      {/* Middle right branch */}
+      <Path
+        d="M 212 260 C 250 260 290 230 290 150 L 290 115"
+        stroke="url(#goldGrad)"
+        strokeWidth="14"
+        fill="none"
+        strokeLinecap="round"
+      />
+      {/* Inner right branch */}
+      <Path
+        d="M 212 230 C 240 230 250 200 250 150 L 250 135"
+        stroke="url(#goldGrad)"
+        strokeWidth="14"
+        fill="none"
+        strokeLinecap="round"
+      />
 
-      {/* Central flame */}
+      {/* Central stem top */}
+      <Rect x="188" y="75" width="24" height="80" fill="url(#goldGrad)" />
+
+      {/* Oil cups - goblet shaped */}
+      {/* Center cup */}
+      <Path d="M 185 75 L 188 90 L 212 90 L 215 75 Q 200 65 185 75 Z" fill="url(#goldLight)" />
+      {/* Left cups */}
+      <Path d="M 55 95 L 58 110 L 82 110 L 85 95 Q 70 85 55 95 Z" fill="url(#goldLight)" />
+      <Path d="M 95 115 L 98 130 L 122 130 L 125 115 Q 110 105 95 115 Z" fill="url(#goldLight)" />
+      <Path d="M 135 135 L 138 150 L 162 150 L 165 135 Q 150 125 135 135 Z" fill="url(#goldLight)" />
+      {/* Right cups */}
+      <Path d="M 315 95 L 318 110 L 342 110 L 345 95 Q 330 85 315 95 Z" fill="url(#goldLight)" />
+      <Path d="M 275 115 L 278 130 L 302 130 L 305 115 Q 290 105 275 115 Z" fill="url(#goldLight)" />
+      <Path d="M 235 135 L 238 150 L 262 150 L 265 135 Q 250 125 235 135 Z" fill="url(#goldLight)" />
+
+      {/* Flames - seven flames */}
+      {/* Center flame */}
       <G transform="translate(200, 45)">
-        <Path d="M 0 30 Q -8 20 -6 10 Q -5 0 0 -15 Q 5 0 6 10 Q 8 20 0 30 Z" fill="url(#flameGrad)" />
-        <Path d="M 0 25 Q -4 18 -3 10 Q -2 5 0 -5 Q 2 5 3 10 Q 4 18 0 25 Z" fill="#fff8dc" opacity="0.8" />
+        <Ellipse cx="0" cy="15" rx="15" ry="20" fill="#ffd700" opacity="0.3" />
+        <Path d="M 0 30 C -10 20 -8 5 0 -18 C 8 5 10 20 0 30 Z" fill="url(#flameGrad)" />
+        <Path d="M 0 25 C -5 18 -4 8 0 -8 C 4 8 5 18 0 25 Z" fill="url(#flameInner)" />
       </G>
 
-      {/* Branch structure - curved branches connecting to cups */}
-      {/* Left branches */}
-      <Path d="M 185 280 Q 100 280 80 180 L 80 100" stroke="url(#goldGrad)" strokeWidth="12" fill="none" strokeLinecap="round" />
-      <Path d="M 185 260 Q 120 260 110 180 L 110 120" stroke="url(#goldGrad)" strokeWidth="12" fill="none" strokeLinecap="round" />
-      <Path d="M 185 240 Q 140 240 140 180 L 140 140" stroke="url(#goldGrad)" strokeWidth="12" fill="none" strokeLinecap="round" />
-
-      {/* Right branches */}
-      <Path d="M 215 280 Q 300 280 320 180 L 320 100" stroke="url(#goldGrad)" strokeWidth="12" fill="none" strokeLinecap="round" />
-      <Path d="M 215 260 Q 280 260 290 180 L 290 120" stroke="url(#goldGrad)" strokeWidth="12" fill="none" strokeLinecap="round" />
-      <Path d="M 215 240 Q 260 240 260 180 L 260 140" stroke="url(#goldGrad)" strokeWidth="12" fill="none" strokeLinecap="round" />
-
-      {/* Left cups and flames */}
-      <G transform="translate(80, 60)">
-        <Path d="M -10 40 Q -10 30 0 25 Q 10 30 10 40 L 8 50 L -8 50 Z" fill="url(#goldGrad)" />
-        <Path d="M 0 25 Q -6 18 -5 10 Q -4 0 0 -10 Q 4 0 5 10 Q 6 18 0 25 Z" fill="url(#flameGrad)" />
-        <Path d="M 0 22 Q -3 16 -2 10 Q -1 4 0 -3 Q 1 4 2 10 Q 3 16 0 22 Z" fill="#fff8dc" opacity="0.7" />
+      {/* Left flames */}
+      <G transform="translate(70, 65)">
+        <Ellipse cx="0" cy="12" rx="12" ry="16" fill="#ffd700" opacity="0.25" />
+        <Path d="M 0 25 C -8 17 -7 5 0 -14 C 7 5 8 17 0 25 Z" fill="url(#flameGrad)" />
+        <Path d="M 0 20 C -4 14 -3 6 0 -6 C 3 6 4 14 0 20 Z" fill="url(#flameInner)" />
+      </G>
+      <G transform="translate(110, 85)">
+        <Ellipse cx="0" cy="12" rx="12" ry="16" fill="#ffd700" opacity="0.25" />
+        <Path d="M 0 25 C -8 17 -7 5 0 -14 C 7 5 8 17 0 25 Z" fill="url(#flameGrad)" />
+        <Path d="M 0 20 C -4 14 -3 6 0 -6 C 3 6 4 14 0 20 Z" fill="url(#flameInner)" />
+      </G>
+      <G transform="translate(150, 105)">
+        <Ellipse cx="0" cy="12" rx="12" ry="16" fill="#ffd700" opacity="0.25" />
+        <Path d="M 0 25 C -8 17 -7 5 0 -14 C 7 5 8 17 0 25 Z" fill="url(#flameGrad)" />
+        <Path d="M 0 20 C -4 14 -3 6 0 -6 C 3 6 4 14 0 20 Z" fill="url(#flameInner)" />
       </G>
 
-      <G transform="translate(110, 80)">
-        <Path d="M -10 40 Q -10 30 0 25 Q 10 30 10 40 L 8 50 L -8 50 Z" fill="url(#goldGrad)" />
-        <Path d="M 0 25 Q -6 18 -5 10 Q -4 0 0 -10 Q 4 0 5 10 Q 6 18 0 25 Z" fill="url(#flameGrad)" />
-        <Path d="M 0 22 Q -3 16 -2 10 Q -1 4 0 -3 Q 1 4 2 10 Q 3 16 0 22 Z" fill="#fff8dc" opacity="0.7" />
+      {/* Right flames */}
+      <G transform="translate(330, 65)">
+        <Ellipse cx="0" cy="12" rx="12" ry="16" fill="#ffd700" opacity="0.25" />
+        <Path d="M 0 25 C -8 17 -7 5 0 -14 C 7 5 8 17 0 25 Z" fill="url(#flameGrad)" />
+        <Path d="M 0 20 C -4 14 -3 6 0 -6 C 3 6 4 14 0 20 Z" fill="url(#flameInner)" />
+      </G>
+      <G transform="translate(290, 85)">
+        <Ellipse cx="0" cy="12" rx="12" ry="16" fill="#ffd700" opacity="0.25" />
+        <Path d="M 0 25 C -8 17 -7 5 0 -14 C 7 5 8 17 0 25 Z" fill="url(#flameGrad)" />
+        <Path d="M 0 20 C -4 14 -3 6 0 -6 C 3 6 4 14 0 20 Z" fill="url(#flameInner)" />
+      </G>
+      <G transform="translate(250, 105)">
+        <Ellipse cx="0" cy="12" rx="12" ry="16" fill="#ffd700" opacity="0.25" />
+        <Path d="M 0 25 C -8 17 -7 5 0 -14 C 7 5 8 17 0 25 Z" fill="url(#flameGrad)" />
+        <Path d="M 0 20 C -4 14 -3 6 0 -6 C 3 6 4 14 0 20 Z" fill="url(#flameInner)" />
       </G>
 
-      <G transform="translate(140, 100)">
-        <Path d="M -10 40 Q -10 30 0 25 Q 10 30 10 40 L 8 50 L -8 50 Z" fill="url(#goldGrad)" />
-        <Path d="M 0 25 Q -6 18 -5 10 Q -4 0 0 -10 Q 4 0 5 10 Q 6 18 0 25 Z" fill="url(#flameGrad)" />
-        <Path d="M 0 22 Q -3 16 -2 10 Q -1 4 0 -3 Q 1 4 2 10 Q 3 16 0 22 Z" fill="#fff8dc" opacity="0.7" />
-      </G>
+      {/* Decorative flowers on branches (perachim) */}
+      <Circle cx="85" cy="220" r="8" fill="url(#goldLight)" />
+      <Circle cx="115" cy="195" r="7" fill="url(#goldGrad)" />
+      <Circle cx="145" cy="175" r="6" fill="url(#goldLight)" />
+      <Circle cx="315" cy="220" r="8" fill="url(#goldLight)" />
+      <Circle cx="285" cy="195" r="7" fill="url(#goldGrad)" />
+      <Circle cx="255" cy="175" r="6" fill="url(#goldLight)" />
 
-      {/* Right cups and flames */}
-      <G transform="translate(320, 60)">
-        <Path d="M -10 40 Q -10 30 0 25 Q 10 30 10 40 L 8 50 L -8 50 Z" fill="url(#goldGrad)" />
-        <Path d="M 0 25 Q -6 18 -5 10 Q -4 0 0 -10 Q 4 0 5 10 Q 6 18 0 25 Z" fill="url(#flameGrad)" />
-        <Path d="M 0 22 Q -3 16 -2 10 Q -1 4 0 -3 Q 1 4 2 10 Q 3 16 0 22 Z" fill="#fff8dc" opacity="0.7" />
-      </G>
-
-      <G transform="translate(290, 80)">
-        <Path d="M -10 40 Q -10 30 0 25 Q 10 30 10 40 L 8 50 L -8 50 Z" fill="url(#goldGrad)" />
-        <Path d="M 0 25 Q -6 18 -5 10 Q -4 0 0 -10 Q 4 0 5 10 Q 6 18 0 25 Z" fill="url(#flameGrad)" />
-        <Path d="M 0 22 Q -3 16 -2 10 Q -1 4 0 -3 Q 1 4 2 10 Q 3 16 0 22 Z" fill="#fff8dc" opacity="0.7" />
-      </G>
-
-      <G transform="translate(260, 100)">
-        <Path d="M -10 40 Q -10 30 0 25 Q 10 30 10 40 L 8 50 L -8 50 Z" fill="url(#goldGrad)" />
-        <Path d="M 0 25 Q -6 18 -5 10 Q -4 0 0 -10 Q 4 0 5 10 Q 6 18 0 25 Z" fill="url(#flameGrad)" />
-        <Path d="M 0 22 Q -3 16 -2 10 Q -1 4 0 -3 Q 1 4 2 10 Q 3 16 0 22 Z" fill="#fff8dc" opacity="0.7" />
-      </G>
-
-      {/* Glow effect around flames */}
-      <Circle cx="80" cy="55" r="20" fill="#ffd700" opacity="0.15" />
-      <Circle cx="110" cy="75" r="18" fill="#ffd700" opacity="0.12" />
-      <Circle cx="140" cy="95" r="16" fill="#ffd700" opacity="0.1" />
-      <Circle cx="200" cy="40" r="25" fill="#ffd700" opacity="0.2" />
-      <Circle cx="260" cy="95" r="16" fill="#ffd700" opacity="0.1" />
-      <Circle cx="290" cy="75" r="18" fill="#ffd700" opacity="0.12" />
-      <Circle cx="320" cy="55" r="20" fill="#ffd700" opacity="0.15" />
-
-      {/* Decorative almond shapes on branches (kaftorim) */}
-      <Ellipse cx="95" cy="220" rx="6" ry="10" fill="url(#goldGrad)" />
-      <Ellipse cx="125" cy="200" rx="6" ry="10" fill="url(#goldGrad)" />
-      <Ellipse cx="155" cy="180" rx="6" ry="10" fill="url(#goldGrad)" />
-      <Ellipse cx="305" cy="220" rx="6" ry="10" fill="url(#goldGrad)" />
-      <Ellipse cx="275" cy="200" rx="6" ry="10" fill="url(#goldGrad)" />
-      <Ellipse cx="245" cy="180" rx="6" ry="10" fill="url(#goldGrad)" />
+      {/* Glow effect from flames */}
+      <Ellipse cx="200" cy="60" rx="100" ry="50" fill="#ffd700" opacity="0.08" />
+      <Ellipse cx="200" cy="80" rx="150" ry="60" fill="#ff8c00" opacity="0.04" />
     </Svg>
   );
 }
@@ -173,6 +300,7 @@ interface PieceComponentProps {
   gridRows: number;
   gridCols: number;
   boardOffset: { x: number; y: number };
+  gameKey: number;
 }
 
 function PieceComponent({
@@ -187,6 +315,7 @@ function PieceComponent({
   gridRows,
   gridCols,
   boardOffset,
+  gameKey,
 }: PieceComponentProps) {
   const isWeb = Platform.OS === 'web';
   const scale = useSharedValue(1);
@@ -196,11 +325,12 @@ function PieceComponent({
   const entranceScale = useSharedValue(0);
 
   useEffect(() => {
+    entranceScale.value = 0;
     entranceScale.value = withDelay(
       piece.id * 50,
       withSpring(1, { damping: 12, stiffness: 100 })
     );
-  }, [piece.id]);
+  }, [piece.id, gameKey]);
 
   const handlePlacement = useCallback((x: number, y: number) => {
     const relativeX = x - boardOffset.x;
@@ -511,6 +641,7 @@ export default function JigsawMenorahGame() {
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
+  const [gameKey, setGameKey] = useState(0);
 
   const puzzleSize = useMemo(() => {
     const padding = isWeb ? 100 : 40;
@@ -576,6 +707,7 @@ export default function JigsawMenorahGame() {
     setStartTime(null);
     setElapsedTime(0);
     setGameStarted(false);
+    setGameKey(k => k + 1);
   }, []);
 
   useEffect(() => {
@@ -681,12 +813,13 @@ export default function JigsawMenorahGame() {
         {/* Header */}
         <View className="bg-white border-b border-slate-200">
           <View className="flex-row items-center justify-between px-4 py-3">
-            <Pressable
+            <AnimatedIconButton
               onPress={() => router.back()}
-              className="w-10 h-10 rounded-full bg-slate-100 items-center justify-center active:bg-slate-200"
-            >
-              <FontAwesome name="arrow-left" size={18} color="#64748b" />
-            </Pressable>
+              iconName="arrow-left"
+              iconColor="#64748b"
+              bgColor="#f1f5f9"
+              activeBgColor="#e2e8f0"
+            />
 
             <View className="items-center flex-1 mx-4">
               <Text className={`font-bold text-slate-800 ${isWeb ? 'text-xl' : 'text-lg'}`}>
@@ -695,12 +828,14 @@ export default function JigsawMenorahGame() {
               <Text className="text-slate-500 text-xs mt-0.5">The Golden Menorah</Text>
             </View>
 
-            <Pressable
+            <AnimatedIconButton
               onPress={initializeGame}
-              className="w-10 h-10 rounded-full bg-amber-50 items-center justify-center active:bg-amber-100"
-            >
-              <FontAwesome name="refresh" size={18} color="#d97706" />
-            </Pressable>
+              iconName="refresh"
+              iconColor="#d97706"
+              bgColor="#fffbeb"
+              activeBgColor="#fef3c7"
+              spinOnPress
+            />
           </View>
 
           {/* Stats Bar */}
@@ -776,7 +911,7 @@ export default function JigsawMenorahGame() {
             {/* Puzzle pieces */}
             {pieces.map(piece => (
               <PieceComponent
-                key={piece.id}
+                key={`${gameKey}-${piece.id}`}
                 piece={piece}
                 pieceWidth={pieceWidth}
                 pieceHeight={pieceHeight}
@@ -788,6 +923,7 @@ export default function JigsawMenorahGame() {
                 gridRows={GRID_ROWS}
                 gridCols={GRID_COLS}
                 boardOffset={boardOffset}
+                gameKey={gameKey}
               />
             ))}
           </View>

@@ -1,6 +1,7 @@
-import { View, Text, Pressable, Platform } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { GameCarousel } from './GameCarousel';
+import { useIsMobileLayout } from '@/hooks/useDeviceType';
 import type { GameCategory, Game } from '@/types/game';
 
 interface CategoryRowProps {
@@ -16,13 +17,13 @@ export function CategoryRow({
   onSeeAll,
   onGamePress
 }: CategoryRowProps) {
-  const isWeb = Platform.OS === 'web';
+  const isMobile = useIsMobileLayout();
 
   return (
     <View className="mb-6">
       {/* Header - simple title only */}
       <View className="flex-row items-center justify-between px-4 mb-3">
-        <Text className={`font-bold text-slate-800 ${isWeb ? 'text-xl' : 'text-lg'}`}>
+        <Text className={`font-bold text-slate-800 ${isMobile ? 'text-lg' : 'text-xl'}`}>
           {category.title}
         </Text>
 

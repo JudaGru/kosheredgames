@@ -1,4 +1,4 @@
-import { ScrollView, View, Platform, RefreshControl } from 'react-native';
+import { ScrollView, View, RefreshControl } from 'react-native';
 import { useState, useCallback } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Header } from '@/components/Header';
 import { CategoryRow } from '@/components/CategoryRow';
 import { NavigationLoader } from '@/components/NavigationLoader';
+import { useIsMobileLayout } from '@/hooks/useDeviceType';
 import { gameCategories } from '@/data/games';
 import type { Game } from '@/types/game';
 
@@ -15,7 +16,7 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [navigating, setNavigating] = useState(false);
   const [navigatingGameTitle, setNavigatingGameTitle] = useState<string | undefined>();
-  const isWeb = Platform.OS === 'web';
+  const isMobile = useIsMobileLayout();
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -162,7 +163,7 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingTop: 16 }}
         refreshControl={
-          !isWeb ? (
+          isMobile ? (
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
@@ -173,7 +174,7 @@ export default function HomeScreen() {
         }
       >
         {/* Game Categories */}
-        <View className={`${isWeb ? 'pb-12' : 'pb-28'}`}>
+        <View className={`${isMobile ? 'pb-28' : 'pb-12'}`}>
           {gameCategories.map((category) => (
             <CategoryRow
               key={category.id}

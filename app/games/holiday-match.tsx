@@ -15,6 +15,7 @@ import Animated, {
   withTiming
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDeviceType } from '@/hooks/useDeviceType';
 
 // Jewish Holidays data
 const HOLIDAYS_DATA = [
@@ -639,7 +640,7 @@ function VictoryScreen({ playerCount, players, playerMatches, elapsedTime, onPla
 }
 
 export default function HolidayMatchGame() {
-  const isWeb = Platform.OS === 'web';
+  const { isMobile } = useDeviceType();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const [gameStarted, setGameStarted] = useState(false);
   const [playerCount, setPlayerCount] = useState(1);
@@ -657,19 +658,21 @@ export default function HolidayMatchGame() {
 
   const calculateCardSize = useCallback(() => {
     const padding = 16;
-    const headerHeight = isWeb ? 160 : 200;
+    const headerHeight = isMobile ? 200 : 160;
     const availableWidth = screenWidth - padding;
     const availableHeight = screenHeight - headerHeight - padding;
-    if (isWeb) {
-      const maxCardWidth = (availableWidth - 60) / 6;
-      const maxCardHeight = (availableHeight - 40) / 4 / 1.25;
-      return Math.min(maxCardWidth, maxCardHeight, 80);
-    } else {
+    if (isMobile) {
+      // Mobile layout: 4 columns, 6 rows
       const maxCardWidth = (availableWidth - 30) / 4;
       const maxCardHeight = (availableHeight - 50) / 6 / 1.25;
       return Math.min(maxCardWidth, maxCardHeight, 65);
+    } else {
+      // Desktop layout: 6 columns, 4 rows
+      const maxCardWidth = (availableWidth - 60) / 6;
+      const maxCardHeight = (availableHeight - 40) / 4 / 1.25;
+      return Math.min(maxCardWidth, maxCardHeight, 80);
     }
-  }, [screenWidth, screenHeight, isWeb]);
+  }, [screenWidth, screenHeight, isMobile]);
 
   const cardSize = calculateCardSize();
 
@@ -746,7 +749,7 @@ export default function HolidayMatchGame() {
   };
 
   const formatTime = (seconds: number) => `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, '0')}`;
-  const columns = isWeb ? 6 : 4;
+  const columns = isMobile ? 4 : 6;
   const gridWidth = columns * (cardSize + (cardSize > 60 ? 10 : 6));
   const allMatched = Array.from(playerMatches.values()).reduce((acc, set) => new Set([...acc, ...set]), new Set<string>());
 
@@ -760,7 +763,7 @@ export default function HolidayMatchGame() {
         <View className="flex-row items-center justify-between px-4 py-3">
           <HeaderButton onPress={() => setGameStarted(false)} icon="arrow-left" />
           <View className="items-center flex-1 mx-4">
-            <Text className={`font-bold text-violet-900 ${isWeb ? 'text-xl' : 'text-lg'}`}>Yomim Tovim</Text>
+            <Text className={`font-bold text-violet-900 ${isMobile ? 'text-lg' : 'text-xl'}`}>Yomim Tovim</Text>
           </View>
           <HeaderButton onPress={() => initializeGame()} icon="refresh" />
         </View>
@@ -773,14 +776,14 @@ export default function HolidayMatchGame() {
           </View>
         )}
 
-        <View className="flex-row justify-center py-3 bg-violet-50 border-t border-violet-100" style={{ gap: isWeb ? 48 : 32 }}>
+        <View className="flex-row justify-center py-3 bg-violet-50 border-t border-violet-100" style={{ gap: isMobile ? 32 : 48 }}>
           <View className="items-center">
             <Text className="text-xs text-violet-600 uppercase tracking-wide font-semibold">Time</Text>
-            <Text className={`font-bold text-violet-900 ${isWeb ? 'text-2xl' : 'text-xl'} mt-1`}>{formatTime(elapsedTime)}</Text>
+            <Text className={`font-bold text-violet-900 ${isMobile ? 'text-xl' : 'text-2xl'} mt-1`}>{formatTime(elapsedTime)}</Text>
           </View>
           <View className="items-center">
             <Text className="text-xs text-violet-600 uppercase tracking-wide font-semibold">Matched</Text>
-            <Text className={`font-bold text-violet-600 ${isWeb ? 'text-2xl' : 'text-xl'} mt-1`}>{Math.floor(allMatched.size / 2)}/12</Text>
+            <Text className={`font-bold text-violet-600 ${isMobile ? 'text-xl' : 'text-2xl'} mt-1`}>{Math.floor(allMatched.size / 2)}/12</Text>
           </View>
         </View>
       </View>

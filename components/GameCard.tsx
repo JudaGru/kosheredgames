@@ -1,4 +1,4 @@
-import { Pressable, View, Text, Platform } from 'react-native';
+import { Pressable, View, Text } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -6,6 +6,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { GameIllustration } from './illustrations';
+import { useDeviceType } from '@/hooks/useDeviceType';
 import type { Game } from '@/types/game';
 
 interface GameCardProps {
@@ -14,22 +15,25 @@ interface GameCardProps {
 }
 
 export function GameCard({ game, onPress }: GameCardProps) {
-  const isWeb = Platform.OS === 'web';
+  const { isWeb, isMobile } = useDeviceType();
 
   // Card dimensions - rectangular on desktop (16:10 ratio), square on mobile
-  const cardWidth = isWeb ? 220 : 120;
-  const cardHeight = isWeb ? 140 : 120;
+  const cardWidth = isMobile ? 120 : 220;
+  const cardHeight = isMobile ? 120 : 140;
 
   // Animation values
   const playButtonOpacity = useSharedValue(0);
 
+  // Only show hover effects on desktop web (not mobile web)
+  const showHoverEffects = isWeb && !isMobile;
+
   const handleHoverIn = () => {
-    if (!isWeb) return;
+    if (!showHoverEffects) return;
     playButtonOpacity.value = withTiming(1, { duration: 150, easing: Easing.out(Easing.cubic) });
   };
 
   const handleHoverOut = () => {
-    if (!isWeb) return;
+    if (!showHoverEffects) return;
     playButtonOpacity.value = withTiming(0, { duration: 150 });
   };
 
@@ -52,7 +56,7 @@ export function GameCard({ game, onPress }: GameCardProps) {
     >
       <Pressable
         onPress={onPress}
-        {...(isWeb
+        {...(showHoverEffects
           ? {
               onMouseEnter: handleHoverIn,
               onMouseLeave: handleHoverOut,
@@ -94,8 +98,8 @@ export function GameCard({ game, onPress }: GameCardProps) {
           </Text>
         </View>
 
-        {/* Play button overlay on hover */}
-        {isWeb && (
+        {/* Play button overlay on hover - desktop only */}
+        {showHoverEffects && (
           <Animated.View
             style={[
               playButtonStyle,

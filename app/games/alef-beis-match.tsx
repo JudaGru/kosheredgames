@@ -17,6 +17,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useDeviceType } from '@/hooks/useDeviceType';
+
 // Complete Hebrew Alef-Beis - all 22 letters
 const ALEF_BEIS_DATA = [
   { id: 'alef', letter: 'א', name: 'Alef', color: '#ef4444' },
@@ -849,7 +851,7 @@ function VictoryScreen({
 }
 
 export default function AlefBeisMatchGame() {
-  const isWeb = Platform.OS === 'web';
+  const { isMobile } = useDeviceType();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const [gameStarted, setGameStarted] = useState(false);
   const [playerCount, setPlayerCount] = useState(1);
@@ -873,21 +875,21 @@ export default function AlefBeisMatchGame() {
 
   const calculateCardSize = useCallback(() => {
     const padding = 16;
-    const headerHeight = isWeb ? 160 : 200;
+    const headerHeight = isMobile ? 200 : 160;
     const availableWidth = screenWidth - padding;
     const availableHeight = screenHeight - headerHeight - padding;
 
     // 44 cards: web = 11 columns x 4 rows, mobile = 6 columns x 8 rows
-    if (isWeb) {
-      const maxCardWidth = (availableWidth - 100) / 11;
-      const maxCardHeight = (availableHeight - 30) / 4 / 1.25;
-      return Math.min(maxCardWidth, maxCardHeight, 75);
-    } else {
+    if (isMobile) {
       const maxCardWidth = (availableWidth - 36) / 6;
       const maxCardHeight = (availableHeight - 60) / 8 / 1.25;
       return Math.min(maxCardWidth, maxCardHeight, 50);
+    } else {
+      const maxCardWidth = (availableWidth - 100) / 11;
+      const maxCardHeight = (availableHeight - 30) / 4 / 1.25;
+      return Math.min(maxCardWidth, maxCardHeight, 75);
     }
-  }, [screenWidth, screenHeight, isWeb]);
+  }, [screenWidth, screenHeight, isMobile]);
 
   const cardSize = calculateCardSize();
 
@@ -1024,7 +1026,7 @@ export default function AlefBeisMatchGame() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const columns = isWeb ? 11 : 6;
+  const columns = isMobile ? 6 : 11;
   const gridWidth = columns * (cardSize + (cardSize > 60 ? 10 : 6));
   const allMatched = Array.from(playerMatches.values()).reduce(
     (acc, set) => new Set([...acc, ...set]),
@@ -1064,8 +1066,8 @@ export default function AlefBeisMatchGame() {
               setGameStarted(false);
               setPlayerCount(1);
             }}
-            onHoverIn={isWeb ? () => setBackButtonHovered(true) : undefined}
-            onHoverOut={isWeb ? () => setBackButtonHovered(false) : undefined}
+            onHoverIn={isMobile ? undefined : () => setBackButtonHovered(true)}
+            onHoverOut={isMobile ? undefined : () => setBackButtonHovered(false)}
             style={{
               width: 40,
               height: 40,
@@ -1079,15 +1081,15 @@ export default function AlefBeisMatchGame() {
           </Pressable>
 
           <View className="items-center flex-1 mx-4">
-            <Text className={`font-bold text-amber-900 ${isWeb ? 'text-xl' : 'text-lg'}`}>
+            <Text className={`font-bold text-amber-900 ${isMobile ? 'text-lg' : 'text-xl'}`}>
               Alef-Beis
             </Text>
           </View>
 
           <Pressable
             onPress={() => initializeGame()}
-            onHoverIn={isWeb ? () => setRefreshButtonHovered(true) : undefined}
-            onHoverOut={isWeb ? () => setRefreshButtonHovered(false) : undefined}
+            onHoverIn={isMobile ? undefined : () => setRefreshButtonHovered(true)}
+            onHoverOut={isMobile ? undefined : () => setRefreshButtonHovered(false)}
             style={{
               width: 40,
               height: 40,
@@ -1121,17 +1123,17 @@ export default function AlefBeisMatchGame() {
         {/* Stats Bar */}
         <View
           className="flex-row justify-center py-3 bg-amber-50 border-t border-amber-100"
-          style={{ gap: isWeb ? 48 : 32 }}
+          style={{ gap: isMobile ? 32 : 48 }}
         >
           <View className="items-center">
             <Text className="text-xs text-amber-600 uppercase tracking-wide font-semibold">Time</Text>
-            <Text className={`font-bold text-amber-900 ${isWeb ? 'text-2xl' : 'text-xl'} mt-1`}>
+            <Text className={`font-bold text-amber-900 ${isMobile ? 'text-xl' : 'text-2xl'} mt-1`}>
               {formatTime(elapsedTime)}
             </Text>
           </View>
           <View className="items-center">
             <Text className="text-xs text-amber-600 uppercase tracking-wide font-semibold">Matched</Text>
-            <Text className={`font-bold text-amber-600 ${isWeb ? 'text-2xl' : 'text-xl'} mt-1`}>
+            <Text className={`font-bold text-amber-600 ${isMobile ? 'text-xl' : 'text-2xl'} mt-1`}>
               {Math.floor(allMatched.size / 2)}/{totalPairs}
             </Text>
           </View>
