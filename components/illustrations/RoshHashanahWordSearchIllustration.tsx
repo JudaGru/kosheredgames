@@ -1,0 +1,138 @@
+import Svg, { Circle, Defs, G, LinearGradient, Path, Rect, Stop, Text as SvgText, Ellipse } from 'react-native-svg';
+
+interface RoshHashanahWordSearchIllustrationProps {
+  width: number;
+  height: number;
+  primaryColor?: string;
+  secondaryColor?: string;
+  accentColor?: string;
+}
+
+export function RoshHashanahWordSearchIllustration({
+  width,
+  height,
+  primaryColor = '#d97706',
+  secondaryColor = '#fbbf24',
+  accentColor = '#fde047',
+}: RoshHashanahWordSearchIllustrationProps) {
+  // Letters for SHOFAR (shorter to fit well)
+  const letters = ['S', 'H', 'O', 'F', 'A', 'R'];
+
+  return (
+    <Svg width={width} height={height} viewBox="0 0 220 140" preserveAspectRatio="xMidYMid slice">
+      <Defs>
+        <LinearGradient id="roshHashanahBg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <Stop offset="0%" stopColor={primaryColor} />
+          <Stop offset="100%" stopColor={secondaryColor} />
+        </LinearGradient>
+      </Defs>
+
+      {/* Background gradient */}
+      <Rect x="0" y="0" width="220" height="140" fill="url(#roshHashanahBg)" />
+
+      {/* Decorative circles in corners */}
+      <Circle cx="10" cy="10" r="20" fill="white" opacity="0.08" />
+      <Circle cx="210" cy="130" r="25" fill="white" opacity="0.06" />
+      <Circle cx="200" cy="15" r="8" fill="white" opacity="0.1" />
+
+      {/* Rosh Hashanah icons at top - Shofar, Apple and Honey */}
+      <G transform="translate(60, 3)">
+        {/* Shofar */}
+        <G transform="translate(0, 5)">
+          <Path
+            d="M10 30 Q2 26 2 18 Q2 10 10 6 Q18 2 30 2 Q38 4 42 10 L38 14 Q34 10 30 8 Q22 6 14 10 Q8 14 8 20 Q8 24 12 26 Z"
+            fill="#8b4513"
+          />
+          <Ellipse cx="40" cy="12" rx="4" ry="6" fill="#654321" />
+        </G>
+
+        {/* Apple */}
+        <G transform="translate(50, 8)">
+          <Circle cx="15" cy="18" r="14" fill="#dc2626" />
+          <Rect x="13" y="3" width="4" height="8" rx="2" fill="#8b4513" />
+          <Path d="M17 6 Q22 3 21 10" stroke="#22c55e" strokeWidth="2" fill="none" />
+        </G>
+
+        {/* Honey jar */}
+        <G transform="translate(85, 10)">
+          <Rect x="0" y="8" width="24" height="20" rx="3" fill={accentColor} />
+          <Rect x="2" y="3" width="20" height="7" rx="2" fill="#a0522d" />
+        </G>
+      </G>
+
+      {/* Word search letter tiles spelling SHOFAR */}
+      <G transform="translate(32, 58)">
+        {letters.map((letter, i) => {
+          const isHighlighted = i === 2 || i === 4; // Highlight O and A
+          return (
+            <G key={i} transform={`translate(${i * 26}, 0)`}>
+              {/* Card shadow */}
+              <Rect width="22" height="28" rx="4" fill="#000" opacity="0.12" transform="translate(2, 2)" />
+              {/* Card background */}
+              <Rect
+                width="22"
+                height="28"
+                rx="4"
+                fill={isHighlighted ? accentColor : 'white'}
+                stroke={isHighlighted ? '#eab308' : '#e2e8f0'}
+                strokeWidth={isHighlighted ? 2 : 1}
+              />
+              {/* Letter */}
+              <SvgText
+                x="11"
+                y="19"
+                fontSize="14"
+                fontWeight="bold"
+                fill={isHighlighted ? primaryColor : '#334155'}
+                textAnchor="middle"
+              >
+                {letter}
+              </SvgText>
+            </G>
+          );
+        })}
+      </G>
+
+      {/* Small grid preview on the right */}
+      <G transform="translate(160, 55)">
+        <Rect width="50" height="40" rx="6" fill="white" opacity="0.95" />
+        {/* Mini grid cells */}
+        {[0, 1, 2, 3].map((col) =>
+          [0, 1, 2].map((row) => (
+            <Rect
+              key={`${col}-${row}`}
+              x={5 + col * 11}
+              y={5 + row * 11}
+              width="9"
+              height="9"
+              rx="2"
+              fill={(row === 0 && col <= 2) ? accentColor : '#f1f5f9'}
+              opacity={(row === 0 && col <= 2) ? 0.6 : 1}
+            />
+          ))
+        )}
+      </G>
+
+      {/* Sparkle effects */}
+      <Circle cx="50" cy="55" r="3" fill={accentColor} opacity="0.8" />
+      <Circle cx="180" cy="50" r="2" fill="white" opacity="0.6" />
+      <Circle cx="15" cy="100" r="2" fill="white" opacity="0.5" />
+
+      {/* Title banner at bottom */}
+      <G transform="translate(110, 118)">
+        {/* Banner background */}
+        <Rect x="-55" y="-12" width="110" height="24" rx="12" fill="white" opacity="0.95" />
+        {/* Title text */}
+        <SvgText x="0" y="4" fontSize="11" fontWeight="bold" fill={primaryColor} textAnchor="middle">
+          Rosh Hashanah
+        </SvgText>
+      </G>
+
+      {/* Extra sparkle decorations */}
+      <Circle cx="15" cy="115" r="3" fill="white" opacity="0.5" />
+      <Circle cx="205" cy="100" r="2" fill="white" opacity="0.6" />
+    </Svg>
+  );
+}
+
+export default RoshHashanahWordSearchIllustration;
