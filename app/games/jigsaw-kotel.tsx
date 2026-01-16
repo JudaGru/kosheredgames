@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, Pressable, Text, useWindowDimensions, View } from 'react-native';
+import { useIsMobileLayout } from '../../hooks/useDeviceType';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, {
   Easing,
@@ -708,6 +709,7 @@ function VictoryScreen({
 
 export default function JigsawKotelGame() {
   const isWeb = Platform.OS === 'web';
+  const { isMobile } = useIsMobileLayout();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
   const GRID_ROWS = 3;
@@ -723,10 +725,10 @@ export default function JigsawKotelGame() {
   const [gameKey, setGameKey] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
 
-  // Calculate puzzle dimensions
+  // Calculate puzzle dimensions - use isMobile for layout decisions
   const puzzleSize = useMemo(() => {
-    const padding = isWeb ? 100 : 40;
-    const headerHeight = isWeb ? 140 : 180;
+    const padding = isMobile ? 40 : 100;
+    const headerHeight = isMobile ? 180 : 140;
     const maxWidth = Math.min(screenWidth - padding, 600);
     const maxHeight = screenHeight - headerHeight - padding;
 
@@ -741,7 +743,7 @@ export default function JigsawKotelGame() {
     }
 
     return { width, height };
-  }, [screenWidth, screenHeight, isWeb]);
+  }, [screenWidth, screenHeight, isMobile]);
 
   const pieceWidth = puzzleSize.width / GRID_COLS;
   const pieceHeight = puzzleSize.height / GRID_ROWS;
@@ -1006,7 +1008,7 @@ export default function JigsawKotelGame() {
             </Pressable>
 
             <View className="items-center flex-1 mx-4">
-              <Text className={`font-bold text-slate-800 ${isWeb ? 'text-xl' : 'text-lg'}`}>
+              <Text className={`font-bold text-slate-800 ${isMobile ? 'text-lg' : 'text-xl'}`}>
                 Kosel Puzzle
               </Text>
             </View>
@@ -1039,23 +1041,23 @@ export default function JigsawKotelGame() {
           {/* Stats Bar */}
           <View
             className="flex-row justify-center py-3 bg-slate-50 border-t border-slate-100"
-            style={{ gap: isWeb ? 48 : 24 }}
+            style={{ gap: isMobile ? 24 : 48 }}
           >
             <View className="items-center">
               <Text className="text-xs text-slate-400 uppercase tracking-wide font-semibold">Time</Text>
-              <Text className={`font-bold text-slate-800 ${isWeb ? 'text-xl' : 'text-lg'} mt-1`}>
+              <Text className={`font-bold text-slate-800 ${isMobile ? 'text-lg' : 'text-xl'} mt-1`}>
                 {formatTime(elapsedTime)}
               </Text>
             </View>
             <View className="items-center">
               <Text className="text-xs text-slate-400 uppercase tracking-wide font-semibold">Moves</Text>
-              <Text className={`font-bold text-slate-800 ${isWeb ? 'text-xl' : 'text-lg'} mt-1`}>
+              <Text className={`font-bold text-slate-800 ${isMobile ? 'text-lg' : 'text-xl'} mt-1`}>
                 {moves}
               </Text>
             </View>
             <View className="items-center">
               <Text className="text-xs text-slate-400 uppercase tracking-wide font-semibold">Placed</Text>
-              <Text className={`font-bold text-emerald-600 ${isWeb ? 'text-xl' : 'text-lg'} mt-1`}>
+              <Text className={`font-bold text-emerald-600 ${isMobile ? 'text-lg' : 'text-xl'} mt-1`}>
                 {placedCount}/{totalPieces}
               </Text>
             </View>
