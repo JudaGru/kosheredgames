@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import '../global.css';
 
-import { PageLoader } from '@/components/PageLoader';
+import { Loader } from '@/components/Loader';
 
 export {
   ErrorBoundary,
@@ -46,7 +46,7 @@ export default function RootLayout() {
   }, [loaded]);
 
   if (!loaded) {
-    return <PageLoader />;
+    return <Loader />;
   }
 
   return <RootLayoutNav />;

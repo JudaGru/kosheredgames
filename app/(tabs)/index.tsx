@@ -6,8 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { Header } from '@/components/Header';
 import { CategoryRow } from '@/components/CategoryRow';
-import { NavigationLoader } from '@/components/NavigationLoader';
-import { PageLoader } from '@/components/PageLoader';
+import { Loader } from '@/components/Loader';
 import { useIsMobileLayout } from '@/hooks/useDeviceType';
 import { gameCategories } from '@/data/games';
 import type { Game } from '@/types/game';
@@ -16,7 +15,6 @@ export default function HomeScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [navigating, setNavigating] = useState(false);
-  const [navigatingGameTitle, setNavigatingGameTitle] = useState<string | undefined>();
   const { isMobile, isLoading: isDetectingDevice } = useIsMobileLayout();
 
   const onRefresh = useCallback(() => {
@@ -26,116 +24,114 @@ export default function HomeScreen() {
     }, 1000);
   }, []);
 
-  const navigateToGame = useCallback((route: string, title: string) => {
-    setNavigatingGameTitle(title);
+  const navigateToGame = useCallback((route: string) => {
     setNavigating(true);
     // Navigate immediately - loader shows instantly
     router.push(route as any);
     // Reset after navigation completes
     setTimeout(() => {
       setNavigating(false);
-      setNavigatingGameTitle(undefined);
     }, 500);
   }, []);
 
   // Show loader while detecting device type on web - MUST be after all hooks
   if (isDetectingDevice) {
-    return <PageLoader />;
+    return <Loader />;
   }
 
   const handleGamePress = (game: Game) => {
     // Route to the appropriate game screen
     if (game.id === 'match-12-tribes') {
-      navigateToGame('/games/twelve-tribes', game.title);
+      navigateToGame('/games/twelve-tribes');
     } else if (game.id === 'word-hanukkah-search') {
-      navigateToGame('/games/hanukkah-word-search', game.title);
+      navigateToGame('/games/hanukkah-word-search');
     } else if (game.id === 'flash-bereishis-basics') {
-      navigateToGame('/games/bereishis-flashcards', game.title);
+      navigateToGame('/games/bereishis-flashcards');
     } else if (game.id === 'trivia-jewish-history') {
-      navigateToGame('/games/jewish-history-trivia', game.title);
+      navigateToGame('/games/jewish-history-trivia');
     } else if (game.id === 'sequence-ten-makkos') {
-      navigateToGame('/games/ten-makkos', game.title);
+      navigateToGame('/games/ten-makkos');
     } else if (game.id === 'word-shabbos-crossword') {
-      navigateToGame('/games/shabbos-crossword', game.title);
+      navigateToGame('/games/shabbos-crossword');
     } else if (game.id === 'trivia-true-false') {
-      navigateToGame('/games/true-false', game.title);
+      navigateToGame('/games/true-false');
     } else if (game.id === 'trivia-who-am-i') {
-      navigateToGame('/games/who-am-i', game.title);
+      navigateToGame('/games/who-am-i');
     } else if (game.id === 'jigsaw-kotel') {
-      navigateToGame('/games/jigsaw-kotel', game.title);
+      navigateToGame('/games/jigsaw-kotel');
     } else if (game.id === 'jigsaw-menorah') {
-      navigateToGame('/games/jigsaw-menorah', game.title);
+      navigateToGame('/games/jigsaw-menorah');
     } else if (game.id === 'match-hebrew-letters') {
-      navigateToGame('/games/alef-beis-match', game.title);
+      navigateToGame('/games/alef-beis-match');
     } else if (game.id === 'match-holidays') {
-      navigateToGame('/games/holiday-match', game.title);
+      navigateToGame('/games/holiday-match');
     } else if (game.id === 'match-animals') {
-      navigateToGame('/games/animal-match', game.title);
+      navigateToGame('/games/animal-match');
     } else if (game.id === 'match-shabbos') {
-      navigateToGame('/games/shabbos-match', game.title);
+      navigateToGame('/games/shabbos-match');
     } else if (game.id === 'match-midos') {
-      navigateToGame('/games/midos-match', game.title);
+      navigateToGame('/games/midos-match');
     } else if (game.id === 'flash-noach') {
-      navigateToGame('/games/noach-flashcards', game.title);
+      navigateToGame('/games/noach-flashcards');
     } else if (game.id === 'flash-lech-lecha') {
-      navigateToGame('/games/lech-lecha-flashcards', game.title);
+      navigateToGame('/games/lech-lecha-flashcards');
     } else if (game.id === 'flash-pesach') {
-      navigateToGame('/games/pesach-flashcards', game.title);
+      navigateToGame('/games/pesach-flashcards');
     } else if (game.id === 'flash-shavuos') {
-      navigateToGame('/games/shavuos-flashcards', game.title);
+      navigateToGame('/games/shavuos-flashcards');
     } else if (game.id === 'flash-purim') {
-      navigateToGame('/games/purim-flashcards', game.title);
+      navigateToGame('/games/purim-flashcards');
     } else if (game.id === 'flash-yehoshua') {
-      navigateToGame('/games/yehoshua-flashcards', game.title);
+      navigateToGame('/games/yehoshua-flashcards');
     } else if (game.id === 'word-shabbos-search') {
-      navigateToGame('/games/shabbos-word-search', game.title);
+      navigateToGame('/games/shabbos-word-search');
     } else if (game.id === 'word-purim-search') {
-      navigateToGame('/games/purim-word-search', game.title);
+      navigateToGame('/games/purim-word-search');
     } else if (game.id === 'word-pesach-search') {
-      navigateToGame('/games/pesach-word-search', game.title);
+      navigateToGame('/games/pesach-word-search');
     } else if (game.id === 'word-rosh-hashanah-search') {
-      navigateToGame('/games/rosh-hashanah-word-search', game.title);
+      navigateToGame('/games/rosh-hashanah-word-search');
     } else if (game.id === 'word-torah-search') {
-      navigateToGame('/games/torah-word-search', game.title);
+      navigateToGame('/games/torah-word-search');
     } else if (game.id === 'word-shabbos-crossword') {
-      navigateToGame('/games/shabbos-crossword', game.title);
+      navigateToGame('/games/shabbos-crossword');
     } else if (game.id === 'word-purim-crossword') {
-      navigateToGame('/games/purim-crossword', game.title);
+      navigateToGame('/games/purim-crossword');
     } else if (game.id === 'word-pesach-crossword') {
-      navigateToGame('/games/pesach-crossword', game.title);
+      navigateToGame('/games/pesach-crossword');
     } else if (game.id === 'word-hanukkah-crossword') {
-      navigateToGame('/games/hanukkah-crossword', game.title);
+      navigateToGame('/games/hanukkah-crossword');
     } else if (game.id === 'word-rosh-hashanah-crossword') {
-      navigateToGame('/games/rosh-hashanah-crossword', game.title);
+      navigateToGame('/games/rosh-hashanah-crossword');
     } else if (game.id === 'word-torah-crossword') {
-      navigateToGame('/games/torah-crossword', game.title);
+      navigateToGame('/games/torah-crossword');
     } else if (game.id === 'jigsaw-shabbos') {
-      navigateToGame('/games/jigsaw-shabbos', game.title);
+      navigateToGame('/games/jigsaw-shabbos');
     } else if (game.id === 'jigsaw-sukkos') {
-      navigateToGame('/games/jigsaw-sukkos', game.title);
+      navigateToGame('/games/jigsaw-sukkos');
     } else if (game.id === 'jigsaw-purim') {
-      navigateToGame('/games/jigsaw-purim', game.title);
+      navigateToGame('/games/jigsaw-purim');
     } else if (game.id === 'jigsaw-torah') {
-      navigateToGame('/games/jigsaw-torah', game.title);
+      navigateToGame('/games/jigsaw-torah');
     } else if (game.id === 'trivia-parsha') {
-      navigateToGame('/games/parsha-trivia', game.title);
+      navigateToGame('/games/parsha-trivia');
     } else if (game.id === 'trivia-halacha') {
-      navigateToGame('/games/halacha-trivia', game.title);
+      navigateToGame('/games/halacha-trivia');
     } else if (game.id === 'trivia-nach-true-false') {
-      navigateToGame('/games/nach-true-false', game.title);
+      navigateToGame('/games/nach-true-false');
     } else if (game.id === 'trivia-holidays-true-false') {
-      navigateToGame('/games/holidays-true-false', game.title);
+      navigateToGame('/games/holidays-true-false');
     } else if (game.id === 'sequence-creation') {
-      navigateToGame('/games/days-of-creation', game.title);
+      navigateToGame('/games/days-of-creation');
     } else if (game.id === 'sequence-yomim-tovim') {
-      navigateToGame('/games/jewish-holidays-order', game.title);
+      navigateToGame('/games/jewish-holidays-order');
     } else if (game.id === 'trivia-nach-who-am-i') {
-      navigateToGame('/games/nach-who-am-i', game.title);
+      navigateToGame('/games/nach-who-am-i');
     } else if (game.id === 'trivia-gedolim-who-am-i') {
-      navigateToGame('/games/gedolim-who-am-i', game.title);
+      navigateToGame('/games/gedolim-who-am-i');
     } else {
       // For other games, show coming soon or navigate to a generic page
-      console.log('Game pressed:', game.title);
+      console.log('Game pressed:');
     }
   };
 
@@ -152,7 +148,7 @@ export default function HomeScreen() {
       <StatusBar style="dark" />
 
       {/* Navigation Loader Overlay */}
-      <NavigationLoader visible={navigating} gameTitle={navigatingGameTitle} />
+      <Loader overlay visible={navigating} />
 
       {/* Gradient Background */}
       <LinearGradient
