@@ -18,6 +18,75 @@ import Animated, {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, Ellipse, G, LinearGradient, Path, Rect, Stop, Text as SvgText } from 'react-native-svg';
 
+// Animated icon button with hover/press effects
+function AnimatedIconButton({
+  onPress,
+  iconName,
+  iconColor,
+  bgColor,
+  activeBgColor,
+  spinOnPress = false,
+}: {
+  onPress: () => void;
+  iconName: 'arrow-left' | 'refresh';
+  iconColor: string;
+  bgColor: string;
+  activeBgColor: string;
+  spinOnPress?: boolean;
+}) {
+  const scale = useSharedValue(1);
+  const rotation = useSharedValue(0);
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.9, { damping: 15, stiffness: 300 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+  };
+
+  const handlePress = () => {
+    if (spinOnPress) {
+      rotation.value = withSequence(
+        withTiming(rotation.value + 360, { duration: 500, easing: Easing.out(Easing.cubic) })
+      );
+    }
+    onPress();
+  };
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: scale.value },
+      { rotate: `${rotation.value}deg` },
+    ],
+  }));
+
+  return (
+    <Pressable
+      onPress={handlePress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      style={{ width: 40, height: 40 }}
+    >
+      <Animated.View
+        style={[
+          animatedStyle,
+          {
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            backgroundColor: bgColor,
+            alignItems: 'center',
+            justifyContent: 'center',
+          },
+        ]}
+      >
+        <FontAwesome name={iconName} size={18} color={iconColor} />
+      </Animated.View>
+    </Pressable>
+  );
+}
+
 // Purim illustration - festive scene with megillah, costumes, and mishloach manos
 function PurimImage({ width, height }: { width: number; height: number }) {
   return (
@@ -422,6 +491,82 @@ function Confetti() {
   );
 }
 
+// Trophy SVG component
+function TrophyIcon({ size = 80 }: { size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 100 100">
+      <Defs>
+        <LinearGradient id="trophyGold" x1="0%" y1="0%" x2="100%" y2="100%">
+          <Stop offset="0%" stopColor="#FFD700" />
+          <Stop offset="50%" stopColor="#FFC125" />
+          <Stop offset="100%" stopColor="#DAA520" />
+        </LinearGradient>
+        <LinearGradient id="trophyShine" x1="0%" y1="0%" x2="0%" y2="100%">
+          <Stop offset="0%" stopColor="#FFFACD" />
+          <Stop offset="100%" stopColor="#FFD700" />
+        </LinearGradient>
+        <LinearGradient id="baseGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <Stop offset="0%" stopColor="#8B4513" />
+          <Stop offset="100%" stopColor="#654321" />
+        </LinearGradient>
+      </Defs>
+
+      {/* Trophy cup */}
+      <Path
+        d="M 30 20 L 30 45 Q 30 60 50 65 Q 70 60 70 45 L 70 20 Z"
+        fill="url(#trophyGold)"
+      />
+
+      {/* Inner cup shine */}
+      <Path
+        d="M 35 22 L 35 42 Q 35 52 50 56 Q 55 54 55 42 L 55 22 Z"
+        fill="url(#trophyShine)"
+        opacity="0.5"
+      />
+
+      {/* Left handle */}
+      <Path
+        d="M 30 25 Q 15 25 15 35 Q 15 48 30 48"
+        stroke="url(#trophyGold)"
+        strokeWidth="5"
+        fill="none"
+        strokeLinecap="round"
+      />
+
+      {/* Right handle */}
+      <Path
+        d="M 70 25 Q 85 25 85 35 Q 85 48 70 48"
+        stroke="url(#trophyGold)"
+        strokeWidth="5"
+        fill="none"
+        strokeLinecap="round"
+      />
+
+      {/* Stem */}
+      <Rect x="45" y="65" width="10" height="12" fill="url(#trophyGold)" />
+
+      {/* Base top */}
+      <Rect x="35" y="77" width="30" height="5" rx="2" fill="url(#trophyGold)" />
+
+      {/* Base bottom */}
+      <Rect x="30" y="82" width="40" height="8" rx="2" fill="url(#baseGrad)" />
+
+      {/* Star on trophy */}
+      <Path
+        d="M 50 30 L 52 36 L 58 36 L 53 40 L 55 46 L 50 42 L 45 46 L 47 40 L 42 36 L 48 36 Z"
+        fill="#FFFACD"
+      />
+
+      {/* Sparkles */}
+      <Circle cx="25" cy="15" r="2" fill="#FFD700" opacity="0.8" />
+      <Circle cx="75" cy="15" r="1.5" fill="#FFD700" opacity="0.6" />
+      <Circle cx="20" cy="55" r="1.5" fill="#FFD700" opacity="0.7" />
+      <Circle cx="80" cy="55" r="2" fill="#FFD700" opacity="0.8" />
+    </Svg>
+  );
+}
+
+// Victory banner - slides up from bottom, doesn't cover the puzzle
 function VictoryScreen({
   elapsedTime,
   moves,
@@ -435,15 +580,23 @@ function VictoryScreen({
 }) {
   const isWeb = Platform.OS === 'web';
   const trophyScale = useSharedValue(0);
-  const trophyRotate = useSharedValue(-180);
+  const playButtonScale = useSharedValue(1);
+  const homeButtonScale = useSharedValue(1);
 
   useEffect(() => {
-    trophyScale.value = withDelay(300, withSpring(1, { damping: 8, stiffness: 100 }));
-    trophyRotate.value = withDelay(300, withSpring(0, { damping: 10, stiffness: 80 }));
+    trophyScale.value = withDelay(200, withSpring(1, { damping: 10, stiffness: 100 }));
   }, []);
 
   const trophyStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: trophyScale.value }, { rotate: `${trophyRotate.value}deg` }],
+    transform: [{ scale: trophyScale.value }],
+  }));
+
+  const playButtonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: playButtonScale.value }],
+  }));
+
+  const homeButtonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: homeButtonScale.value }],
   }));
 
   const formatTime = (seconds: number) => {
@@ -456,80 +609,152 @@ function VictoryScreen({
     <View
       style={{
         position: 'absolute',
-        top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.75)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
       }}
+      pointerEvents="box-none"
     >
       <Confetti />
 
       <Animated.View
-        entering={FadeIn.duration(400).delay(200)}
-        className="bg-white rounded-3xl items-center w-full"
+        entering={FadeIn.duration(300)}
         style={{
-          maxWidth: 400,
-          padding: isWeb ? 48 : 40,
+          backgroundColor: 'white',
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
+          paddingTop: 20,
+          paddingBottom: isWeb ? 32 : 40,
+          paddingHorizontal: 24,
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: 20 },
-          shadowOpacity: 0.4,
-          shadowRadius: 30,
-          elevation: 15,
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.15,
+          shadowRadius: 12,
+          elevation: 10,
         }}
       >
-        <Animated.View style={trophyStyle}>
-          <Text style={{ fontSize: 72 }}>🎭</Text>
-        </Animated.View>
-
-        <Text className={`font-bold text-slate-800 mt-6 ${isWeb ? 'text-4xl' : 'text-3xl'}`}>
-          Freilichen Purim!
-        </Text>
-        <Text className="text-slate-500 text-center mt-3 text-base">
-          You completed the Purim puzzle!
-        </Text>
-
-        <Animated.View entering={FadeIn.duration(400).delay(500)} className="mt-8 flex-row" style={{ gap: 16 }}>
-          <View className="items-center bg-pink-50 rounded-2xl py-4 px-6">
-            <Text className="text-3xl font-bold text-pink-600">{formatTime(elapsedTime)}</Text>
-            <Text className="text-xs text-pink-700 mt-1 uppercase tracking-wide font-semibold">
-              Time
-            </Text>
+        {/* Top row: Trophy + Title + Stats */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          {/* Left: Trophy and title */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <Animated.View style={trophyStyle}>
+              <TrophyIcon size={50} />
+            </Animated.View>
+            <View>
+              <Text
+                style={{
+                  fontSize: 22,
+                  fontWeight: '800',
+                  color: '#1e293b',
+                }}
+              >
+                Freilichen Purim!
+              </Text>
+              <Text
+                style={{
+                  fontSize: 13,
+                  color: '#64748b',
+                  marginTop: 2,
+                }}
+              >
+                Puzzle Complete
+              </Text>
+            </View>
           </View>
-          <View className="items-center bg-fuchsia-50 rounded-2xl py-4 px-6">
-            <Text className="text-3xl font-bold text-fuchsia-600">{moves}</Text>
-            <Text className="text-xs text-fuchsia-700 mt-1 uppercase tracking-wide font-semibold">
-              Moves
-            </Text>
-          </View>
-        </Animated.View>
 
-        <Animated.View entering={FadeIn.duration(400).delay(800)} style={{ width: '100%' }}>
+          {/* Right: Stats */}
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <View
+              style={{
+                alignItems: 'center',
+                backgroundColor: '#fdf2f8',
+                borderRadius: 12,
+                paddingVertical: 8,
+                paddingHorizontal: 12,
+              }}
+            >
+              <Text style={{ fontSize: 18, fontWeight: '700', color: '#db2777' }}>
+                {formatTime(elapsedTime)}
+              </Text>
+              <Text style={{ fontSize: 9, color: '#be185d', fontWeight: '600', textTransform: 'uppercase' }}>
+                Time
+              </Text>
+            </View>
+            <View
+              style={{
+                alignItems: 'center',
+                backgroundColor: '#fae8ff',
+                borderRadius: 12,
+                paddingVertical: 8,
+                paddingHorizontal: 12,
+              }}
+            >
+              <Text style={{ fontSize: 18, fontWeight: '700', color: '#a855f7' }}>
+                {moves}
+              </Text>
+              <Text style={{ fontSize: 9, color: '#7e22ce', fontWeight: '600', textTransform: 'uppercase' }}>
+                Moves
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Buttons row */}
+        <View style={{ flexDirection: 'row', marginTop: 16, gap: 12 }}>
           <Pressable
             onPress={onPlayAgain}
-            style={{
-              backgroundColor: '#db2777',
-              borderRadius: 16,
-              paddingVertical: 16,
-              paddingHorizontal: 32,
-              marginTop: 32,
-              shadowColor: '#db2777',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.4,
-              shadowRadius: 12,
-              elevation: 6,
+            onPressIn={() => {
+              playButtonScale.value = withSpring(0.95, { damping: 15 });
             }}
+            onPressOut={() => {
+              playButtonScale.value = withSpring(1, { damping: 15 });
+            }}
+            style={{ flex: 1 }}
           >
-            <Text className="text-white font-bold text-lg text-center">Play Again</Text>
+            <Animated.View
+              style={[
+                playButtonStyle,
+                {
+                  backgroundColor: '#db2777',
+                  borderRadius: 12,
+                  paddingVertical: 14,
+                  alignItems: 'center',
+                },
+              ]}
+            >
+              <Text style={{ color: 'white', fontWeight: '700', fontSize: 15 }}>
+                Play Again
+              </Text>
+            </Animated.View>
           </Pressable>
 
-          <Pressable onPress={onBackToHome} className="mt-4 py-3">
-            <Text className="text-slate-500 font-semibold text-base text-center">Back to Home</Text>
+          <Pressable
+            onPress={onBackToHome}
+            onPressIn={() => {
+              homeButtonScale.value = withSpring(0.95, { damping: 15 });
+            }}
+            onPressOut={() => {
+              homeButtonScale.value = withSpring(1, { damping: 15 });
+            }}
+            style={{ flex: 1 }}
+          >
+            <Animated.View
+              style={[
+                homeButtonStyle,
+                {
+                  backgroundColor: '#f1f5f9',
+                  borderRadius: 12,
+                  paddingVertical: 14,
+                  alignItems: 'center',
+                },
+              ]}
+            >
+              <Text style={{ color: '#475569', fontWeight: '600', fontSize: 15 }}>
+                Back to Home
+              </Text>
+            </Animated.View>
           </Pressable>
-        </Animated.View>
+        </View>
       </Animated.View>
     </View>
   );
@@ -546,9 +771,11 @@ export default function JigsawPurimGame() {
   const [selectedPiece, setSelectedPiece] = useState<number | null>(null);
   const [moves, setMoves] = useState(0);
   const [gameComplete, setGameComplete] = useState(false);
+  const [showVictoryScreen, setShowVictoryScreen] = useState(false);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
+  const [gameKey, setGameKey] = useState(0);
 
   const puzzleSize = useMemo(() => {
     const padding = isWeb ? 100 : 40;
@@ -617,9 +844,11 @@ export default function JigsawPurimGame() {
     setSelectedPiece(null);
     setMoves(0);
     setGameComplete(false);
+    setShowVictoryScreen(false);
     setStartTime(null);
     setElapsedTime(0);
     setGameStarted(false);
+    setGameKey(k => k + 1);
   }, []);
 
   useEffect(() => {
@@ -703,10 +932,14 @@ export default function JigsawPurimGame() {
   }, [pieces, gameStarted]);
 
   useEffect(() => {
-    if (pieces.length > 0 && pieces.every(p => p.isPlaced)) {
+    if (pieces.length > 0 && pieces.every(p => p.isPlaced) && !gameComplete) {
       setGameComplete(true);
+      // Delay showing victory screen so user can see completed puzzle
+      setTimeout(() => {
+        setShowVictoryScreen(true);
+      }, 1500);
     }
-  }, [pieces]);
+  }, [pieces, gameComplete]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -724,12 +957,13 @@ export default function JigsawPurimGame() {
 
         <View className="bg-white border-b border-slate-200">
           <View className="flex-row items-center justify-between px-4 py-3">
-            <Pressable
+            <AnimatedIconButton
               onPress={() => router.back()}
-              className="w-10 h-10 rounded-full bg-slate-100 items-center justify-center active:bg-slate-200"
-            >
-              <FontAwesome name="arrow-left" size={18} color="#64748b" />
-            </Pressable>
+              iconName="arrow-left"
+              iconColor="#64748b"
+              bgColor="#f1f5f9"
+              activeBgColor="#e2e8f0"
+            />
 
             <View className="items-center flex-1 mx-4">
               <Text className={`font-bold text-slate-800 ${isWeb ? 'text-xl' : 'text-lg'}`}>
@@ -738,12 +972,14 @@ export default function JigsawPurimGame() {
               <Text className="text-slate-500 text-xs mt-0.5">Megillas Esther</Text>
             </View>
 
-            <Pressable
+            <AnimatedIconButton
               onPress={initializeGame}
-              className="w-10 h-10 rounded-full bg-pink-50 items-center justify-center active:bg-pink-100"
-            >
-              <FontAwesome name="refresh" size={18} color="#db2777" />
-            </Pressable>
+              iconName="refresh"
+              iconColor="#db2777"
+              bgColor="#fdf2f8"
+              activeBgColor="#fce7f3"
+              spinOnPress
+            />
           </View>
 
           <View
@@ -815,7 +1051,7 @@ export default function JigsawPurimGame() {
 
             {pieces.map(piece => (
               <PieceComponent
-                key={piece.id}
+                key={`${gameKey}-${piece.id}`}
                 piece={piece}
                 pieceWidth={pieceWidth}
                 pieceHeight={pieceHeight}
@@ -827,22 +1063,26 @@ export default function JigsawPurimGame() {
                 gridRows={GRID_ROWS}
                 gridCols={GRID_COLS}
                 boardOffset={boardOffset}
+                gameKey={gameKey}
               />
             ))}
           </View>
 
           <Text className="text-slate-500 text-sm mt-4 text-center px-8">
             {isWeb
-              ? 'Drag pieces to swap them, or click two pieces to swap their positions'
-              : 'Tap two pieces to swap them, or drag pieces to move them'}
+              ? 'Drag pieces to swap them'
+              : 'Drag pieces to swap them'}
           </Text>
         </View>
 
-        {gameComplete && (
+        {showVictoryScreen && (
           <VictoryScreen
             elapsedTime={elapsedTime}
             moves={moves}
-            onPlayAgain={initializeGame}
+            onPlayAgain={() => {
+              setShowVictoryScreen(false);
+              initializeGame();
+            }}
             onBackToHome={() => router.back()}
           />
         )}

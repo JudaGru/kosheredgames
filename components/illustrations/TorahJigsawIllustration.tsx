@@ -99,11 +99,27 @@ export function TorahJigsawIllustration({
       <Circle cx="178" cy="62" r="3" fill={accentColor} opacity="0.9" />
       <Circle cx="192" cy="42" r="2" fill="white" opacity="0.8" />
 
-      {/* Title banner */}
-      <G transform="translate(10, 100)">
-        <Rect x="0" y="0" width="110" height="32" rx="8" fill="white" opacity="0.95" />
-        <SvgText x="55" y="15" fontSize="11" fontWeight="bold" fill={primaryColor} textAnchor="middle">Torah Puzzle</SvgText>
-        <SvgText x="55" y="27" fontSize="9" fill="#64748b" textAnchor="middle">Sefer Torah</SvgText>
+      {/* Title */}
+      <G transform="translate(110, 115)">
+        <Rect
+          x="-35"
+          y="-12"
+          width="70"
+          height="24"
+          rx="12"
+          fill="white"
+          opacity="0.95"
+        />
+        <SvgText
+          x="0"
+          y="4"
+          fontSize="12"
+          fontWeight="bold"
+          textAnchor="middle"
+          fill={primaryColor}
+        >
+          Torah
+        </SvgText>
       </G>
 
       <Circle cx="195" cy="115" r="2" fill="white" opacity="0.6" />

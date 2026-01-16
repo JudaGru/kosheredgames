@@ -368,7 +368,7 @@ export const jigsawPuzzleGames: Game[] = [
   },
   {
     id: 'jigsaw-menorah',
-    title: 'Menorah Puzzle',
+    title: 'Menora',
     description: 'Assemble the golden Menorah from the Beis Hamikdash',
     gameType: 'jigsaw-puzzles',
     topic: 'Beis Hamikdash',
@@ -377,7 +377,7 @@ export const jigsawPuzzleGames: Game[] = [
   },
   {
     id: 'jigsaw-shabbos',
-    title: 'Shabbos Puzzle',
+    title: 'Shabbos',
     description: 'Piece together a beautiful Shabbos scene',
     gameType: 'jigsaw-puzzles',
     topic: 'Shabbos',
@@ -386,7 +386,7 @@ export const jigsawPuzzleGames: Game[] = [
   },
   {
     id: 'jigsaw-sukkos',
-    title: 'Sukkos Puzzle',
+    title: 'Sukkos',
     description: 'Assemble a festive Sukkah scene',
     gameType: 'jigsaw-puzzles',
     topic: 'Sukkos',
@@ -395,7 +395,7 @@ export const jigsawPuzzleGames: Game[] = [
   },
   {
     id: 'jigsaw-purim',
-    title: 'Purim Puzzle',
+    title: 'Purim',
     description: 'Piece together a joyous Purim celebration',
     gameType: 'jigsaw-puzzles',
     topic: 'Purim',
@@ -404,7 +404,7 @@ export const jigsawPuzzleGames: Game[] = [
   },
   {
     id: 'jigsaw-torah',
-    title: 'Torah Puzzle',
+    title: 'Torah',
     description: 'Assemble a beautiful Sefer Torah',
     gameType: 'jigsaw-puzzles',
     topic: 'Torah',

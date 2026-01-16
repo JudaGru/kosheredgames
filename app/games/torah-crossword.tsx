@@ -2,9 +2,10 @@ import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Keyboard, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Keyboard, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import Animated, { Easing, FadeIn, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useIsMobileLayout } from '../../hooks/useDeviceType';
 
 interface ClueData { number: number; clue: string; answer: string; row: number; col: number; direction: 'across' | 'down'; }
 
@@ -81,17 +82,17 @@ function ConfettiParticle({ index }: { index: number }) {
   return <Animated.View style={[style, { position: 'absolute', left: `${startLeft}%`, top: -50 }]}><Text style={{ fontSize }}>{emoji}</Text></Animated.View>;
 }
 
-function VictoryScreen({ onPlayAgain, onBackToHome }: { onPlayAgain: () => void; onBackToHome: () => void }) {
-  const isWeb = Platform.OS === 'web';
+function VictoryScreen({ onPlayAgain, onBackToHome, isMobile }: { onPlayAgain: () => void; onBackToHome: () => void; isMobile: boolean }) {
+  const isDesktop = !isMobile;
   const trophyScale = useSharedValue(0);
   useEffect(() => { trophyScale.value = withDelay(300, withSpring(1, { damping: 8 })); }, []);
   const trophyStyle = useAnimatedStyle(() => ({ transform: [{ scale: trophyScale.value }] }));
   return (
     <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.75)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
       <View style={{ position: 'absolute', width: '100%', height: '100%', zIndex: 100 }} pointerEvents="none">{Array.from({ length: 40 }).map((_, i) => <ConfettiParticle key={i} index={i} />)}</View>
-      <Animated.View entering={FadeIn.duration(400).delay(200)} style={{ backgroundColor: 'white', borderRadius: 24, alignItems: 'center', width: '100%', maxWidth: 400, padding: isWeb ? 48 : 40 }}>
+      <Animated.View entering={FadeIn.duration(400).delay(200)} style={{ backgroundColor: 'white', borderRadius: 24, alignItems: 'center', width: '100%', maxWidth: 400, padding: isDesktop ? 48 : 40 }}>
         <Animated.View style={trophyStyle}><Text style={{ fontSize: 72 }}>📜</Text></Animated.View>
-        <Text style={{ fontWeight: 'bold', color: '#1e293b', marginTop: 24, fontSize: isWeb ? 36 : 28 }}>Kol HaKavod!</Text>
+        <Text style={{ fontWeight: 'bold', color: '#1e293b', marginTop: 24, fontSize: isDesktop ? 36 : 28 }}>Kol HaKavod!</Text>
         <Text style={{ color: '#64748b', textAlign: 'center', marginTop: 12, fontSize: 16 }}>You completed the Torah crossword!</Text>
         <Pressable onPress={onPlayAgain} style={{ backgroundColor: '#0d9488', borderRadius: 16, paddingVertical: 16, paddingHorizontal: 32, marginTop: 32, width: '100%' }}><Text style={{ color: 'white', fontWeight: 'bold', fontSize: 18, textAlign: 'center' }}>Play Again</Text></Pressable>
         <Pressable onPress={onBackToHome} style={{ marginTop: 16, paddingVertical: 12 }}><Text style={{ color: '#64748b', fontWeight: '600', fontSize: 16, textAlign: 'center' }}>Back to Home</Text></Pressable>
@@ -101,7 +102,7 @@ function VictoryScreen({ onPlayAgain, onBackToHome }: { onPlayAgain: () => void;
 }
 
 export default function TorahCrosswordGame() {
-  const isWeb = Platform.OS === 'web';
+  const { isMobile } = useIsMobileLayout();
   const [grid] = useState(() => buildGrid());
   const [userInputs, setUserInputs] = useState<string[][]>(() => Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill('')));
   const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
@@ -109,7 +110,7 @@ export default function TorahCrosswordGame() {
   const [gameComplete, setGameComplete] = useState(false);
   const [showAnswers, setShowAnswers] = useState(false);
   const inputRef = useRef<TextInput>(null);
-  const cellSize = isWeb ? 40 : 36;
+  const cellSize = isMobile ? 36 : 40;
 
   const isWordComplete = useCallback((clue: ClueData): boolean => {
     const { answer, row, col, direction } = clue;
@@ -212,23 +213,23 @@ export default function TorahCrosswordGame() {
       <View style={{ backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#e2e8f0' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }}>
           <Pressable onPress={() => { Keyboard.dismiss(); router.back(); }} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#f1f5f9', alignItems: 'center', justifyContent: 'center' }}><FontAwesome name="arrow-left" size={18} color="#64748b" /></Pressable>
-          <Text style={{ fontWeight: 'bold', color: '#1e293b', fontSize: isWeb ? 20 : 18 }}>Torah Crossword</Text>
+          <Text style={{ fontWeight: 'bold', color: '#1e293b', fontSize: !isMobile ? 20 : 18 }}>Torah Crossword</Text>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <Pressable onPress={() => setShowAnswers(!showAnswers)} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#fef3c7', alignItems: 'center', justifyContent: 'center' }}><FontAwesome name={showAnswers ? 'eye-slash' : 'eye'} size={16} color="#d97706" /></Pressable>
             <Pressable onPress={initializeGame} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#ccfbf1', alignItems: 'center', justifyContent: 'center' }}><FontAwesome name="refresh" size={18} color="#0d9488" /></Pressable>
           </View>
         </View>
       </View>
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, flexDirection: isWeb ? 'row' : 'column', gap: 20 }} showsVerticalScrollIndicator={false}>
-        <View style={{ alignSelf: isWeb ? 'flex-start' : 'center', backgroundColor: 'white', borderRadius: 12, padding: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 5 }}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, flexDirection: !isMobile ? 'row' : 'column', gap: 20 }} showsVerticalScrollIndicator={false}>
+        <View style={{ alignSelf: !isMobile ? 'flex-start' : 'center', backgroundColor: 'white', borderRadius: 12, padding: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 5 }}>
           {grid.map((row, ri) => <View key={ri} style={{ flexDirection: 'row' }}>{row.map((cell, ci) => <Cell key={`${ri}-${ci}`} row={ri} col={ci} correctLetter={cell} userLetter={userInputs[ri][ci]} isSelected={selectedCell?.row === ri && selectedCell?.col === ci} isHighlighted={highlightedCells.has(`${ri}-${ci}`)} cellNumber={getCellNumber(ri, ci)} onPress={() => handleCellPress(ri, ci)} cellSize={cellSize} isCorrect={cell !== null && userInputs[ri][ci].toUpperCase() === cell.toUpperCase()} showAnswer={showAnswers} />)}</View>)}
         </View>
-        <View style={{ flex: isWeb ? 1 : undefined }}>
-          <View style={{ marginBottom: 16 }}><Text style={{ fontWeight: 'bold', color: '#475569', marginBottom: 8, fontSize: isWeb ? 16 : 14 }}>Across</Text>{acrossClues.map(clue => <ClueItem key={`across-${clue.number}`} clue={clue} isSelected={selectedClue?.number === clue.number && selectedClue?.direction === 'across'} isCompleted={isWordComplete(clue)} onPress={() => handleCluePress(clue)} />)}</View>
-          <View><Text style={{ fontWeight: 'bold', color: '#475569', marginBottom: 8, fontSize: isWeb ? 16 : 14 }}>Down</Text>{downClues.map(clue => <ClueItem key={`down-${clue.number}`} clue={clue} isSelected={selectedClue?.number === clue.number && selectedClue?.direction === 'down'} isCompleted={isWordComplete(clue)} onPress={() => handleCluePress(clue)} />)}</View>
+        <View style={{ flex: !isMobile ? 1 : undefined }}>
+          <View style={{ marginBottom: 16 }}><Text style={{ fontWeight: 'bold', color: '#475569', marginBottom: 8, fontSize: !isMobile ? 16 : 14 }}>Across</Text>{acrossClues.map(clue => <ClueItem key={`across-${clue.number}`} clue={clue} isSelected={selectedClue?.number === clue.number && selectedClue?.direction === 'across'} isCompleted={isWordComplete(clue)} onPress={() => handleCluePress(clue)} />)}</View>
+          <View><Text style={{ fontWeight: 'bold', color: '#475569', marginBottom: 8, fontSize: !isMobile ? 16 : 14 }}>Down</Text>{downClues.map(clue => <ClueItem key={`down-${clue.number}`} clue={clue} isSelected={selectedClue?.number === clue.number && selectedClue?.direction === 'down'} isCompleted={isWordComplete(clue)} onPress={() => handleCluePress(clue)} />)}</View>
         </View>
       </ScrollView>
-      {gameComplete && <VictoryScreen onPlayAgain={initializeGame} onBackToHome={() => router.back()} />}
+      {gameComplete && <VictoryScreen onPlayAgain={initializeGame} onBackToHome={() => router.back()} isMobile={isMobile} />}
     </SafeAreaView>
   );
 }

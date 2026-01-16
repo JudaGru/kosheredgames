@@ -16,6 +16,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useIsMobileLayout } from '../../hooks/useDeviceType';
 
 // Crossword puzzle data
 interface ClueData {
@@ -413,13 +414,15 @@ function VictoryScreen({
   totalWords,
   onPlayAgain,
   onBackToHome,
+  isMobile,
 }: {
   wordsCompleted: number;
   totalWords: number;
   onPlayAgain: () => void;
   onBackToHome: () => void;
+  isMobile: boolean;
 }) {
-  const isWeb = Platform.OS === 'web';
+  const isDesktop = !isMobile;
   const trophyScale = useSharedValue(0);
   const trophyRotate = useSharedValue(-180);
   const candleGlow = useSharedValue(0);
@@ -469,7 +472,7 @@ function VictoryScreen({
           alignItems: 'center',
           width: '100%',
           maxWidth: 400,
-          padding: isWeb ? 48 : 40,
+          padding: isDesktop ? 48 : 40,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: 20 },
           shadowOpacity: 0.4,
@@ -502,7 +505,7 @@ function VictoryScreen({
               fontWeight: 'bold',
               color: '#1e293b',
               marginTop: 24,
-              fontSize: isWeb ? 36 : 28,
+              fontSize: isDesktop ? 36 : 28,
               textAlign: 'center',
             }}
           >
@@ -581,7 +584,7 @@ function VictoryScreen({
 }
 
 export default function ShabbosCrosswordGame() {
-  const isWeb = Platform.OS === 'web';
+  const { isMobile } = useIsMobileLayout();
   const [grid] = useState(() => buildGrid());
   const [userInputs, setUserInputs] = useState<string[][]>(() =>
     Array(GRID_SIZE)
@@ -594,7 +597,7 @@ export default function ShabbosCrosswordGame() {
   const [gameKey, setGameKey] = useState(0); // Key for re-mounting animations
   const inputRef = useRef<TextInput>(null);
 
-  const cellSize = isWeb ? 42 : 38;
+  const cellSize = isMobile ? 38 : 42;
 
   // Check if a word is completed correctly
   const isWordComplete = useCallback(
@@ -811,7 +814,7 @@ export default function ShabbosCrosswordGame() {
           />
 
           <View className="items-center flex-1 mx-4">
-            <Text className={`font-bold text-slate-800 ${isWeb ? 'text-xl' : 'text-lg'}`}>
+            <Text className={`font-bold text-slate-800 ${!isMobile ? 'text-xl' : 'text-lg'}`}>
               Shabbos Crossword
             </Text>
           </View>
@@ -825,7 +828,7 @@ export default function ShabbosCrosswordGame() {
         className="flex-1"
         contentContainerStyle={{
           padding: 16,
-          flexDirection: isWeb ? 'row' : 'column',
+          flexDirection: !isMobile ? 'row' : 'column',
           gap: 20,
         }}
         showsVerticalScrollIndicator={false}
@@ -835,7 +838,7 @@ export default function ShabbosCrosswordGame() {
           key={`grid-${gameKey}`}
           entering={FadeInDown.duration(400).springify()}
           style={{
-            alignSelf: isWeb ? 'flex-start' : 'center',
+            alignSelf: !isMobile ? 'flex-start' : 'center',
             backgroundColor: 'white',
             borderRadius: 12,
             padding: 8,
@@ -878,7 +881,7 @@ export default function ShabbosCrosswordGame() {
         </Animated.View>
 
         {/* Clues */}
-        <View style={{ flex: isWeb ? 1 : undefined }} key={`clues-${gameKey}`}>
+        <View style={{ flex: !isMobile ? 1 : undefined }} key={`clues-${gameKey}`}>
           {/* Across */}
           <Animated.View
             entering={FadeIn.duration(300).delay(100)}
@@ -886,7 +889,7 @@ export default function ShabbosCrosswordGame() {
           >
             <Text
               className="font-bold text-slate-700 mb-2"
-              style={{ fontSize: isWeb ? 16 : 14 }}
+              style={{ fontSize: !isMobile ? 16 : 14 }}
             >
               Across
             </Text>
@@ -909,7 +912,7 @@ export default function ShabbosCrosswordGame() {
           <Animated.View entering={FadeIn.duration(300).delay(300)}>
             <Text
               className="font-bold text-slate-700 mb-2"
-              style={{ fontSize: isWeb ? 16 : 14 }}
+              style={{ fontSize: !isMobile ? 16 : 14 }}
             >
               Down
             </Text>
@@ -937,6 +940,7 @@ export default function ShabbosCrosswordGame() {
           totalWords={CLUES.length}
           onPlayAgain={initializeGame}
           onBackToHome={() => router.back()}
+          isMobile={isMobile}
         />
       )}
     </SafeAreaView>

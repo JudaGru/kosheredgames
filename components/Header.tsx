@@ -1,8 +1,8 @@
+import { useIsMobileLayout } from '@/hooks/useDeviceType';
 import { FontAwesome } from '@expo/vector-icons';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, LinearGradient, Path, Stop, Text as SvgText } from 'react-native-svg';
-import { useIsMobileLayout } from '@/hooks/useDeviceType';
 
 interface HeaderProps {
   onSearchPress?: () => void;
@@ -69,7 +69,7 @@ function LogoWordmark({ height = 40 }: { height?: number }) {
         fontFamily="System"
         letterSpacing="0.5"
       >
-        Play
+      Play
       </SvgText>
 
     </Svg>

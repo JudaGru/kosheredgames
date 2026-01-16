@@ -1019,7 +1019,7 @@ export default function ShabbosMatchGame() {
   };
 
   const formatTime = (seconds: number) => `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, '0')}`;
-  const columns = isWeb ? 6 : 4;
+  const columns = isMobile ? 4 : 6;
   const gridWidth = columns * (cardSize + (cardSize > 60 ? 10 : 6));
   const allMatched = Array.from(playerMatches.values()).reduce((acc, set) => new Set([...acc, ...set]), new Set<string>());
 
@@ -1033,7 +1033,7 @@ export default function ShabbosMatchGame() {
         <View className="flex-row items-center justify-between px-4 py-3">
           <HeaderButton onPress={() => setGameStarted(false)} icon="arrow-left" />
           <View className="items-center flex-1 mx-4">
-            <Text className={`font-bold text-yellow-900 ${isWeb ? 'text-xl' : 'text-lg'}`}>Shabbos</Text>
+            <Text className={`font-bold text-yellow-900 ${!isMobile ? 'text-xl' : 'text-lg'}`}>Shabbos</Text>
           </View>
           <HeaderButton onPress={() => initializeGame()} icon="refresh" />
         </View>
@@ -1046,14 +1046,14 @@ export default function ShabbosMatchGame() {
           </View>
         )}
 
-        <View className="flex-row justify-center py-3 bg-yellow-50 border-t border-yellow-100" style={{ gap: isWeb ? 48 : 32 }}>
+        <View className="flex-row justify-center py-3 bg-yellow-50 border-t border-yellow-100" style={{ gap: !isMobile ? 48 : 32 }}>
           <View className="items-center">
             <Text className="text-xs text-yellow-600 uppercase tracking-wide font-semibold">Time</Text>
-            <Text className={`font-bold text-yellow-900 ${isWeb ? 'text-2xl' : 'text-xl'} mt-1`}>{formatTime(elapsedTime)}</Text>
+            <Text className={`font-bold text-yellow-900 ${!isMobile ? 'text-2xl' : 'text-xl'} mt-1`}>{formatTime(elapsedTime)}</Text>
           </View>
           <View className="items-center">
             <Text className="text-xs text-yellow-600 uppercase tracking-wide font-semibold">Matched</Text>
-            <Text className={`font-bold text-yellow-600 ${isWeb ? 'text-2xl' : 'text-xl'} mt-1`}>{Math.floor(allMatched.size / 2)}/12</Text>
+            <Text className={`font-bold text-yellow-600 ${!isMobile ? 'text-2xl' : 'text-xl'} mt-1`}>{Math.floor(allMatched.size / 2)}/12</Text>
           </View>
         </View>
       </View>

@@ -155,15 +155,15 @@ export function JigsawPuzzlesIllustration({
 
       {/* Title */}
       {title && (
-        <G transform="translate(110, 125)">
+        <G transform="translate(110, 115)">
           <Rect
-            x="-45"
-            y="-10"
-            width="90"
-            height="20"
-            rx="10"
+            x="-35"
+            y="-12"
+            width="70"
+            height="24"
+            rx="12"
             fill="white"
-            opacity="0.9"
+            opacity="0.95"
           />
           <SvgText
             x="0"

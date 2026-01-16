@@ -958,6 +958,21 @@ export default function AlefBeisMatchGame() {
     return () => clearInterval(interval);
   }, [startTime, gameComplete]);
 
+  const turnTransition = useSharedValue(0);
+
+  useEffect(() => {
+    if (playerCount > 1 && gameStarted) {
+      turnTransition.value = withSequence(
+        withTiming(1, { duration: 250, easing: Easing.out(Easing.cubic) }),
+        withTiming(0, { duration: 400, easing: Easing.in(Easing.cubic) })
+      );
+    }
+  }, [currentPlayerIndex, playerCount, gameStarted]);
+
+  const turnTransitionStyle = useAnimatedStyle(() => ({
+    opacity: turnTransition.value * 0.12,
+  }));
+
   // Show loader while detecting device type - MUST be after all hooks
   if (isDetectingDevice) {
     return (
@@ -1042,21 +1057,6 @@ export default function AlefBeisMatchGame() {
     (acc, set) => new Set([...acc, ...set]),
     new Set<string>()
   );
-
-  const turnTransition = useSharedValue(0);
-
-  useEffect(() => {
-    if (playerCount > 1 && gameStarted) {
-      turnTransition.value = withSequence(
-        withTiming(1, { duration: 250, easing: Easing.out(Easing.cubic) }),
-        withTiming(0, { duration: 400, easing: Easing.in(Easing.cubic) })
-      );
-    }
-  }, [currentPlayerIndex, playerCount, gameStarted]);
-
-  const turnTransitionStyle = useAnimatedStyle(() => ({
-    opacity: turnTransition.value * 0.12,
-  }));
 
   if (!gameStarted) {
     return <PlayerSetupScreen onStartGame={handleStartGame} />;

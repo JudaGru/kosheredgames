@@ -89,11 +89,10 @@ export function SukkosJigsawIllustration({
       <Circle cx="180" cy="60" r="3" fill={accentColor} opacity="0.9" />
       <Circle cx="195" cy="40" r="2" fill="white" opacity="0.8" />
 
-      {/* Title banner */}
-      <G transform="translate(10, 100)">
-        <Rect x="0" y="0" width="115" height="32" rx="8" fill="white" opacity="0.95" />
-        <SvgText x="57" y="15" fontSize="11" fontWeight="bold" fill={primaryColor} textAnchor="middle">Sukkos Puzzle</SvgText>
-        <SvgText x="57" y="27" fontSize="9" fill="#64748b" textAnchor="middle">The Sukkah</SvgText>
+      {/* Title banner - centered horizontally */}
+      <G transform="translate(110, 115)">
+        <Rect x="-35" y="-12" width="70" height="24" rx="12" fill="white" opacity="0.95" />
+        <SvgText x="0" y="4" fontSize="12" fontWeight="bold" fill={primaryColor} textAnchor="middle">Sukkos</SvgText>
       </G>
 
       <Circle cx="195" cy="115" r="2" fill="white" opacity="0.6" />
