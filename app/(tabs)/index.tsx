@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Header } from '@/components/Header';
 import { CategoryRow } from '@/components/CategoryRow';
 import { NavigationLoader } from '@/components/NavigationLoader';
+import { PageLoader } from '@/components/PageLoader';
 import { useIsMobileLayout } from '@/hooks/useDeviceType';
 import { gameCategories } from '@/data/games';
 import type { Game } from '@/types/game';
@@ -16,7 +17,7 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [navigating, setNavigating] = useState(false);
   const [navigatingGameTitle, setNavigatingGameTitle] = useState<string | undefined>();
-  const isMobile = useIsMobileLayout();
+  const { isMobile, isLoading: isDetectingDevice } = useIsMobileLayout();
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -36,6 +37,11 @@ export default function HomeScreen() {
       setNavigatingGameTitle(undefined);
     }, 500);
   }, []);
+
+  // Show loader while detecting device type on web - MUST be after all hooks
+  if (isDetectingDevice) {
+    return <PageLoader />;
+  }
 
   const handleGamePress = (game: Game) => {
     // Route to the appropriate game screen

@@ -640,7 +640,7 @@ function VictoryScreen({ playerCount, players, playerMatches, elapsedTime, onPla
 }
 
 export default function HolidayMatchGame() {
-  const { isMobile } = useDeviceType();
+  const { isMobile, isLoading: isDetectingDevice } = useDeviceType();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const [gameStarted, setGameStarted] = useState(false);
   const [playerCount, setPlayerCount] = useState(1);
@@ -712,6 +712,16 @@ export default function HolidayMatchGame() {
     const interval = setInterval(() => { setElapsedTime(Math.floor((Date.now() - startTime) / 1000)); }, 1000);
     return () => clearInterval(interval);
   }, [startTime, gameComplete]);
+
+  // Show loader while detecting device type - MUST be after all hooks
+  if (isDetectingDevice) {
+    return (
+      <SafeAreaView className="flex-1 bg-violet-50 items-center justify-center">
+        <StatusBar style="dark" />
+        <Text style={{ color: '#7c3aed', fontSize: 16 }}>Loading...</Text>
+      </SafeAreaView>
+    );
+  }
 
   const handleCardPress = (index: number) => {
     if (isProcessing.current || flippedIndices.length === 2 || flippedIndices.includes(index)) return;

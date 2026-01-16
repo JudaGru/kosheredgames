@@ -17,7 +17,7 @@ export function CategoryRow({
   onSeeAll,
   onGamePress
 }: CategoryRowProps) {
-  const isMobile = useIsMobileLayout();
+  const { isMobile } = useIsMobileLayout();
 
   return (
     <View className="mb-6">

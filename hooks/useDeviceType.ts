@@ -1,12 +1,28 @@
 import { Platform, useWindowDimensions } from 'react-native';
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+
+interface DeviceTypeResult {
+  isWeb: boolean;
+  isMobile: boolean;
+  isMobileWeb: boolean;
+  isDesktop: boolean;
+  isLoading: boolean;
+}
 
 /**
  * Detects if the user is on a mobile device (including mobile web browsers)
  * Uses user agent detection for web and screen width as fallback
  */
-export function useDeviceType() {
+export function useDeviceType(): DeviceTypeResult {
   const { width } = useWindowDimensions();
+  const [isLoading, setIsLoading] = useState(Platform.OS === 'web');
+
+  // Mark as loaded after first render on web
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      setIsLoading(false);
+    }
+  }, []);
 
   return useMemo(() => {
     const isWeb = Platform.OS === 'web';
@@ -18,6 +34,7 @@ export function useDeviceType() {
         isMobile: true,
         isMobileWeb: false,
         isDesktop: false,
+        isLoading: false,
       };
     }
 
@@ -48,15 +65,17 @@ export function useDeviceType() {
       isMobile,
       isMobileWeb: isMobile,
       isDesktop: !isMobile,
+      isLoading,
     };
-  }, [width]);
+  }, [width, isLoading]);
 }
 
 /**
  * Simple hook that returns true if the layout should be mobile-style
  * Use this in components instead of Platform.OS === 'web'
+ * Also returns isLoading to show a loading state while detecting
  */
-export function useIsMobileLayout() {
-  const { isMobile } = useDeviceType();
-  return isMobile;
+export function useIsMobileLayout(): { isMobile: boolean; isLoading: boolean } {
+  const { isMobile, isLoading } = useDeviceType();
+  return { isMobile, isLoading };
 }

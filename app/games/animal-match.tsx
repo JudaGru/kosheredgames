@@ -832,7 +832,7 @@ function VictoryScreen({
 }
 
 export default function AnimalMatchGame() {
-  const { isMobile } = useDeviceType();
+  const { isMobile, isLoading: isDetectingDevice } = useDeviceType();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const [gameStarted, setGameStarted] = useState(false);
   const [playerCount, setPlayerCount] = useState(1);
@@ -933,6 +933,16 @@ export default function AnimalMatchGame() {
 
     return () => clearInterval(interval);
   }, [startTime, gameComplete]);
+
+  // Show loader while detecting device type - MUST be after all hooks
+  if (isDetectingDevice) {
+    return (
+      <SafeAreaView className="flex-1 bg-emerald-50 items-center justify-center">
+        <StatusBar style="dark" />
+        <Text style={{ color: '#059669', fontSize: 16 }}>Loading...</Text>
+      </SafeAreaView>
+    );
+  }
 
   const handleCardPress = (index: number) => {
     if (isProcessing.current) return;

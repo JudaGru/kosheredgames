@@ -78,7 +78,7 @@ function LogoWordmark({ height = 40 }: { height?: number }) {
 
 export function Header({ onSearchPress }: HeaderProps) {
   const insets = useSafeAreaInsets();
-  const isMobile = useIsMobileLayout();
+  const { isMobile } = useIsMobileLayout();
 
   return (
     <View
