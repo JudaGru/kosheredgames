@@ -1,7 +1,7 @@
 import { ScrollView, View, RefreshControl } from 'react-native';
 import { useState, useCallback } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { Header } from '@/components/Header';
@@ -15,7 +15,15 @@ export default function HomeScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [navigating, setNavigating] = useState(false);
+  const [animationKey, setAnimationKey] = useState(0);
   const { isMobile, isLoading: isDetectingDevice } = useIsMobileLayout();
+
+  // Trigger animation when screen comes into focus (including returning from a game)
+  useFocusEffect(
+    useCallback(() => {
+      setAnimationKey(prev => prev + 1);
+    }, [])
+  );
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -177,13 +185,15 @@ export default function HomeScreen() {
       >
         {/* Game Categories */}
         <View className={`${isMobile ? 'pb-28' : 'pb-12'}`}>
-          {gameCategories.map((category) => (
+          {gameCategories.map((category, index) => (
             <CategoryRow
               key={category.id}
               category={category}
               isLoading={isLoading}
               onSeeAll={() => handleSeeAll(category.id)}
               onGamePress={handleGamePress}
+              categoryIndex={index}
+              animationKey={animationKey}
             />
           ))}
         </View>

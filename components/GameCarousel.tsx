@@ -7,12 +7,16 @@ interface GameCarouselProps {
   games: Game[];
   isLoading?: boolean;
   onGamePress?: (game: Game) => void;
+  categoryIndex?: number;
+  animationKey?: number;
 }
 
 export function GameCarousel({
   games,
   isLoading = false,
   onGamePress,
+  categoryIndex = 0,
+  animationKey = 0,
 }: GameCarouselProps) {
   // Minimal gap like CrazyGames
   const gap = 8;
@@ -45,11 +49,13 @@ export function GameCarousel({
       }}
       className="flex-row"
     >
-      {games.map((game) => (
+      {games.map((game, index) => (
         <GameCard
           key={game.id}
           game={game}
           onPress={() => onGamePress?.(game)}
+          animationIndex={categoryIndex * 6 + index}
+          animationKey={animationKey}
         />
       ))}
     </ScrollView>

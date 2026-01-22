@@ -1,9 +1,13 @@
 import { Pressable, View, Text } from 'react-native';
+import { useEffect } from 'react';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
+  withSpring,
+  withDelay,
   Easing,
+  interpolate,
 } from 'react-native-reanimated';
 import { GameIllustration } from './illustrations';
 import { useDeviceType } from '@/hooks/useDeviceType';
@@ -12,9 +16,11 @@ import type { Game } from '@/types/game';
 interface GameCardProps {
   game: Game;
   onPress?: () => void;
+  animationIndex?: number;
+  animationKey?: number;
 }
 
-export function GameCard({ game, onPress }: GameCardProps) {
+export function GameCard({ game, onPress, animationIndex = 0, animationKey = 0 }: GameCardProps) {
   const { isWeb, isMobile } = useDeviceType();
 
   // Card dimensions - rectangular on desktop (16:10 ratio), square on mobile
@@ -23,6 +29,38 @@ export function GameCard({ game, onPress }: GameCardProps) {
 
   // Animation values
   const playButtonOpacity = useSharedValue(0);
+
+  // Entrance animation values
+  const entranceProgress = useSharedValue(0);
+
+  // Staggered entrance animation - re-triggers when animationKey changes
+  useEffect(() => {
+    // Reset to 0 first, then animate to 1
+    entranceProgress.value = 0;
+    const delay = animationIndex * 50; // 50ms stagger between cards
+    entranceProgress.value = withDelay(
+      delay,
+      withSpring(1, {
+        damping: 12,
+        stiffness: 100,
+        mass: 0.8,
+      })
+    );
+  }, [animationIndex, animationKey]);
+
+  const entranceStyle = useAnimatedStyle(() => {
+    const scale = interpolate(entranceProgress.value, [0, 1], [0.8, 1]);
+    const opacity = interpolate(entranceProgress.value, [0, 0.5, 1], [0, 0.8, 1]);
+    const translateY = interpolate(entranceProgress.value, [0, 1], [20, 0]);
+
+    return {
+      opacity,
+      transform: [
+        { scale },
+        { translateY },
+      ],
+    };
+  });
 
   // Only show hover effects on desktop web (not mobile web)
   const showHoverEffects = isWeb && !isMobile;
@@ -42,17 +80,20 @@ export function GameCard({ game, onPress }: GameCardProps) {
   }));
 
   return (
-    <View
-      style={{
-        width: cardWidth,
-        height: cardHeight,
-        borderRadius: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.15,
-        shadowRadius: 8,
-        elevation: 5,
-      }}
+    <Animated.View
+      style={[
+        entranceStyle,
+        {
+          width: cardWidth,
+          height: cardHeight,
+          borderRadius: 12,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.15,
+          shadowRadius: 8,
+          elevation: 5,
+        },
+      ]}
     >
       <Pressable
         onPress={onPress}
@@ -136,7 +177,7 @@ export function GameCard({ game, onPress }: GameCardProps) {
           </Animated.View>
         )}
       </Pressable>
-    </View>
+    </Animated.View>
   );
 }
 

@@ -9,13 +9,17 @@ interface CategoryRowProps {
   isLoading?: boolean;
   onSeeAll?: () => void;
   onGamePress?: (game: Game) => void;
+  categoryIndex?: number;
+  animationKey?: number;
 }
 
 export function CategoryRow({
   category,
   isLoading = false,
   onSeeAll,
-  onGamePress
+  onGamePress,
+  categoryIndex = 0,
+  animationKey = 0,
 }: CategoryRowProps) {
   const { isMobile } = useIsMobileLayout();
 
@@ -45,6 +49,8 @@ export function CategoryRow({
         games={category.games}
         isLoading={isLoading}
         onGamePress={onGamePress}
+        categoryIndex={categoryIndex}
+        animationKey={animationKey}
       />
     </View>
   );
