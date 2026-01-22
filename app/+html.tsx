@@ -12,6 +12,115 @@ export default function Root({ children }: { children: React.ReactNode }) {
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
+        {/* Primary Meta Tags */}
+        <title>Kosher Edge Games - Free Jewish Educational Games for Kids</title>
+        <meta name="title" content="Kosher Edge Games - Free Jewish Educational Games for Kids" />
+        <meta
+          name="description"
+          content="Free educational Jewish games for children. Learn Torah, Hebrew, Parsha, holidays and more through fun matching games, flashcards, word searches, trivia, and puzzles. Safe, ad-free learning for ages 4+."
+        />
+        <meta
+          name="keywords"
+          content="Jewish games, Torah games, Hebrew learning, Parsha games, Jewish education, kosher games, kids games, educational games, Shabbos games, holiday games, flashcards, word search, trivia, matching games"
+        />
+        <meta name="author" content="Kosher Edge Games" />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href="https://kosheredgegames.com" />
+
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://kosheredgegames.com/" />
+        <meta property="og:title" content="Kosher Edge Games - Free Jewish Educational Games for Kids" />
+        <meta
+          property="og:description"
+          content="Free educational Jewish games for children. Learn Torah, Hebrew, Parsha, holidays and more through fun matching games, flashcards, word searches, trivia, and puzzles."
+        />
+        <meta property="og:image" content="https://kosheredgegames.com/og-image.png" />
+        <meta property="og:site_name" content="Kosher Edge Games" />
+        <meta property="og:locale" content="en_US" />
+
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://kosheredgegames.com/" />
+        <meta property="twitter:title" content="Kosher Edge Games - Free Jewish Educational Games for Kids" />
+        <meta
+          property="twitter:description"
+          content="Free educational Jewish games for children. Learn Torah, Hebrew, Parsha, holidays and more through fun matching games, flashcards, word searches, trivia, and puzzles."
+        />
+        <meta property="twitter:image" content="https://kosheredgegames.com/og-image.png" />
+
+        {/* Additional SEO */}
+        <meta name="theme-color" content="#0d9488" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Kosher Edge Games" />
+        <meta name="application-name" content="Kosher Edge Games" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
+
+        {/* Structured Data - Organization */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: 'Kosher Edge Games',
+              url: 'https://kosheredgegames.com',
+              description: 'Free educational Jewish games for children',
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: 'https://kosheredgegames.com/search?q={search_term_string}',
+                'query-input': 'required name=search_term_string',
+              },
+            }),
+          }}
+        />
+
+        {/* Structured Data - Educational Organization */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'EducationalOrganization',
+              name: 'Kosher Edge Games',
+              url: 'https://kosheredgegames.com',
+              description: 'Free educational Jewish games for children to learn Torah, Hebrew, and Jewish traditions',
+              areaServed: 'Worldwide',
+              audience: {
+                '@type': 'EducationalAudience',
+                educationalRole: 'student',
+                audienceType: 'Children',
+              },
+            }),
+          }}
+        />
+
+        {/* Structured Data - Software Application */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'SoftwareApplication',
+              name: 'Kosher Edge Games',
+              applicationCategory: 'EducationalApplication',
+              operatingSystem: 'Web Browser',
+              offers: {
+                '@type': 'Offer',
+                price: '0',
+                priceCurrency: 'USD',
+              },
+              aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: '5',
+                ratingCount: '1',
+              },
+            }),
+          }}
+        />
+
         {/* Google Analytics */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-QDXJ8YHQLY" />
         <script
@@ -35,7 +144,6 @@ export default function Root({ children }: { children: React.ReactNode }) {
 
         {/* Using raw CSS styles as an escape-hatch to ensure the background color never flickers in dark-mode. */}
         <style dangerouslySetInnerHTML={{ __html: responsiveBackground }} />
-        {/* Add any additional <head> elements that you want globally available on web... */}
       </head>
       <body>{children}</body>
     </html>

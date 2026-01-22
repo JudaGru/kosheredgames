@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "kosheredgames",
+    "name": "Kosher Edge Games",
     "slug": "kosheredgames",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -14,7 +14,8 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kosheredgegames.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,12 +23,19 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.kosheredgegames.app"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "name": "Kosher Edge Games",
+      "shortName": "KosherGames",
+      "description": "Free educational Jewish games for children. Learn Torah, Hebrew, Parsha, holidays and more.",
+      "lang": "en",
+      "themeColor": "#0d9488",
+      "backgroundColor": "#ffffff"
     },
     "plugins": [
       "expo-router"

@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, Pressable, Text, useWindowDimensions, View } from 'react-native';
 import { useIsMobileLayout } from '../../hooks/useDeviceType';
+import { SEO } from '@/components/SEO';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, {
   Easing,
@@ -712,6 +713,22 @@ export default function JigsawKotelGame() {
   const { isMobile } = useIsMobileLayout();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
+  // SEO for this game page
+  const seoConfig = {
+    title: 'Kosel Jigsaw Puzzle - Free Jewish Game',
+    description: 'Piece together a beautiful image of the Western Wall (Kotel) in this free jigsaw puzzle game. A fun Jewish educational game for ages 6+.',
+    keywords: 'Kotel puzzle, Western Wall game, Jewish jigsaw puzzle, Eretz Yisroel games, Jerusalem puzzle, kosher games for kids',
+    url: '/games/jigsaw-kotel',
+    type: 'game' as const,
+    gameData: {
+      name: 'Kosel Jigsaw Puzzle',
+      description: 'Piece together a beautiful image of the Western Wall',
+      gameType: 'Jigsaw Puzzle',
+      ageRange: '6+',
+      difficulty: 'beginner',
+    },
+  };
+
   const GRID_ROWS = 3;
   const GRID_COLS = 4;
 
@@ -977,6 +994,7 @@ export default function JigsawKotelGame() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      <SEO {...seoConfig} />
       <SafeAreaView className="flex-1 bg-emerald-50">
         <StatusBar style="dark" />
 
