@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useIsMobileLayout } from '@/hooks/useDeviceType';
 import Animated, {
   Easing,
   FadeIn,
@@ -594,6 +595,8 @@ function VictoryScreen({
 
 export default function TorahWordSearchGame() {
   const isWeb = Platform.OS === 'web';
+  const { isMobile } = useIsMobileLayout();
+  const useMobileLayout = !isWeb || isMobile;
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const [grid, setGrid] = useState<CellData[][]>([]);
   const [placedWords, setPlacedWords] = useState<PlacedWord[]>([]);
@@ -621,9 +624,9 @@ export default function TorahWordSearchGame() {
   const [wordColorMap, setWordColorMap] = useState<Map<string, string>>(new Map());
 
   const cellSize = Math.min(
-    (screenWidth - 32 - (isWeb ? 200 : 0) - GRID_SIZE * 4) / GRID_SIZE,
-    (screenHeight - (isWeb ? 120 : 340) - GRID_SIZE * 4) / GRID_SIZE,
-    isWeb ? 45 : 34
+    (screenWidth - 32 - (useMobileLayout ? 0 : 200) - GRID_SIZE * 4) / GRID_SIZE,
+    (screenHeight - (useMobileLayout ? 340 : 120) - GRID_SIZE * 4) / GRID_SIZE,
+    useMobileLayout ? 34 : 45
   );
   const cellWithMargin = cellSize + 4;
   const gridContainerRef = useRef<View>(null);
@@ -1033,7 +1036,7 @@ export default function TorahWordSearchGame() {
               justifyContent: 'center',
               paddingVertical: 12,
               backgroundColor: '#f8fafc',
-              gap: isWeb ? 48 : 32,
+              gap: useMobileLayout ? 32 : 48,
             }}
           >
             <View style={{ alignItems: 'center' }}>
@@ -1046,7 +1049,7 @@ export default function TorahWordSearchGame() {
                 style={{
                   fontWeight: 'bold',
                   color: '#1e293b',
-                  fontSize: isWeb ? 24 : 20,
+                  fontSize: useMobileLayout ? 20 : 24,
                   marginTop: 4,
                 }}
               >
@@ -1063,7 +1066,7 @@ export default function TorahWordSearchGame() {
                 style={{
                   fontWeight: 'bold',
                   color: '#0d9488',
-                  fontSize: isWeb ? 24 : 20,
+                  fontSize: useMobileLayout ? 20 : 24,
                   marginTop: 4,
                 }}
               >
@@ -1073,8 +1076,8 @@ export default function TorahWordSearchGame() {
           </View>
         </View>
 
-        <View style={{ flex: 1, flexDirection: isWeb ? 'row' : 'column' }}>
-          {isWeb ? (
+        <View style={{ flex: 1, flexDirection: useMobileLayout ? 'column' : 'row' }}>
+          {!useMobileLayout ? (
             <ScrollView
               contentContainerStyle={{
                 flexGrow: 1,
@@ -1170,10 +1173,10 @@ export default function TorahWordSearchGame() {
 
           <View
             style={{
-              width: isWeb ? 220 : '100%',
+              width: useMobileLayout ? '100%' : 220,
               padding: 16,
-              backgroundColor: isWeb ? 'white' : 'transparent',
-              borderLeftWidth: isWeb ? 1 : 0,
+              backgroundColor: useMobileLayout ? 'transparent' : 'white',
+              borderLeftWidth: useMobileLayout ? 0 : 1,
               borderLeftColor: '#e2e8f0',
             }}
           >
@@ -1182,13 +1185,13 @@ export default function TorahWordSearchGame() {
                 fontWeight: 'bold',
                 color: '#475569',
                 marginBottom: 12,
-                fontSize: isWeb ? 16 : 14,
-                textAlign: isWeb ? 'left' : 'center',
+                fontSize: useMobileLayout ? 14 : 16,
+                textAlign: useMobileLayout ? 'center' : 'left',
               }}
             >
               Words to Find
             </Text>
-            {isWeb ? (
+            {!useMobileLayout ? (
               <ScrollView>
                 {placedWords.map((w) => (
                   <WordListItem

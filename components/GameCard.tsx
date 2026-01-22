@@ -37,13 +37,20 @@ export function GameCard({ game, onPress, animationIndex = 0, animationKey = 0 }
   useEffect(() => {
     // Reset to 0 first, then animate to 1
     entranceProgress.value = 0;
-    const delay = animationIndex * 50; // 50ms stagger between cards
+
+    // Calculate delay with a cap so bottom cards don't take forever
+    // First 12 cards (roughly 2 rows) get staggered delays
+    // After that, all cards animate together with max delay
+    const MAX_DELAY = 400; // Maximum delay in ms
+    const STAGGER = 30; // 30ms between cards (faster stagger)
+    const delay = Math.min(animationIndex * STAGGER, MAX_DELAY);
+
     entranceProgress.value = withDelay(
       delay,
       withSpring(1, {
-        damping: 12,
-        stiffness: 100,
-        mass: 0.8,
+        damping: 14,
+        stiffness: 120,
+        mass: 0.7,
       })
     );
   }, [animationIndex, animationKey]);

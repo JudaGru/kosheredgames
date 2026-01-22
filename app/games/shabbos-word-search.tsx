@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useIsMobileLayout } from '@/hooks/useDeviceType';
 import Animated, {
   Easing,
   FadeIn,
@@ -639,6 +640,9 @@ function VictoryScreen({
 
 export default function ShabbosWordSearchGame() {
   const isWeb = Platform.OS === 'web';
+  const { isMobile } = useIsMobileLayout();
+  // Use mobile layout for native mobile OR mobile web
+  const useMobileLayout = !isWeb || isMobile;
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const [grid, setGrid] = useState<CellData[][]>([]);
   const [placedWords, setPlacedWords] = useState<PlacedWord[]>([]);
@@ -674,9 +678,9 @@ export default function ShabbosWordSearchGame() {
 
   const calculateCellSize = useCallback(() => {
     const padding = 32;
-    const wordListWidth = isWeb ? 200 : 0;
-    const headerHeight = isWeb ? 120 : 150;
-    const wordListHeightMobile = isWeb ? 0 : 90; // Reduced since words are now compact
+    const wordListWidth = useMobileLayout ? 0 : 200;
+    const headerHeight = useMobileLayout ? 150 : 120;
+    const wordListHeightMobile = useMobileLayout ? 90 : 0;
 
     const availableWidth = screenWidth - padding - wordListWidth;
     const availableHeight = screenHeight - headerHeight - padding - wordListHeightMobile;
@@ -684,8 +688,8 @@ export default function ShabbosWordSearchGame() {
     const maxCellWidth = (availableWidth - GRID_SIZE * 4) / GRID_SIZE;
     const maxCellHeight = (availableHeight - GRID_SIZE * 4) / GRID_SIZE;
 
-    return Math.min(maxCellWidth, maxCellHeight, isWeb ? 45 : 34);
-  }, [screenWidth, screenHeight, isWeb]);
+    return Math.min(maxCellWidth, maxCellHeight, useMobileLayout ? 34 : 45);
+  }, [screenWidth, screenHeight, useMobileLayout]);
 
   const cellSize = calculateCellSize();
 
@@ -1189,7 +1193,7 @@ export default function ShabbosWordSearchGame() {
           <HeaderButton onPress={() => router.back()} icon="arrow-left" variant="default" />
 
           <View className="items-center flex-1 mx-4">
-            <Text className={`font-bold text-slate-800 ${isWeb ? 'text-xl' : 'text-lg'}`}>
+            <Text className={`font-bold text-slate-800 ${useMobileLayout ? 'text-lg' : 'text-xl'}`}>
               Shabbos Word Search
             </Text>
           </View>
@@ -1200,17 +1204,17 @@ export default function ShabbosWordSearchGame() {
         {/* Stats Bar */}
         <View
           className="flex-row justify-center py-3 bg-slate-50 border-t border-slate-100"
-          style={{ gap: isWeb ? 48 : 32 }}
+          style={{ gap: useMobileLayout ? 32 : 48 }}
         >
           <View className="items-center">
             <Text className="text-xs text-slate-400 uppercase tracking-wide font-semibold">Time</Text>
-            <Text className={`font-bold text-slate-800 ${isWeb ? 'text-2xl' : 'text-xl'} mt-1`}>
+            <Text className={`font-bold text-slate-800 ${useMobileLayout ? 'text-xl' : 'text-2xl'} mt-1`}>
               {formatTime(elapsedTime)}
             </Text>
           </View>
           <View className="items-center">
             <Text className="text-xs text-slate-400 uppercase tracking-wide font-semibold">Found</Text>
-            <Text className={`font-bold text-violet-600 ${isWeb ? 'text-2xl' : 'text-xl'} mt-1`}>
+            <Text className={`font-bold text-violet-600 ${useMobileLayout ? 'text-xl' : 'text-2xl'} mt-1`}>
               {foundWords.size}/{placedWords.length}
             </Text>
           </View>
@@ -1223,14 +1227,14 @@ export default function ShabbosWordSearchGame() {
             style={{ paddingVertical: 6, alignItems: 'center' }}
           >
             <Text style={{ fontSize: 12, color: '#94a3b8', fontStyle: 'italic' }}>
-              {isWeb ? 'Click and drag to select words' : 'Swipe across letters to select words'}
+              {useMobileLayout ? 'Swipe across letters to select words' : 'Click and drag to select words'}
             </Text>
           </Animated.View>
         )}
       </View>
 
       {/* Game Content */}
-      <View className="flex-1" style={{ flexDirection: isWeb ? 'row' : 'column' }}>
+      <View className="flex-1" style={{ flexDirection: useMobileLayout ? 'column' : 'row' }}>
         {/* Grid */}
         <ScrollView
           className="flex-1"
@@ -1243,7 +1247,7 @@ export default function ShabbosWordSearchGame() {
           showsVerticalScrollIndicator={false}
           scrollEnabled={!isDragging}
         >
-          {isWeb ? (
+          {!useMobileLayout ? (
             <View
               ref={gridRef}
               style={{
@@ -1319,21 +1323,21 @@ export default function ShabbosWordSearchGame() {
         {/* Word List */}
         <View
           style={{
-            width: isWeb ? 220 : '100%',
-            padding: isWeb ? 16 : 12,
-            paddingTop: isWeb ? 16 : 8,
-            backgroundColor: isWeb ? 'white' : 'transparent',
-            borderLeftWidth: isWeb ? 1 : 0,
+            width: useMobileLayout ? '100%' : 220,
+            padding: useMobileLayout ? 12 : 16,
+            paddingTop: useMobileLayout ? 8 : 16,
+            backgroundColor: useMobileLayout ? 'transparent' : 'white',
+            borderLeftWidth: useMobileLayout ? 0 : 1,
             borderLeftColor: '#e2e8f0',
           }}
         >
           <Text
             className="font-bold text-slate-700"
-            style={{ fontSize: isWeb ? 16 : 13, textAlign: isWeb ? 'left' : 'center', marginBottom: isWeb ? 12 : 8 }}
+            style={{ fontSize: useMobileLayout ? 13 : 16, textAlign: useMobileLayout ? 'center' : 'left', marginBottom: useMobileLayout ? 8 : 12 }}
           >
             Words to Find
           </Text>
-          {isWeb ? (
+          {!useMobileLayout ? (
             <ScrollView showsVerticalScrollIndicator={false}>
               {placedWords.map((word, index) => (
                 <WordListItem
