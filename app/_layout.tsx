@@ -8,6 +8,7 @@ import 'react-native-reanimated';
 import '../global.css';
 
 import { Loader } from '@/components/Loader';
+import { usePageTracking } from '@/hooks/useAnalytics';
 
 export {
   ErrorBoundary,
@@ -53,6 +54,9 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
+  // Track page views and time on page
+  usePageTracking();
+
   return (
     <ThemeProvider value={AppTheme}>
       <Stack
