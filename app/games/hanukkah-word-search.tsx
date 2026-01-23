@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useIsMobileLayout } from '@/hooks/useDeviceType';
+import { Loader } from '@/components/Loader';
 import Animated, {
   Easing,
   FadeIn,
@@ -631,8 +632,8 @@ function VictoryScreen({
 
 export default function HanukkahWordSearchGame() {
   const isWeb = Platform.OS === 'web';
-  const { isMobile } = useIsMobileLayout();
-  const useMobileLayout = !isWeb || isMobile;
+  const { isMobile, isLoading: isDetectingDevice } = useIsMobileLayout();
+  const useMobileLayout = isMobile;
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const [grid, setGrid] = useState<CellData[][]>([]);
   const [placedWords, setPlacedWords] = useState<PlacedWord[]>([]);
@@ -1171,6 +1172,11 @@ export default function HanukkahWordSearchGame() {
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
+
+  // Show loader while detecting device type on web
+  if (isDetectingDevice) {
+    return <Loader />;
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
