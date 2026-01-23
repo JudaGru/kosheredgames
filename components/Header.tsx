@@ -4,8 +4,11 @@ import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, LinearGradient, Path, Stop, Text as SvgText } from 'react-native-svg';
 
+export type AgeFilter = 'all' | '3-5' | '6-8' | '9-12' | '13+';
+
 interface HeaderProps {
-  onSearchPress?: () => void;
+  selectedAge: AgeFilter;
+  onAgeChange: (age: AgeFilter) => void;
 }
 
 // Full wordmark logo that spells "AlephPlay" with play button integrated
@@ -76,7 +79,15 @@ function LogoWordmark({ height = 40 }: { height?: number }) {
   );
 }
 
-export function Header({ onSearchPress }: HeaderProps) {
+const ageFilters: { value: AgeFilter; label: string }[] = [
+  { value: 'all', label: 'All Ages' },
+  { value: '3-5', label: '3-5' },
+  { value: '6-8', label: '6-8' },
+  { value: '9-12', label: '9-12' },
+  { value: '13+', label: '13+' },
+];
+
+export function Header({ selectedAge, onAgeChange }: HeaderProps) {
   const insets = useSafeAreaInsets();
   const { isMobile } = useIsMobileLayout();
 
@@ -84,36 +95,49 @@ export function Header({ onSearchPress }: HeaderProps) {
     <View
       style={{ paddingTop: isMobile ? insets.top + 8 : 16 }}
     >
-      {/* Top row: Logo, badges, and Search */}
-      <View className="flex-row items-center justify-between px-4 pb-4">
-        {/* Logo and badges grouped together */}
-        <View className="flex-row items-center">
-          <LogoWordmark height={isMobile ? 36 : 44} />
+      {/* Top row: Logo, Tagline (centered), Age Filter and Search */}
+      <View className="flex-row items-center justify-between px-4 pb-2">
+        {/* Logo */}
+        <LogoWordmark height={isMobile ? 36 : 44} />
 
-          {/* Three feature badges */}
-          <View className="flex-row items-center gap-2 ml-4">
-            <View className="flex-row items-center bg-amber-50 px-3 py-1.5 rounded-full">
-              <FontAwesome name="star" size={12} color="#d97706" />
-              <Text className="text-amber-700 text-xs font-medium ml-1.5">Torah Learning Made Fun</Text>
-            </View>
-            <View className="flex-row items-center bg-teal-50 px-3 py-1.5 rounded-full">
-              <FontAwesome name="plus-circle" size={12} color="#0d9488" />
-              <Text className="text-teal-700 text-xs font-medium ml-1.5">New games weekly</Text>
-            </View>
-            <View className="flex-row items-center bg-sky-50 px-3 py-1.5 rounded-full">
-              <FontAwesome name="book" size={12} color="#0284c7" />
-              <Text className="text-sky-700 text-xs font-medium ml-1.5">100% Educational</Text>
-            </View>
+        {/* Centered tagline - only on desktop */}
+        {!isMobile && (
+          <View className="flex-row items-center bg-white/60 px-3 py-1.5 rounded-full border border-slate-200">
+            <FontAwesome name="check-circle" size={12} color="#10b981" />
+            <Text className="text-slate-600 text-xs font-medium ml-1.5">Educational</Text>
+            <Text className="text-slate-300 mx-2">|</Text>
+            <FontAwesome name="gamepad" size={12} color="#0ea5e9" />
+            <Text className="text-slate-600 text-xs font-medium ml-1.5">Fun</Text>
+            <Text className="text-slate-300 mx-2">|</Text>
+            <FontAwesome name="heart" size={12} color="#f472b6" />
+            <Text className="text-slate-600 text-xs font-medium ml-1.5">Ad Free</Text>
           </View>
-        </View>
+        )}
 
-        {/* Search Button */}
-        <Pressable
-          onPress={onSearchPress}
-          className="bg-teal-50 w-11 h-11 rounded-2xl items-center justify-center active:bg-teal-100"
-        >
-          <FontAwesome name="search" size={18} color="#0d9488" />
-        </Pressable>
+        {/* Age Filter */}
+        <View className="flex-row items-center bg-white/60 rounded-full border border-slate-200 p-1">
+          {ageFilters.map((filter) => (
+            <Pressable
+              key={filter.value}
+              onPress={() => onAgeChange(filter.value)}
+              className={`px-3 py-1.5 rounded-full ${
+                selectedAge === filter.value
+                  ? 'bg-teal-500'
+                  : ''
+              }`}
+            >
+              <Text
+                className={`text-xs font-medium ${
+                  selectedAge === filter.value
+                    ? 'text-white'
+                    : 'text-slate-600'
+                }`}
+              >
+                {filter.label}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
       </View>
     </View>
   );

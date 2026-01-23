@@ -1,22 +1,62 @@
 import { ScrollView, View, RefreshControl } from 'react-native';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { router, useFocusEffect } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { Header } from '@/components/Header';
+import { Header, AgeFilter } from '@/components/Header';
 import { CategoryRow } from '@/components/CategoryRow';
 import { Loader } from '@/components/Loader';
 import { useIsMobileLayout } from '@/hooks/useDeviceType';
 import { gameCategories } from '@/data/games';
 import type { Game } from '@/types/game';
 
+// Helper function to check if a game's age range matches the selected filter
+function gameMatchesAgeFilter(gameAgeRange: string, filter: AgeFilter): boolean {
+  if (filter === 'all') return true;
+
+  // Parse the game's age range (e.g., "4-8", "6+", "10+", "8-14")
+  const rangeMatch = gameAgeRange.match(/^(\d+)(?:-(\d+)|\+)?$/);
+  if (!rangeMatch) return true; // If we can't parse, show the game
+
+  const gameMinAge = parseInt(rangeMatch[1], 10);
+  const gameMaxAge = rangeMatch[2] ? parseInt(rangeMatch[2], 10) : 99; // "+" means no upper limit
+
+  // Define filter ranges
+  const filterRanges: Record<Exclude<AgeFilter, 'all'>, [number, number]> = {
+    '3-5': [3, 5],
+    '6-8': [6, 8],
+    '9-12': [9, 12],
+    '13+': [13, 99],
+  };
+
+  const [filterMin, filterMax] = filterRanges[filter];
+
+  // Check if there's any overlap between game range and filter range
+  return gameMinAge <= filterMax && gameMaxAge >= filterMin;
+}
+
 export default function HomeScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [navigating, setNavigating] = useState(false);
   const [animationKey, setAnimationKey] = useState(0);
+  const [selectedAge, setSelectedAge] = useState<AgeFilter>('all');
   const { isMobile, isLoading: isDetectingDevice } = useIsMobileLayout();
+
+  // Filter categories based on selected age
+  const filteredCategories = useMemo(() => {
+    if (selectedAge === 'all') return gameCategories;
+
+    return gameCategories
+      .map((category) => ({
+        ...category,
+        games: category.games.filter((game) =>
+          gameMatchesAgeFilter(game.ageRange, selectedAge)
+        ),
+      }))
+      .filter((category) => category.games.length > 0);
+  }, [selectedAge]);
 
   // Trigger animation when screen comes into focus (including returning from a game)
   useFocusEffect(
@@ -143,14 +183,6 @@ export default function HomeScreen() {
     }
   };
 
-  const handleSeeAll = (categoryId: string) => {
-    console.log('See all pressed:', categoryId);
-  };
-
-  const handleSearchPress = () => {
-    console.log('Search pressed');
-  };
-
   return (
     <View className="flex-1">
       <StatusBar style="dark" />
@@ -166,7 +198,10 @@ export default function HomeScreen() {
         style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
       />
 
-      <Header onSearchPress={handleSearchPress} />
+      <Header
+        selectedAge={selectedAge}
+        onAgeChange={setSelectedAge}
+      />
 
       <ScrollView
         className="flex-1"
@@ -184,13 +219,12 @@ export default function HomeScreen() {
         }
       >
         {/* Game Categories */}
-        <View className={`${isMobile ? 'pb-28' : 'pb-12'}`}>
-          {gameCategories.map((category, index) => (
+        <View>
+          {filteredCategories.map((category, index) => (
             <CategoryRow
               key={category.id}
               category={category}
               isLoading={isLoading}
-              onSeeAll={() => handleSeeAll(category.id)}
               onGamePress={handleGamePress}
               categoryIndex={index}
               animationKey={animationKey}
