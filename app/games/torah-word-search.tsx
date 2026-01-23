@@ -1129,15 +1129,15 @@ export default function TorahWordSearchGame() {
               </View>
             </ScrollView>
           ) : (
-            <GestureDetector gesture={panGesture}>
-              <Animated.View
-                style={{
-                  flexGrow: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  padding: 16,
-                }}
-              >
+            <View
+              style={{
+                flexGrow: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: 16,
+              }}
+            >
+              <GestureDetector gesture={panGesture}>
                 <View
                   ref={gridContainerRef}
                   style={{
@@ -1173,8 +1173,8 @@ export default function TorahWordSearchGame() {
                     <Text style={{ fontSize: 12, color: '#94a3b8' }}>Swipe to select words</Text>
                   </Animated.View>
                 </View>
-              </Animated.View>
-            </GestureDetector>
+              </GestureDetector>
+            </View>
           )}
 
           <View
