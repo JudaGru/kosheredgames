@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { useIsMobileLayout } from '@/hooks/useDeviceType';
 import { FontAwesome } from '@expo/vector-icons';
-import { Pressable, Text, View } from 'react-native';
+import { Modal, Pressable, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, LinearGradient, Path, Stop, Text as SvgText } from 'react-native-svg';
+import { Colors } from '@/constants/Colors';
 
 export type AgeFilter = 'all' | '3-5' | '6-8' | '9-12' | '13+';
 
@@ -87,6 +89,90 @@ const ageFilters: { value: AgeFilter; label: string }[] = [
   { value: '13+', label: '13+' },
 ];
 
+function AgeFilterDropdown({ selectedAge, onAgeChange }: HeaderProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedLabel = ageFilters.find(f => f.value === selectedAge)?.label || 'All Ages';
+
+  return (
+    <>
+      <TouchableOpacity
+        style={styles.dropdownButton}
+        onPress={() => setIsOpen(true)}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.dropdownButtonText}>{selectedLabel}</Text>
+        <FontAwesome name="chevron-down" size={10} color={Colors.text.secondary} />
+      </TouchableOpacity>
+
+      <Modal
+        visible={isOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsOpen(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setIsOpen(false)}>
+          <View style={styles.dropdownMenu}>
+            <Text style={styles.dropdownTitle}>Select Age Range</Text>
+            {ageFilters.map((filter) => (
+              <TouchableOpacity
+                key={filter.value}
+                style={[
+                  styles.dropdownItem,
+                  selectedAge === filter.value && styles.dropdownItemSelected,
+                ]}
+                onPress={() => {
+                  onAgeChange(filter.value);
+                  setIsOpen(false);
+                }}
+              >
+                <Text
+                  style={[
+                    styles.dropdownItemText,
+                    selectedAge === filter.value && styles.dropdownItemTextSelected,
+                  ]}
+                >
+                  {filter.label}
+                </Text>
+                {selectedAge === filter.value && (
+                  <FontAwesome name="check" size={14} color={Colors.primary[500]} />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </Pressable>
+      </Modal>
+    </>
+  );
+}
+
+function AgeFilterPills({ selectedAge, onAgeChange }: HeaderProps) {
+  return (
+    <View className="flex-row items-center bg-white/60 rounded-full border border-slate-200 p-1">
+      {ageFilters.map((filter) => (
+        <Pressable
+          key={filter.value}
+          onPress={() => onAgeChange(filter.value)}
+          className={`px-3 py-1.5 rounded-full ${
+            selectedAge === filter.value
+              ? 'bg-teal-500'
+              : ''
+          }`}
+        >
+          <Text
+            className={`text-xs font-medium ${
+              selectedAge === filter.value
+                ? 'text-white'
+                : 'text-slate-600'
+            }`}
+          >
+            {filter.label}
+          </Text>
+        </Pressable>
+      ))}
+    </View>
+  );
+}
+
 export function Header({ selectedAge, onAgeChange }: HeaderProps) {
   const insets = useSafeAreaInsets();
   const { isMobile } = useIsMobileLayout();
@@ -114,33 +200,80 @@ export function Header({ selectedAge, onAgeChange }: HeaderProps) {
           </View>
         )}
 
-        {/* Age Filter */}
-        <View className="flex-row items-center bg-white/60 rounded-full border border-slate-200 p-1">
-          {ageFilters.map((filter) => (
-            <Pressable
-              key={filter.value}
-              onPress={() => onAgeChange(filter.value)}
-              className={`px-3 py-1.5 rounded-full ${
-                selectedAge === filter.value
-                  ? 'bg-teal-500'
-                  : ''
-              }`}
-            >
-              <Text
-                className={`text-xs font-medium ${
-                  selectedAge === filter.value
-                    ? 'text-white'
-                    : 'text-slate-600'
-                }`}
-              >
-                {filter.label}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
+        {/* Age Filter - Dropdown on mobile, Pills on desktop */}
+        {isMobile ? (
+          <AgeFilterDropdown selectedAge={selectedAge} onAgeChange={onAgeChange} />
+        ) : (
+          <AgeFilterPills selectedAge={selectedAge} onAgeChange={onAgeChange} />
+        )}
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  dropdownButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    gap: 6,
+  },
+  dropdownButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: Colors.text.primary,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  dropdownMenu: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    width: '100%',
+    maxWidth: 280,
+    paddingVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  dropdownTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.text.secondary,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
+  },
+  dropdownItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  dropdownItemSelected: {
+    backgroundColor: Colors.primary[50],
+  },
+  dropdownItemText: {
+    fontSize: 16,
+    color: Colors.text.primary,
+  },
+  dropdownItemTextSelected: {
+    fontWeight: '600',
+    color: Colors.primary[600],
+  },
+});
 
 export default Header;
