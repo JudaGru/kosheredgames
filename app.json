@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Kosher Edge Games",
+    "name": "AlephPlay",
     "slug": "kosheredgames",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "kosheredgames",
+    "scheme": "alephplay",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.kosheredgegames.app"
+      "bundleIdentifier": "com.alephplay.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -24,14 +24,14 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.kosheredgegames.app"
+      "package": "com.alephplay.app"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png",
-      "name": "Kosher Edge Games",
-      "shortName": "KosherGames",
+      "name": "AlephPlay",
+      "shortName": "AlephPlay",
       "description": "Free educational Jewish games for children. Learn Torah, Hebrew, Parsha, holidays and more.",
       "lang": "en",
       "themeColor": "#0d9488",
