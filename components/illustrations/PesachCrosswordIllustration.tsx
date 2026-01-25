@@ -126,10 +126,9 @@ export function PesachCrosswordIllustration({
       </G>
 
       {/* Title banner */}
-      <G transform="translate(10, 100)">
-        <Rect x="0" y="0" width="120" height="32" rx="8" fill="white" opacity="0.95" />
-        <SvgText x="60" y="15" fontSize="11" fontWeight="bold" fill={primaryColor} textAnchor="middle">Pesach Crossword</SvgText>
-        <SvgText x="60" y="27" fontSize="9" fill="#64748b" textAnchor="middle">Solve the Clues</SvgText>
+      <G transform="translate(70, 100)">
+        <Rect x="0" y="0" width="80" height="28" rx="8" fill="white" opacity="0.95" />
+        <SvgText x="40" y="18" fontSize="13" fontWeight="bold" fill={primaryColor} textAnchor="middle">Pesach</SvgText>
       </G>
 
       <Circle cx="195" cy="125" r="2" fill="white" opacity="0.6" />

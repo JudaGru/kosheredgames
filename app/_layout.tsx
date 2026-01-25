@@ -271,6 +271,12 @@ function RootLayoutNav() {
             animation: 'slide_from_right',
           }}
         />
+        <Stack.Screen
+          name="games/letter-grid-torah"
+          options={{
+            animation: 'slide_from_right',
+          }}
+        />
       </Stack>
     </ThemeProvider>
   );

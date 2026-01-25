@@ -177,6 +177,8 @@ export default function HomeScreen() {
       navigateToGame('/games/nach-who-am-i');
     } else if (game.id === 'trivia-gedolim-who-am-i') {
       navigateToGame('/games/gedolim-who-am-i');
+    } else if (game.id === 'letter-grid-torah') {
+      navigateToGame('/games/letter-grid-torah');
     } else {
       // For other games, show coming soon or navigate to a generic page
       console.log('Game pressed:');

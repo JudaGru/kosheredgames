@@ -1,11 +1,11 @@
+import { Loader } from '@/components/Loader';
+import { useIsMobileLayout } from '@/hooks/useDeviceType';
 import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useIsMobileLayout } from '@/hooks/useDeviceType';
-import { Loader } from '@/components/Loader';
 import Animated, {
   Easing,
   FadeIn,
@@ -20,7 +20,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-// Hanukkah words to find (English with Hebrew)
+// Chanukkah words to find (English with Hebrew)
 const HANUKKAH_WORDS = [
   { english: 'MENORAH', hebrew: 'מנורה', found: false },
   { english: 'DREIDEL', hebrew: 'סביבון', found: false },

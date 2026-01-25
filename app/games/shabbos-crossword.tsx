@@ -36,11 +36,11 @@ const GRID_SIZE = 10;
 //  0  S H A B B O S . K .    1-Across: SHABBOS
 //  1  E . . . . N . . I .
 //  2  U . . . . E . . D .
-//  3  D . . . . G . . D .
-//  4  A . . . . . B . U .
+//  3  D . . . P G . . D .    6-Down: PEACE starts
+//  4  A . . . E . . . U .
 //  5  H A V D A L A . S .    5-Across: HAVDALA
-//  6  . . . . . . T . H .
-//  7  C H A L L A H . . .    7-Across: CHALLAH
+//  6  . . . . C . . . H .
+//  7  C H O L E N T . . .    7-Across: CHOLENT
 //  8  . . . . . . . . . .
 //  9  . . . . . . . . . .
 //
@@ -51,26 +51,26 @@ const GRID_SIZE = 10;
 //    - (5,0) HAVDALA[0]=H, SEUDAH[5]=H ✓
 // 3. ONEG (0,5)→(3,5): O N E G
 //    - (0,5) SHABBOS[5]=O, ONEG[0]=O ✓
-// 4. KIDDUSH (0,8)→(6,8): K I D D U S H (no intersections)
+// 4. KIDDUSH (0,8)→(6,8): K I D D U S H (no other intersections)
 // 5. HAVDALA (5,0)→(5,6): H A V D A L A
 //    - (5,0) SEUDAH[5]=H ✓
-//    - (5,6) BATH[1]=A ✓
-// 6. BATH (4,6)→(7,6): B A T H
-//    - (5,6) HAVDALA[6]=A, BATH[1]=A ✓
-//    - (7,6) CHALLAH[6]=H, BATH[3]=H ✓
-// 7. CHALLAH (7,0)→(7,6): C H A L L A H
-//    - (7,6) BATH[3]=H ✓
+//    - (5,4) PEACE[2]=A, HAVDALA[4]=A ✓
+// 6. PEACE (3,4)→(7,4): P E A C E
+//    - (5,4) HAVDALA[4]=A, PEACE[2]=A ✓
+//    - (7,4) CHOLENT[4]=E, PEACE[4]=E ✓
+// 7. CHOLENT (7,0)→(7,6): C H O L E N T
+//    - (7,4) PEACE[4]=E, CHOLENT[4]=E ✓
 
 const CLUES: ClueData[] = [
   // Across clues
   { number: 1, clue: 'The holy day of rest', answer: 'SHABBOS', row: 0, col: 0, direction: 'across' },
   { number: 5, clue: 'End of Shabbos ceremony', answer: 'HAVDALA', row: 5, col: 0, direction: 'across' },
-  { number: 7, clue: 'Braided bread we eat on Shabbos', answer: 'CHALLAH', row: 7, col: 0, direction: 'across' },
+  { number: 7, clue: 'Slow-cooked Shabbos stew', answer: 'CHOLENT', row: 7, col: 0, direction: 'across' },
   // Down clues
   { number: 2, clue: 'A Shabbos meal', answer: 'SEUDAH', row: 0, col: 0, direction: 'down' },
   { number: 3, clue: 'Shabbos joy and delight', answer: 'ONEG', row: 0, col: 5, direction: 'down' },
   { number: 4, clue: 'Friday night blessing over wine', answer: 'KIDDUSH', row: 0, col: 8, direction: 'down' },
-  { number: 6, clue: 'Shabbos mikvah (ritual _____)', answer: 'BATH', row: 4, col: 6, direction: 'down' },
+  { number: 6, clue: 'Shabbat Shalom means Sabbath _____', answer: 'PEACE', row: 3, col: 4, direction: 'down' },
 ];
 
 // Build the grid layout

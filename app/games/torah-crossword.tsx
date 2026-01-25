@@ -2,23 +2,53 @@ import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Keyboard, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
-import Animated, { Easing, FadeIn, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
+import { Keyboard, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import Animated, { Easing, FadeIn, FadeInDown, interpolate, useAnimatedStyle, useSharedValue, withDelay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useIsMobileLayout } from '../../hooks/useDeviceType';
 
 interface ClueData { number: number; clue: string; answer: string; row: number; col: number; direction: 'across' | 'down'; }
 
-const GRID_SIZE = 9;
+// Torah Crossword - 10x10 grid with 6 words
+const GRID_SIZE = 10;
+
+// VERIFIED LAYOUT - 6 words, no adjacent letter issues:
+//     0 1 2 3 4 5 6 7 8 9
+//  0  C H E S E D . . . .    1-Across: CHESED
+//  1  . . . H . . . . . .    2-Down: SHOFAR
+//  2  S . T O R A H . . .    3-Down: SHALOM, 4-Across: TORAH
+//  3  H . . F . . . . . .
+//  4  A . . A . . . . . .
+//  5  L . B R A C H A . .    5-Across: BRACHA
+//  6  O . . . . . . . . .
+//  7  M I T Z V A H . . .    6-Across: MITZVAH
+//  8  . . . . . . . . . .
+//  9  . . . . . . . . . .
+//
+// Verified intersections:
+// 1. CHESED (0,0)→(0,5): C H E S E D
+// 2. SHOFAR (0,3)→(5,3) down: S H O F A R
+//    - (0,3) CHESED[3]=S, SHOFAR[0]=S ✓
+//    - (2,3) TORAH[1]=O, SHOFAR[2]=O ✓
+//    - (5,3) BRACHA[1]=R, SHOFAR[5]=R ✓
+// 3. SHALOM (2,0)→(7,0) down: S H A L O M
+//    - (7,0) MITZVAH[0]=M, SHALOM[5]=M ✓
+// 4. TORAH (2,2)→(2,6): T O R A H
+//    - (2,3) SHOFAR[2]=O, TORAH[1]=O ✓
+// 5. BRACHA (5,2)→(5,7): B R A C H A
+//    - (5,3) SHOFAR[5]=R, BRACHA[1]=R ✓
+// 6. MITZVAH (7,0)→(7,6): M I T Z V A H
+//    - (7,0) SHALOM[5]=M, MITZVAH[0]=M ✓
 
 const CLUES: ClueData[] = [
-  { number: 1, clue: 'The Five Books of Moses', answer: 'TORAH', row: 0, col: 2, direction: 'across' },
-  { number: 4, clue: 'A commandment', answer: 'MITZVAH', row: 2, col: 0, direction: 'across' },
-  { number: 6, clue: 'A blessing we say', answer: 'BRACHA', row: 4, col: 1, direction: 'across' },
-  { number: 7, clue: 'Faith in Hashem', answer: 'EMUNAH', row: 6, col: 0, direction: 'across' },
-  { number: 2, clue: 'Weekly portion we read', answer: 'PARSHA', row: 0, col: 4, direction: 'down' },
-  { number: 3, clue: 'Charity we give', answer: 'TZEDAKAH', row: 0, col: 6, direction: 'down' },
-  { number: 5, clue: 'Prayer we say three times daily', answer: 'SHEMA', row: 3, col: 0, direction: 'down' },
+  // Across clues
+  { number: 1, clue: 'Loving-kindness', answer: 'CHESED', row: 0, col: 0, direction: 'across' },
+  { number: 4, clue: 'The Five Books of Moses', answer: 'TORAH', row: 2, col: 2, direction: 'across' },
+  { number: 5, clue: 'A blessing we say', answer: 'BRACHA', row: 5, col: 2, direction: 'across' },
+  { number: 6, clue: 'A commandment from Hashem', answer: 'MITZVAH', row: 7, col: 0, direction: 'across' },
+  // Down clues
+  { number: 2, clue: 'Ram\'s horn blown on Rosh Hashanah', answer: 'SHOFAR', row: 0, col: 3, direction: 'down' },
+  { number: 3, clue: 'Hebrew greeting meaning peace', answer: 'SHALOM', row: 2, col: 0, direction: 'down' },
 ];
 
 function buildGrid(): (string | null)[][] {
@@ -60,6 +90,34 @@ function ClueItem({ clue, isSelected, isCompleted, onPress }: { clue: ClueData; 
       <Text style={{ fontSize: 14, fontWeight: '700', color: '#0d9488', width: 24 }}>{clue.number}.</Text>
       <Text style={{ fontSize: 14, color: isCompleted ? '#166534' : '#334155', flex: 1, textDecorationLine: isCompleted ? 'line-through' : 'none' }}>{clue.clue}</Text>
       {isCompleted && <FontAwesome name="check" size={14} color="#22c55e" style={{ marginLeft: 8 }} />}
+    </Pressable>
+  );
+}
+
+function HeaderButton({ onPress, icon, bgColor, iconColor, isRefresh }: { onPress: () => void; icon: string; bgColor: string; iconColor: string; isRefresh?: boolean; }) {
+  const isWeb = Platform.OS === 'web';
+  const scale = useSharedValue(1);
+  const hoverBg = useSharedValue(0);
+  const rotation = useSharedValue(0);
+
+  const handleHoverIn = () => { if (isWeb) { scale.value = withSpring(1.1, { damping: 15, stiffness: 300 }); hoverBg.value = withTiming(1, { duration: 150 }); } };
+  const handleHoverOut = () => { if (isWeb) { scale.value = withSpring(1, { damping: 15, stiffness: 300 }); hoverBg.value = withTiming(0, { duration: 150 }); } };
+  const handlePress = () => {
+    scale.value = withSequence(withTiming(0.9, { duration: 100 }), withSpring(1, { damping: 15 }));
+    if (isRefresh) { rotation.value = withSequence(withTiming(rotation.value + 360, { duration: 400, easing: Easing.out(Easing.cubic) })); }
+    onPress();
+  };
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }, { rotate: `${rotation.value}deg` }],
+    backgroundColor: interpolate(hoverBg.value, [0, 1], [0, 1]) === 1 ? '#e2e8f0' : bgColor,
+  }));
+
+  return (
+    <Pressable onPress={handlePress} onHoverIn={handleHoverIn} onHoverOut={handleHoverOut}>
+      <Animated.View style={[animatedStyle, { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' }]}>
+        <FontAwesome name={icon as any} size={18} color={iconColor} />
+      </Animated.View>
     </Pressable>
   );
 }
@@ -109,6 +167,8 @@ export default function TorahCrosswordGame() {
   const [selectedClue, setSelectedClue] = useState<ClueData | null>(null);
   const [gameComplete, setGameComplete] = useState(false);
   const [showAnswers, setShowAnswers] = useState(false);
+  const [gameKey, setGameKey] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const inputRef = useRef<TextInput>(null);
   const cellSize = isMobile ? 36 : 40;
 
@@ -201,7 +261,16 @@ export default function TorahCrosswordGame() {
     }
   };
 
-  const initializeGame = useCallback(() => { setUserInputs(Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(''))); setSelectedCell(null); setSelectedClue(null); setGameComplete(false); setShowAnswers(false); }, []);
+  const initializeGame = useCallback(() => {
+    setIsRefreshing(true);
+    setUserInputs(Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill('')));
+    setSelectedCell(null);
+    setSelectedClue(null);
+    setGameComplete(false);
+    setShowAnswers(false);
+    setGameKey(k => k + 1);
+    setTimeout(() => setIsRefreshing(false), 500);
+  }, []);
 
   const acrossClues = CLUES.filter(c => c.direction === 'across');
   const downClues = CLUES.filter(c => c.direction === 'down');
@@ -212,23 +281,30 @@ export default function TorahCrosswordGame() {
       <TextInput ref={inputRef} value="" onChangeText={handleKeyInput} onKeyPress={e => { if (e.nativeEvent.key === 'Backspace') handleBackspace(); }} autoCapitalize="characters" autoCorrect={false} style={{ position: 'absolute', opacity: 0, height: 0 }} />
       <View style={{ backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#e2e8f0' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }}>
-          <Pressable onPress={() => { Keyboard.dismiss(); router.back(); }} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#f1f5f9', alignItems: 'center', justifyContent: 'center' }}><FontAwesome name="arrow-left" size={18} color="#64748b" /></Pressable>
+          <HeaderButton icon="arrow-left" bgColor="#f1f5f9" iconColor="#64748b" onPress={() => { Keyboard.dismiss(); router.back(); }} />
           <Text style={{ fontWeight: 'bold', color: '#1e293b', fontSize: !isMobile ? 20 : 18 }}>Torah Crossword</Text>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <Pressable onPress={() => setShowAnswers(!showAnswers)} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#fef3c7', alignItems: 'center', justifyContent: 'center' }}><FontAwesome name={showAnswers ? 'eye-slash' : 'eye'} size={16} color="#d97706" /></Pressable>
-            <Pressable onPress={initializeGame} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#ccfbf1', alignItems: 'center', justifyContent: 'center' }}><FontAwesome name="refresh" size={18} color="#0d9488" /></Pressable>
+            <HeaderButton icon="refresh" bgColor="#ccfbf1" iconColor="#0d9488" isRefresh onPress={initializeGame} />
           </View>
         </View>
       </View>
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, flexDirection: !isMobile ? 'row' : 'column', gap: 20 }} showsVerticalScrollIndicator={false}>
-        <View style={{ alignSelf: !isMobile ? 'flex-start' : 'center', backgroundColor: 'white', borderRadius: 12, padding: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 5 }}>
-          {grid.map((row, ri) => <View key={ri} style={{ flexDirection: 'row' }}>{row.map((cell, ci) => <Cell key={`${ri}-${ci}`} row={ri} col={ci} correctLetter={cell} userLetter={userInputs[ri][ci]} isSelected={selectedCell?.row === ri && selectedCell?.col === ci} isHighlighted={highlightedCells.has(`${ri}-${ci}`)} cellNumber={getCellNumber(ri, ci)} onPress={() => handleCellPress(ri, ci)} cellSize={cellSize} isCorrect={cell !== null && userInputs[ri][ci].toUpperCase() === cell.toUpperCase()} showAnswer={showAnswers} />)}</View>)}
+      {isRefreshing ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Animated.View entering={FadeIn.duration(200)}><Text style={{ fontSize: 48 }}>📜</Text></Animated.View>
+          <Text style={{ marginTop: 16, color: '#64748b', fontSize: 16 }}>Resetting puzzle...</Text>
         </View>
-        <View style={{ flex: !isMobile ? 1 : undefined }}>
-          <View style={{ marginBottom: 16 }}><Text style={{ fontWeight: 'bold', color: '#475569', marginBottom: 8, fontSize: !isMobile ? 16 : 14 }}>Across</Text>{acrossClues.map(clue => <ClueItem key={`across-${clue.number}`} clue={clue} isSelected={selectedClue?.number === clue.number && selectedClue?.direction === 'across'} isCompleted={isWordComplete(clue)} onPress={() => handleCluePress(clue)} />)}</View>
-          <View><Text style={{ fontWeight: 'bold', color: '#475569', marginBottom: 8, fontSize: !isMobile ? 16 : 14 }}>Down</Text>{downClues.map(clue => <ClueItem key={`down-${clue.number}`} clue={clue} isSelected={selectedClue?.number === clue.number && selectedClue?.direction === 'down'} isCompleted={isWordComplete(clue)} onPress={() => handleCluePress(clue)} />)}</View>
-        </View>
-      </ScrollView>
+      ) : (
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, flexDirection: !isMobile ? 'row' : 'column', gap: 20 }} showsVerticalScrollIndicator={false}>
+          <Animated.View key={`grid-${gameKey}`} entering={FadeInDown.duration(400).springify()} style={{ alignSelf: !isMobile ? 'flex-start' : 'center', backgroundColor: 'white', borderRadius: 12, padding: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 5 }}>
+            {grid.map((row, ri) => <View key={ri} style={{ flexDirection: 'row' }}>{row.map((cell, ci) => <Cell key={`${ri}-${ci}`} row={ri} col={ci} correctLetter={cell} userLetter={userInputs[ri][ci]} isSelected={selectedCell?.row === ri && selectedCell?.col === ci} isHighlighted={highlightedCells.has(`${ri}-${ci}`)} cellNumber={getCellNumber(ri, ci)} onPress={() => handleCellPress(ri, ci)} cellSize={cellSize} isCorrect={cell !== null && userInputs[ri][ci].toUpperCase() === cell.toUpperCase()} showAnswer={showAnswers} />)}</View>)}
+          </Animated.View>
+          <View style={{ flex: !isMobile ? 1 : undefined }}>
+            <Animated.View entering={FadeIn.duration(300).delay(100)} style={{ marginBottom: 16 }}><Text style={{ fontWeight: 'bold', color: '#475569', marginBottom: 8, fontSize: !isMobile ? 16 : 14 }}>Across</Text>{acrossClues.map((clue, index) => <Animated.View key={`across-${clue.number}`} entering={FadeIn.duration(200).delay(150 + index * 50)}><ClueItem clue={clue} isSelected={selectedClue?.number === clue.number && selectedClue?.direction === 'across'} isCompleted={isWordComplete(clue)} onPress={() => handleCluePress(clue)} /></Animated.View>)}</Animated.View>
+            <Animated.View entering={FadeIn.duration(300).delay(300)}><Text style={{ fontWeight: 'bold', color: '#475569', marginBottom: 8, fontSize: !isMobile ? 16 : 14 }}>Down</Text>{downClues.map((clue, index) => <Animated.View key={`down-${clue.number}`} entering={FadeIn.duration(200).delay(350 + index * 50)}><ClueItem clue={clue} isSelected={selectedClue?.number === clue.number && selectedClue?.direction === 'down'} isCompleted={isWordComplete(clue)} onPress={() => handleCluePress(clue)} /></Animated.View>)}</Animated.View>
+          </View>
+        </ScrollView>
+      )}
       {gameComplete && <VictoryScreen onPlayAgain={initializeGame} onBackToHome={() => router.back()} isMobile={isMobile} />}
     </SafeAreaView>
   );

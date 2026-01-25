@@ -133,10 +133,9 @@ export function RoshHashanahCrosswordIllustration({
       </G>
 
       {/* Title banner */}
-      <G transform="translate(10, 100)">
-        <Rect x="0" y="0" width="140" height="32" rx="8" fill="white" opacity="0.95" />
-        <SvgText x="70" y="15" fontSize="11" fontWeight="bold" fill={primaryColor} textAnchor="middle">Rosh Hashanah Crossword</SvgText>
-        <SvgText x="70" y="27" fontSize="9" fill="#64748b" textAnchor="middle">Solve the Clues</SvgText>
+      <G transform="translate(52, 100)">
+        <Rect x="0" y="0" width="115" height="28" rx="8" fill="white" opacity="0.95" />
+        <SvgText x="57" y="18" fontSize="13" fontWeight="bold" fill={primaryColor} textAnchor="middle">Rosh Hashanah</SvgText>
       </G>
 
       <Circle cx="195" cy="125" r="2" fill="white" opacity="0.6" />

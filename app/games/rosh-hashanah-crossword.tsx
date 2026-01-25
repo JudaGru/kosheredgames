@@ -2,23 +2,39 @@ import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Keyboard, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
-import Animated, { Easing, FadeIn, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
+import { Keyboard, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import Animated, { Easing, FadeIn, FadeInDown, interpolate, useAnimatedStyle, useSharedValue, withDelay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useIsMobileLayout } from '../../hooks/useDeviceType';
 
 interface ClueData { number: number; clue: string; answer: string; row: number; col: number; direction: 'across' | 'down'; }
 
-const GRID_SIZE = 9;
+// Rosh Hashanah Crossword - 8x8 grid
+const GRID_SIZE = 8;
+
+// VERIFIED LAYOUT - All adjacencies form valid words only:
+//     0 1 2 3 4 5 6 7
+//  0  . . S H O F A R     1-Across: SHOFAR (row 0, cols 2-7)
+//  1  . . . O . . P .
+//  2  . . . N . . P .     2-Down: HONEY (col 3, rows 0-4)
+//  3  . . . E . . L .     3-Down: APPLE (col 6, rows 0-4)
+//  4  . . . Y . . E .
+//  5  . . . . . . . .     gap row
+//  6  . . T O R A H .     4-Across: TORAH (row 6, cols 2-6)
+//  7  . . . . . . . .
+//
+// Intersections:
+// - SHOFAR[1]=H at (0,3), HONEY[0]=H ✓
+// - SHOFAR[4]=A at (0,6), APPLE[0]=A ✓
+// No invalid adjacent letters (gap at row 5 separates words)
 
 const CLUES: ClueData[] = [
-  { number: 1, clue: 'The Jewish New Year', answer: 'ROSH', row: 0, col: 0, direction: 'across' },
-  { number: 4, clue: 'We blow this horn', answer: 'SHOFAR', row: 2, col: 0, direction: 'across' },
-  { number: 6, clue: 'Sweet fruit dipped in honey', answer: 'APPLE', row: 4, col: 2, direction: 'across' },
-  { number: 7, clue: 'Returning to Hashem', answer: 'TESHUVAH', row: 6, col: 0, direction: 'across' },
-  { number: 2, clue: 'Special prayer book', answer: 'MACHZOR', row: 0, col: 2, direction: 'down' },
-  { number: 3, clue: 'Sweet food we dip apples in', answer: 'HONEY', row: 0, col: 5, direction: 'down' },
-  { number: 5, clue: 'Fruit with many seeds', answer: 'RIMON', row: 3, col: 0, direction: 'down' },
+  // Across clues
+  { number: 1, clue: 'We blow this horn on Rosh Hashanah', answer: 'SHOFAR', row: 0, col: 2, direction: 'across' },
+  { number: 4, clue: 'The Five Books of Moses', answer: 'TORAH', row: 6, col: 2, direction: 'across' },
+  // Down clues
+  { number: 2, clue: 'Sweet food we dip apples in', answer: 'HONEY', row: 0, col: 3, direction: 'down' },
+  { number: 3, clue: 'Sweet fruit dipped in honey', answer: 'APPLE', row: 0, col: 6, direction: 'down' },
 ];
 
 function buildGrid(): (string | null)[][] {
@@ -64,9 +80,37 @@ function ClueItem({ clue, isSelected, isCompleted, onPress }: { clue: ClueData; 
   );
 }
 
+function HeaderButton({ onPress, icon, bgColor, iconColor, isRefresh }: { onPress: () => void; icon: string; bgColor: string; iconColor: string; isRefresh?: boolean; }) {
+  const isWeb = Platform.OS === 'web';
+  const scale = useSharedValue(1);
+  const hoverBg = useSharedValue(0);
+  const rotation = useSharedValue(0);
+
+  const handleHoverIn = () => { if (isWeb) { scale.value = withSpring(1.1, { damping: 15, stiffness: 300 }); hoverBg.value = withTiming(1, { duration: 150 }); } };
+  const handleHoverOut = () => { if (isWeb) { scale.value = withSpring(1, { damping: 15, stiffness: 300 }); hoverBg.value = withTiming(0, { duration: 150 }); } };
+  const handlePress = () => {
+    scale.value = withSequence(withTiming(0.9, { duration: 100 }), withSpring(1, { damping: 15 }));
+    if (isRefresh) { rotation.value = withSequence(withTiming(rotation.value + 360, { duration: 400, easing: Easing.out(Easing.cubic) })); }
+    onPress();
+  };
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }, { rotate: `${rotation.value}deg` }],
+    backgroundColor: interpolate(hoverBg.value, [0, 1], [0, 1]) === 1 ? '#e2e8f0' : bgColor,
+  }));
+
+  return (
+    <Pressable onPress={handlePress} onHoverIn={handleHoverIn} onHoverOut={handleHoverOut}>
+      <Animated.View style={[animatedStyle, { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' }]}>
+        <FontAwesome name={icon as any} size={18} color={iconColor} />
+      </Animated.View>
+    </Pressable>
+  );
+}
+
 function ConfettiParticle({ index }: { index: number }) {
   const translateY = useSharedValue(-100), translateX = useSharedValue(0), rotate = useSharedValue(0), opacity = useSharedValue(0), scale = useSharedValue(0);
-  const emojis = ['✨', '📯', '⭐', '🍎', '🎊', '🍯', '💫', '🍇'];
+  const emojis = ['✨', '📯', '⭐', '🍎', '🎊', '🍯', '💫', '📜'];
   const emoji = emojis[index % emojis.length];
   const startLeft = useRef(10 + Math.random() * 80).current, fontSize = useRef(24 + Math.random() * 12).current;
   useEffect(() => {
@@ -109,8 +153,10 @@ export default function RoshHashanahCrosswordGame() {
   const [selectedClue, setSelectedClue] = useState<ClueData | null>(null);
   const [gameComplete, setGameComplete] = useState(false);
   const [showAnswers, setShowAnswers] = useState(false);
+  const [gameKey, setGameKey] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const inputRef = useRef<TextInput>(null);
-  const cellSize = isMobile ? 36 : 40;
+  const cellSize = isMobile ? 40 : 44;
 
   const isWordComplete = useCallback((clue: ClueData): boolean => {
     const { answer, row, col, direction } = clue;
@@ -201,7 +247,16 @@ export default function RoshHashanahCrosswordGame() {
     }
   };
 
-  const initializeGame = useCallback(() => { setUserInputs(Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(''))); setSelectedCell(null); setSelectedClue(null); setGameComplete(false); setShowAnswers(false); }, []);
+  const initializeGame = useCallback(() => {
+    setIsRefreshing(true);
+    setUserInputs(Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill('')));
+    setSelectedCell(null);
+    setSelectedClue(null);
+    setGameComplete(false);
+    setShowAnswers(false);
+    setGameKey(k => k + 1);
+    setTimeout(() => setIsRefreshing(false), 500);
+  }, []);
 
   const acrossClues = CLUES.filter(c => c.direction === 'across');
   const downClues = CLUES.filter(c => c.direction === 'down');
@@ -212,23 +267,30 @@ export default function RoshHashanahCrosswordGame() {
       <TextInput ref={inputRef} value="" onChangeText={handleKeyInput} onKeyPress={e => { if (e.nativeEvent.key === 'Backspace') handleBackspace(); }} autoCapitalize="characters" autoCorrect={false} style={{ position: 'absolute', opacity: 0, height: 0 }} />
       <View style={{ backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#e2e8f0' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }}>
-          <Pressable onPress={() => { Keyboard.dismiss(); router.back(); }} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#f1f5f9', alignItems: 'center', justifyContent: 'center' }}><FontAwesome name="arrow-left" size={18} color="#64748b" /></Pressable>
+          <HeaderButton icon="arrow-left" bgColor="#f1f5f9" iconColor="#64748b" onPress={() => { Keyboard.dismiss(); router.back(); }} />
           <Text style={{ fontWeight: 'bold', color: '#1e293b', fontSize: !isMobile ? 20 : 18 }}>Rosh Hashanah Crossword</Text>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <Pressable onPress={() => setShowAnswers(!showAnswers)} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#fef3c7', alignItems: 'center', justifyContent: 'center' }}><FontAwesome name={showAnswers ? 'eye-slash' : 'eye'} size={16} color="#d97706" /></Pressable>
-            <Pressable onPress={initializeGame} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#fef3c7', alignItems: 'center', justifyContent: 'center' }}><FontAwesome name="refresh" size={18} color="#d97706" /></Pressable>
+            <HeaderButton icon="refresh" bgColor="#fef3c7" iconColor="#d97706" isRefresh onPress={initializeGame} />
           </View>
         </View>
       </View>
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, flexDirection: !isMobile ? 'row' : 'column', gap: 20 }} showsVerticalScrollIndicator={false}>
-        <View style={{ alignSelf: !isMobile ? 'flex-start' : 'center', backgroundColor: 'white', borderRadius: 12, padding: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 5 }}>
-          {grid.map((row, ri) => <View key={ri} style={{ flexDirection: 'row' }}>{row.map((cell, ci) => <Cell key={`${ri}-${ci}`} row={ri} col={ci} correctLetter={cell} userLetter={userInputs[ri][ci]} isSelected={selectedCell?.row === ri && selectedCell?.col === ci} isHighlighted={highlightedCells.has(`${ri}-${ci}`)} cellNumber={getCellNumber(ri, ci)} onPress={() => handleCellPress(ri, ci)} cellSize={cellSize} isCorrect={cell !== null && userInputs[ri][ci].toUpperCase() === cell.toUpperCase()} showAnswer={showAnswers} />)}</View>)}
+      {isRefreshing ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Animated.View entering={FadeIn.duration(200)}><Text style={{ fontSize: 48 }}>📯</Text></Animated.View>
+          <Text style={{ marginTop: 16, color: '#64748b', fontSize: 16 }}>Resetting puzzle...</Text>
         </View>
-        <View style={{ flex: !isMobile ? 1 : undefined }}>
-          <View style={{ marginBottom: 16 }}><Text style={{ fontWeight: 'bold', color: '#475569', marginBottom: 8, fontSize: !isMobile ? 16 : 14 }}>Across</Text>{acrossClues.map(clue => <ClueItem key={`across-${clue.number}`} clue={clue} isSelected={selectedClue?.number === clue.number && selectedClue?.direction === 'across'} isCompleted={isWordComplete(clue)} onPress={() => handleCluePress(clue)} />)}</View>
-          <View><Text style={{ fontWeight: 'bold', color: '#475569', marginBottom: 8, fontSize: !isMobile ? 16 : 14 }}>Down</Text>{downClues.map(clue => <ClueItem key={`down-${clue.number}`} clue={clue} isSelected={selectedClue?.number === clue.number && selectedClue?.direction === 'down'} isCompleted={isWordComplete(clue)} onPress={() => handleCluePress(clue)} />)}</View>
-        </View>
-      </ScrollView>
+      ) : (
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, flexDirection: !isMobile ? 'row' : 'column', gap: 20 }} showsVerticalScrollIndicator={false}>
+          <Animated.View key={`grid-${gameKey}`} entering={FadeInDown.duration(400).springify()} style={{ alignSelf: !isMobile ? 'flex-start' : 'center', backgroundColor: 'white', borderRadius: 12, padding: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 5 }}>
+            {grid.map((row, ri) => <View key={ri} style={{ flexDirection: 'row' }}>{row.map((cell, ci) => <Cell key={`${ri}-${ci}`} row={ri} col={ci} correctLetter={cell} userLetter={userInputs[ri][ci]} isSelected={selectedCell?.row === ri && selectedCell?.col === ci} isHighlighted={highlightedCells.has(`${ri}-${ci}`)} cellNumber={getCellNumber(ri, ci)} onPress={() => handleCellPress(ri, ci)} cellSize={cellSize} isCorrect={cell !== null && userInputs[ri][ci].toUpperCase() === cell.toUpperCase()} showAnswer={showAnswers} />)}</View>)}
+          </Animated.View>
+          <View style={{ flex: !isMobile ? 1 : undefined }}>
+            <Animated.View entering={FadeIn.duration(300).delay(100)} style={{ marginBottom: 16 }}><Text style={{ fontWeight: 'bold', color: '#475569', marginBottom: 8, fontSize: !isMobile ? 16 : 14 }}>Across</Text>{acrossClues.map((clue, index) => <Animated.View key={`across-${clue.number}`} entering={FadeIn.duration(200).delay(150 + index * 50)}><ClueItem clue={clue} isSelected={selectedClue?.number === clue.number && selectedClue?.direction === 'across'} isCompleted={isWordComplete(clue)} onPress={() => handleCluePress(clue)} /></Animated.View>)}</Animated.View>
+            <Animated.View entering={FadeIn.duration(300).delay(300)}><Text style={{ fontWeight: 'bold', color: '#475569', marginBottom: 8, fontSize: !isMobile ? 16 : 14 }}>Down</Text>{downClues.map((clue, index) => <Animated.View key={`down-${clue.number}`} entering={FadeIn.duration(200).delay(350 + index * 50)}><ClueItem clue={clue} isSelected={selectedClue?.number === clue.number && selectedClue?.direction === 'down'} isCompleted={isWordComplete(clue)} onPress={() => handleCluePress(clue)} /></Animated.View>)}</Animated.View>
+          </View>
+        </ScrollView>
+      )}
       {gameComplete && <VictoryScreen onPlayAgain={initializeGame} onBackToHome={() => router.back()} isMobile={isMobile} />}
     </SafeAreaView>
   );

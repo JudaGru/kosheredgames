@@ -49,6 +49,7 @@ import { DaysOfCreationIllustration } from './DaysOfCreationIllustration';
 import { JewishHolidaysOrderIllustration } from './JewishHolidaysOrderIllustration';
 import { NachWhoAmIIllustration } from './NachWhoAmIIllustration';
 import { GedolimWhoAmIIllustration } from './GedolimWhoAmIIllustration';
+import { LetterGridIllustration } from './LetterGridIllustration';
 import { Colors, getTopicColor } from '@/constants/Colors';
 import type { GameType } from '@/types/game';
 
@@ -209,6 +210,9 @@ export function GameIllustration({ gameType, topic, title, gameId, width, height
   }
   if (gameId === 'trivia-gedolim-who-am-i') {
     return <GedolimWhoAmIIllustration {...props} />;
+  }
+  if (gameId === 'letter-grid-torah') {
+    return <LetterGridIllustration {...props} />;
   }
 
   switch (gameType) {

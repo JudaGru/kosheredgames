@@ -213,9 +213,9 @@ export const wordGames: Game[] = [
   {
     id: 'word-hanukkah-search',
     title: 'Chanukah',
-    description: 'Find hidden Hanukkah words in the puzzle',
+    description: 'Find hidden Chanukkah words in the puzzle',
     gameType: 'word-games',
-    topic: 'Hanukkah',
+    topic: 'Chanukkah',
     difficulty: 'beginner',
     ageRange: '6+',
   },
@@ -265,15 +265,6 @@ export const wordGames: Game[] = [
     ageRange: '6+',
   },
   {
-    id: 'word-parsha-crossword',
-    title: 'Parsha Crossword',
-    description: 'Solve crossword puzzles based on the weekly parsha',
-    gameType: 'word-games',
-    topic: 'Weekly Parsha',
-    difficulty: 'intermediate',
-    ageRange: '10-16',
-  },
-  {
     id: 'word-shabbos-crossword',
     title: 'Shabbos Crossword',
     description: 'Solve a crossword puzzle about Shabbos',
@@ -284,8 +275,8 @@ export const wordGames: Game[] = [
   },
   {
     id: 'word-purim-crossword',
-    title: 'Purim Crossword',
-    description: 'Solve a crossword puzzle about Purim',
+    title: 'Purim',
+    description: '',
     gameType: 'word-games',
     topic: 'Purim',
     difficulty: 'beginner',
@@ -293,8 +284,8 @@ export const wordGames: Game[] = [
   },
   {
     id: 'word-pesach-crossword',
-    title: 'Pesach Crossword',
-    description: 'Solve a crossword puzzle about Pesach',
+    title: 'Pesach',
+    description: '',
     gameType: 'word-games',
     topic: 'Pesach',
     difficulty: 'beginner',
@@ -302,17 +293,17 @@ export const wordGames: Game[] = [
   },
   {
     id: 'word-hanukkah-crossword',
-    title: 'Hanukkah Crossword',
-    description: 'Solve a crossword puzzle about Hanukkah',
+    title: 'Chanukkah',
+    description: '',
     gameType: 'word-games',
-    topic: 'Hanukkah',
+    topic: 'Chanukkah',
     difficulty: 'beginner',
     ageRange: '8+',
   },
   {
     id: 'word-rosh-hashanah-crossword',
-    title: 'Rosh Hashanah Crossword',
-    description: 'Solve a crossword puzzle about Rosh Hashanah',
+    title: 'Rosh Hashanah',
+    description: '',
     gameType: 'word-games',
     topic: 'Rosh Hashanah',
     difficulty: 'beginner',
@@ -320,8 +311,8 @@ export const wordGames: Game[] = [
   },
   {
     id: 'word-torah-crossword',
-    title: 'Torah Crossword',
-    description: 'Solve a crossword puzzle about Torah concepts',
+    title: 'Torah',
+    description: '',
     gameType: 'word-games',
     topic: 'Torah',
     difficulty: 'beginner',
@@ -353,6 +344,18 @@ export const wordGames: Game[] = [
     topic: 'Hebrew',
     difficulty: 'intermediate',
     ageRange: '8-14',
+  },
+];
+
+export const letterGridGames: Game[] = [
+  {
+    id: 'letter-grid-torah',
+    title: 'Sukkos Words',
+    description: 'Find Sukkos-themed words by connecting letters',
+    gameType: 'word-games',
+    topic: 'Sukkos',
+    difficulty: 'intermediate',
+    ageRange: '8+',
   },
 ];
 
@@ -501,6 +504,14 @@ export const gameCategories: GameCategory[] = [
     description: 'Piece together beautiful Jewish-themed images',
     gameType: 'jigsaw-puzzles',
     games: jigsawPuzzleGames,
+  },
+  // Letter Grid (Boggle-style word finding)
+  {
+    id: 'letter-grid',
+    title: 'Letter Grid',
+    description: 'Find words by connecting adjacent letters',
+    gameType: 'word-games',
+    games: letterGridGames,
   },
 ];
 
