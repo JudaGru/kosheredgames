@@ -17,7 +17,7 @@ interface SEOProps {
   };
 }
 
-const BASE_URL = 'https://kosheredgegames.com';
+const BASE_URL = 'https://alephplay.com';
 const DEFAULT_IMAGE = `${BASE_URL}/og-image.png`;
 
 export function SEO({
@@ -32,7 +32,7 @@ export function SEO({
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof document === 'undefined') return;
 
-    const fullTitle = `${title} | Kosher Edge Games`;
+    const fullTitle = `${title} | AlephPlay`;
     const fullUrl = url ? `${BASE_URL}${url}` : BASE_URL;
 
     // Update document title
@@ -123,7 +123,7 @@ export function SEO({
         isAccessibleForFree: true,
         publisher: {
           '@type': 'Organization',
-          name: 'Kosher Edge Games',
+          name: 'AlephPlay',
           url: BASE_URL,
         },
       });
@@ -189,7 +189,7 @@ export function getGameSEOConfig(game: {
 
   return {
     title: `${game.title} - Free ${gameTypeLabel}`,
-    description: `${game.description} A free Jewish educational ${gameTypeLabel.toLowerCase()} about ${game.topic} for ages ${game.ageRange}. Play now at Kosher Edge Games!`,
+    description: `${game.description} A free Jewish educational ${gameTypeLabel.toLowerCase()} about ${game.topic} for ages ${game.ageRange}. Play now at AlephPlay!`,
     keywords: `${game.title}, ${game.topic}, Jewish ${gameTypeLabel.toLowerCase()}, Torah games, Hebrew learning, kids games, educational games, ${game.topic} game`,
     url: game.route,
     type: 'game' as const,

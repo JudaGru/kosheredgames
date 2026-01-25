@@ -2,246 +2,246 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Main Pages -->
   <url>
-    <loc>https://kosheredgegames.com/</loc>
+    <loc>https://alephplay.com/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/categories</loc>
+    <loc>https://alephplay.com/categories</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/favorites</loc>
+    <loc>https://alephplay.com/favorites</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <!-- Matching Games -->
   <url>
-    <loc>https://kosheredgegames.com/games/twelve-tribes</loc>
+    <loc>https://alephplay.com/games/twelve-tribes</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/alef-beis-match</loc>
+    <loc>https://alephplay.com/games/alef-beis-match</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/holiday-match</loc>
+    <loc>https://alephplay.com/games/holiday-match</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/animal-match</loc>
+    <loc>https://alephplay.com/games/animal-match</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/shabbos-match</loc>
+    <loc>https://alephplay.com/games/shabbos-match</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/midos-match</loc>
+    <loc>https://alephplay.com/games/midos-match</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- Flashcard Games -->
   <url>
-    <loc>https://kosheredgegames.com/games/bereishis-flashcards</loc>
+    <loc>https://alephplay.com/games/bereishis-flashcards</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/noach-flashcards</loc>
+    <loc>https://alephplay.com/games/noach-flashcards</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/lech-lecha-flashcards</loc>
+    <loc>https://alephplay.com/games/lech-lecha-flashcards</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/pesach-flashcards</loc>
+    <loc>https://alephplay.com/games/pesach-flashcards</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/shavuos-flashcards</loc>
+    <loc>https://alephplay.com/games/shavuos-flashcards</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/purim-flashcards</loc>
+    <loc>https://alephplay.com/games/purim-flashcards</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/yehoshua-flashcards</loc>
+    <loc>https://alephplay.com/games/yehoshua-flashcards</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- Word Search Games -->
   <url>
-    <loc>https://kosheredgegames.com/games/hanukkah-word-search</loc>
+    <loc>https://alephplay.com/games/hanukkah-word-search</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/shabbos-word-search</loc>
+    <loc>https://alephplay.com/games/shabbos-word-search</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/purim-word-search</loc>
+    <loc>https://alephplay.com/games/purim-word-search</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/pesach-word-search</loc>
+    <loc>https://alephplay.com/games/pesach-word-search</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/rosh-hashanah-word-search</loc>
+    <loc>https://alephplay.com/games/rosh-hashanah-word-search</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/torah-word-search</loc>
+    <loc>https://alephplay.com/games/torah-word-search</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- Crossword Games -->
   <url>
-    <loc>https://kosheredgegames.com/games/shabbos-crossword</loc>
+    <loc>https://alephplay.com/games/shabbos-crossword</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/purim-crossword</loc>
+    <loc>https://alephplay.com/games/purim-crossword</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/pesach-crossword</loc>
+    <loc>https://alephplay.com/games/pesach-crossword</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/hanukkah-crossword</loc>
+    <loc>https://alephplay.com/games/hanukkah-crossword</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/rosh-hashanah-crossword</loc>
+    <loc>https://alephplay.com/games/rosh-hashanah-crossword</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/torah-crossword</loc>
+    <loc>https://alephplay.com/games/torah-crossword</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- Trivia Games -->
   <url>
-    <loc>https://kosheredgegames.com/games/parsha-trivia</loc>
+    <loc>https://alephplay.com/games/parsha-trivia</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/halacha-trivia</loc>
+    <loc>https://alephplay.com/games/halacha-trivia</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/jewish-history-trivia</loc>
+    <loc>https://alephplay.com/games/jewish-history-trivia</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/true-false</loc>
+    <loc>https://alephplay.com/games/true-false</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/nach-true-false</loc>
+    <loc>https://alephplay.com/games/nach-true-false</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/holidays-true-false</loc>
+    <loc>https://alephplay.com/games/holidays-true-false</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/who-am-i</loc>
+    <loc>https://alephplay.com/games/who-am-i</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/nach-who-am-i</loc>
+    <loc>https://alephplay.com/games/nach-who-am-i</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/gedolim-who-am-i</loc>
+    <loc>https://alephplay.com/games/gedolim-who-am-i</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- Sequencing Games -->
   <url>
-    <loc>https://kosheredgegames.com/games/ten-makkos</loc>
+    <loc>https://alephplay.com/games/ten-makkos</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/days-of-creation</loc>
+    <loc>https://alephplay.com/games/days-of-creation</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/jewish-holidays-order</loc>
+    <loc>https://alephplay.com/games/jewish-holidays-order</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- Jigsaw Puzzle Games -->
   <url>
-    <loc>https://kosheredgegames.com/games/jigsaw-kotel</loc>
+    <loc>https://alephplay.com/games/jigsaw-kotel</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/jigsaw-menorah</loc>
+    <loc>https://alephplay.com/games/jigsaw-menorah</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/jigsaw-shabbos</loc>
+    <loc>https://alephplay.com/games/jigsaw-shabbos</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/jigsaw-sukkos</loc>
+    <loc>https://alephplay.com/games/jigsaw-sukkos</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/jigsaw-purim</loc>
+    <loc>https://alephplay.com/games/jigsaw-purim</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kosheredgegames.com/games/jigsaw-torah</loc>
+    <loc>https://alephplay.com/games/jigsaw-torah</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

@@ -1,11 +1,11 @@
-# Robots.txt for Kosher Edge Games
-# https://kosheredgegames.com
+# Robots.txt for AlephPlay
+# https://alephplay.com
 
 User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://kosheredgegames.com/sitemap.xml
+Sitemap: https://alephplay.com/sitemap.xml
 
 # Crawl-delay (optional, be nice to servers)
 Crawl-delay: 1
