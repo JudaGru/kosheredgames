@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome } from '@expo/vector-icons';
 import { FeedbackModal } from '@/components/FeedbackModal';
 import { Colors } from '@/constants/Colors';
+import { isSupabaseConfigured } from '@/lib/supabase';
 
 export default function ProfileScreen() {
   const [feedbackVisible, setFeedbackVisible] = useState(false);
@@ -19,13 +20,15 @@ export default function ProfileScreen() {
           Your profile and settings.{'\n'}Coming soon!
         </Text>
 
-        <TouchableOpacity
-          style={styles.feedbackButton}
-          onPress={() => setFeedbackVisible(true)}
-        >
-          <FontAwesome name="comment" size={18} color="#fff" style={styles.buttonIcon} />
-          <Text style={styles.feedbackButtonText}>Send Feedback</Text>
-        </TouchableOpacity>
+        {isSupabaseConfigured && (
+          <TouchableOpacity
+            style={styles.feedbackButton}
+            onPress={() => setFeedbackVisible(true)}
+          >
+            <FontAwesome name="comment" size={18} color="#fff" style={styles.buttonIcon} />
+            <Text style={styles.feedbackButtonText}>Send Feedback</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <FeedbackModal

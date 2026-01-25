@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase, isSupabaseConfigured } from './supabase';
 import { Platform } from 'react-native';
 
 export interface FeedbackData {
@@ -18,6 +18,10 @@ export interface FeedbackRecord extends FeedbackData {
 }
 
 export async function submitFeedback(data: FeedbackData): Promise<{ success: boolean; error?: string }> {
+  if (!isSupabaseConfigured) {
+    return { success: false, error: 'Feedback is not available in this environment.' };
+  }
+
   try {
     const { error } = await supabase.from('feedback').insert({
       game_id: data.gameId || null,
