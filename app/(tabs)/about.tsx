@@ -66,7 +66,6 @@ export default function AboutScreen() {
           <Text style={styles.sectionTitle}>Our Mission</Text>
           <Text style={styles.paragraph}>
             AlephPlay is dedicated to providing strictly educational Jewish content for children.
-            We believe that when learning feels like play, children naturally develop a love for Torah and Jewish heritage.
           </Text>
           <Text style={[styles.paragraph, { marginTop: 12 }]}>
             We are committed to keeping our platform ad-free so parents can be confident their children

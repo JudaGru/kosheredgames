@@ -44,9 +44,9 @@ const QUESTION_DATA = [
   },
   {
     id: 5,
-    question: 'What dairy foods are traditionally eaten on Shavuos?',
-    answer: 'Cheesecake, blintzes, and other milk dishes',
-    source: 'Rema OC 494:3',
+    question: 'On which mountain was the Torah given?',
+    answer: 'Har Sinai',
+    source: 'Shemos 19:11',
   },
   {
     id: 6,
@@ -86,9 +86,9 @@ const QUESTION_DATA = [
   },
   {
     id: 12,
-    question: 'How many times did Moshe go up Har Sinai?',
-    answer: 'Three times (40 days each)',
-    source: 'Devarim 9-10',
+    question: 'Who was the husband of Rus?',
+    answer: 'Boaz',
+    source: 'Megillas Rus 4:13',
   },
   {
     id: 13,

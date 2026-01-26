@@ -1209,12 +1209,13 @@ export default function TorahWordSearchGame() {
                 ))}
               </ScrollView>
             ) : (
-              <View
-                style={{
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{
                   flexDirection: 'row',
-                  flexWrap: 'wrap',
-                  justifyContent: 'center',
                   gap: 6,
+                  paddingHorizontal: 4,
                 }}
               >
                 {placedWords.map((w) => (
@@ -1225,7 +1226,7 @@ export default function TorahWordSearchGame() {
                     isWeb={isWeb}
                   />
                 ))}
-              </View>
+              </ScrollView>
             )}
           </View>
         </View>

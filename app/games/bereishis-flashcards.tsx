@@ -26,7 +26,7 @@ const QUESTION_DATA = [
   },
   {
     id: 2,
-    question: 'What did Hashem create on the first day?',
+    question: 'What did Hashem say "Yehi" (Let there be) on the first day?',
     answer: 'Light (Or)',
     source: 'Bereishis 1:3-5',
   },

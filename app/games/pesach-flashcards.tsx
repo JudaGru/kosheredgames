@@ -74,9 +74,9 @@ const QUESTION_DATA = [
   },
   {
     id: 10,
-    question: 'What is the order of the 15 steps of the Seder called?',
-    answer: 'The Simanim (Kadesh, Urchatz, Karpas...)',
-    source: 'Pesach Haggadah',
+    question: 'What was the last of the ten makkos (plagues)?',
+    answer: 'Makkas Bechoros (Death of the firstborn)',
+    source: 'Shemos 12:29',
   },
   {
     id: 11,

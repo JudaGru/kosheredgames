@@ -20,7 +20,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const QUESTION_DATA = [
   {
     id: 1,
-    question: 'What did Hashem tell Avram to leave behind?',
+    question: 'What are the three things included in "Lech Lecha"?',
     answer: 'His land, his birthplace, and his father\'s house',
     source: 'Bereishis 12:1',
   },
@@ -74,8 +74,8 @@ const QUESTION_DATA = [
   },
   {
     id: 10,
-    question: 'Who was Malki-Tzedek and what did he bring to Avram?',
-    answer: 'King of Shalem (Jerusalem), a Kohen - he brought bread and wine',
+    question: 'What did Malki-Tzedek bring out to greet Avram?',
+    answer: 'Bread and wine',
     source: 'Bereishis 14:18',
   },
   {

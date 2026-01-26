@@ -347,18 +347,6 @@ export const wordGames: Game[] = [
   },
 ];
 
-export const letterGridGames: Game[] = [
-  {
-    id: 'letter-grid-torah',
-    title: 'Sukkos Words',
-    description: 'Find Sukkos-themed words by connecting letters',
-    gameType: 'word-games',
-    topic: 'Sukkos',
-    difficulty: 'intermediate',
-    ageRange: '8+',
-  },
-];
-
 export const jigsawPuzzleGames: Game[] = [
   {
     id: 'jigsaw-kotel',
@@ -504,14 +492,6 @@ export const gameCategories: GameCategory[] = [
     description: 'Piece together beautiful Jewish-themed images',
     gameType: 'jigsaw-puzzles',
     games: jigsawPuzzleGames,
-  },
-  // Letter Grid (Boggle-style word finding)
-  {
-    id: 'letter-grid',
-    title: 'Letter Grid',
-    description: 'Find words by connecting adjacent letters',
-    gameType: 'word-games',
-    games: letterGridGames,
   },
 ];
 
