@@ -1,7 +1,6 @@
 import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
-import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Colors from '@/constants/Colors';
@@ -16,12 +15,12 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const isWeb = Platform.OS === 'web';
   const insets = useSafeAreaInsets();
 
   // Use safe area inset for bottom padding, with a minimum of 8px
-  const bottomPadding = isWeb ? 8 : Math.max(insets.bottom, 8);
-  const tabBarHeight = isWeb ? 60 : 50 + bottomPadding;
+  // On web, also respect safe area insets (for mobile browsers with bottom chrome)
+  const bottomPadding = Math.max(insets.bottom, 8);
+  const tabBarHeight = 50 + bottomPadding;
 
   return (
     <Tabs

@@ -12,30 +12,26 @@ import { gameCategories } from '@/data/games';
 import type { Game } from '@/types/game';
 
 // Helper function to check if a game's age range matches the selected filter
-// A game matches if a child in the filter age range could play it
-// (i.e., the game's minimum age is at or below the filter's maximum age)
+// Filter is in "X+" format (e.g., "5+") meaning "show games for age X and up"
+// A game matches if its minimum age requirement is at or below the selected age
 function gameMatchesAgeFilter(gameAgeRange: string, filter: AgeFilter): boolean {
   if (filter === 'all') return true;
 
   // Parse the game's age range (e.g., "4+", "6+", "10+")
-  const rangeMatch = gameAgeRange.match(/^(\d+)(?:-(\d+)|\+)?$/);
-  if (!rangeMatch) return true; // If we can't parse, show the game
+  const gameMatch = gameAgeRange.match(/^(\d+)\+?$/);
+  if (!gameMatch) return true; // If we can't parse, show the game
 
-  const gameMinAge = parseInt(rangeMatch[1], 10);
+  const gameMinAge = parseInt(gameMatch[1], 10);
 
-  // Define what maximum age each filter represents
-  // A game is shown if a child at the filter's max age could play it
-  const filterMaxAge: Record<Exclude<AgeFilter, 'all'>, number> = {
-    '3-5': 5,
-    '6-8': 8,
-    '9-12': 12,
-    '13+': 99,
-  };
+  // Parse the filter age (e.g., "5+" -> 5)
+  const filterMatch = filter.match(/^(\d+)\+$/);
+  if (!filterMatch) return true;
 
-  const maxAge = filterMaxAge[filter];
+  const filterAge = parseInt(filterMatch[1], 10);
 
-  // Show the game if the child's age (up to filter max) meets the game's minimum age requirement
-  return gameMinAge <= maxAge;
+  // Show the game if its minimum age is at or below the selected filter age
+  // e.g., if user selects "5+", show games tagged "4+", "5+" but not "6+"
+  return gameMinAge <= filterAge;
 }
 
 export default function HomeScreen() {
