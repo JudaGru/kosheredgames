@@ -22,50 +22,59 @@ const gameTypeIcons: Record<string, string> = {
   'jigsaw-puzzles': 'puzzle-piece',
 };
 
+// Routes must match home screen (index.tsx) exactly
 const gameTypeRoutes: Record<string, string> = {
+  // Matching games
   'match-12-tribes': '/games/twelve-tribes',
   'match-hebrew-letters': '/games/alef-beis-match',
   'match-holidays': '/games/holiday-match',
   'match-animals': '/games/animal-match',
   'match-shabbos': '/games/shabbos-match',
   'match-midos': '/games/midos-match',
+  // Flashcard games
   'flash-bereishis-basics': '/games/bereishis-flashcards',
   'flash-noach': '/games/noach-flashcards',
   'flash-lech-lecha': '/games/lech-lecha-flashcards',
-  'flash-vayeira': '/games/vayeira-flashcards',
-  'flash-chayei-sarah': '/games/chayei-sarah-flashcards',
-  'flash-toldos': '/games/toldos-flashcards',
-  'flash-chumash-vocab': '/games/chumash-vocab-flashcards',
+  'flash-pesach': '/games/pesach-flashcards',
+  'flash-shavuos': '/games/shavuos-flashcards',
+  'flash-purim': '/games/purim-flashcards',
+  'flash-yehoshua': '/games/yehoshua-flashcards',
+  // Trivia games
   'trivia-parsha': '/games/parsha-trivia',
   'trivia-jewish-history': '/games/jewish-history-trivia',
-  'trivia-halacha-basics': '/games/halacha-trivia',
-  'trivia-gedolim-who-am-i': '/games/gedolim-trivia',
-  'word-hanukkah-search': '/games/chanukah-word-search',
+  'trivia-halacha': '/games/halacha-trivia',
+  'trivia-true-false': '/games/true-false',
+  'trivia-nach-true-false': '/games/nach-true-false',
+  'trivia-holidays-true-false': '/games/holidays-true-false',
+  'trivia-who-am-i': '/games/who-am-i',
+  'trivia-nach-who-am-i': '/games/nach-who-am-i',
+  'trivia-gedolim-who-am-i': '/games/gedolim-who-am-i',
+  // Word search games
+  'word-hanukkah-search': '/games/hanukkah-word-search',
   'word-shabbos-search': '/games/shabbos-word-search',
   'word-purim-search': '/games/purim-word-search',
   'word-pesach-search': '/games/pesach-word-search',
   'word-rosh-hashanah-search': '/games/rosh-hashanah-word-search',
   'word-torah-search': '/games/torah-word-search',
-  'word-shabbos-crossword': '/games/torah-crossword',
+  // Crossword games
+  'word-shabbos-crossword': '/games/shabbos-crossword',
   'word-purim-crossword': '/games/purim-crossword',
   'word-pesach-crossword': '/games/pesach-crossword',
-  'word-hanukkah-crossword': '/games/chanukah-crossword',
+  'word-hanukkah-crossword': '/games/hanukkah-crossword',
   'word-rosh-hashanah-crossword': '/games/rosh-hashanah-crossword',
-  'word-torah-crossword': '/games/torah-crossword-2',
-  'word-chumash-hangman': '/games/chumash-hangman',
-  'word-mishnah-scramble': '/games/mishnah-scramble',
-  'word-spelling-bee': '/games/spelling-bee',
-  'letter-grid-torah': '/games/letter-grid-torah',
+  'word-torah-crossword': '/games/torah-crossword',
+  // Jigsaw puzzles
   'jigsaw-kotel': '/games/jigsaw-kotel',
   'jigsaw-menorah': '/games/jigsaw-menorah',
   'jigsaw-shabbos': '/games/jigsaw-shabbos',
   'jigsaw-sukkos': '/games/jigsaw-sukkos',
   'jigsaw-purim': '/games/jigsaw-purim',
   'jigsaw-torah': '/games/jigsaw-torah',
+  // Sequencing games
   'sequence-ten-makkos': '/games/ten-makkos',
   'sequence-creation': '/games/days-of-creation',
   'sequence-avos': '/games/avos-imahos',
-  'sequence-yomim-tovim': '/games/yomim-tovim-sequence',
+  'sequence-yomim-tovim': '/games/jewish-holidays-order',
 };
 
 export default function SearchScreen() {
