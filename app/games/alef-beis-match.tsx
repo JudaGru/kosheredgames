@@ -15,10 +15,9 @@ import Animated, {
   withSpring,
   withTiming
 } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useDeviceType } from '@/hooks/useDeviceType';
-import { useWebSafeArea } from '@/hooks/useWebSafeArea';
 
 // Complete Hebrew Alef-Beis - all 22 letters
 const ALEF_BEIS_DATA = [
@@ -556,10 +555,6 @@ function PlayerOptionButton({
 function PlayerSetupScreen({ onStartGame }: { onStartGame: (playerCount: number) => void }) {
   const isWeb = Platform.OS === 'web';
   const [backHovered, setBackHovered] = useState(false);
-  const nativeInsets = useSafeAreaInsets();
-  const webInsets = useWebSafeArea();
-  // Use web insets on web platform, native insets otherwise
-  const safeInsets = isWeb ? webInsets : nativeInsets;
 
   // Display letters for the header - showing variety of alef-beis
   const displayLetters = [
@@ -573,14 +568,7 @@ function PlayerSetupScreen({ onStartGame }: { onStartGame: (playerCount: number)
   displayLetters.reverse();
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: '#fffbeb',
-        paddingTop: safeInsets.top,
-        paddingBottom: safeInsets.bottom,
-      }}
-    >
+    <SafeAreaView className="flex-1 bg-amber-50">
       <View
         style={{
           flex: 1,
@@ -705,7 +693,7 @@ function PlayerSetupScreen({ onStartGame }: { onStartGame: (playerCount: number)
           </Pressable>
         </Animated.View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -865,10 +853,6 @@ function VictoryScreen({
 export default function AlefBeisMatchGame() {
   const { isMobile, isLoading: isDetectingDevice } = useDeviceType();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-  const isWeb = Platform.OS === 'web';
-  const nativeInsets = useSafeAreaInsets();
-  const webInsets = useWebSafeArea();
-  const safeInsets = isWeb ? webInsets : nativeInsets;
   const [gameStarted, setGameStarted] = useState(false);
   const [playerCount, setPlayerCount] = useState(1);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -992,19 +976,10 @@ export default function AlefBeisMatchGame() {
   // Show loader while detecting device type - MUST be after all hooks
   if (isDetectingDevice) {
     return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: '#f0f9ff',
-          alignItems: 'center',
-          justifyContent: 'center',
-          paddingTop: safeInsets.top,
-          paddingBottom: safeInsets.bottom,
-        }}
-      >
+      <SafeAreaView className="flex-1 bg-sky-50 items-center justify-center">
         <StatusBar style="dark" />
         <Text style={{ color: '#0284c7', fontSize: 16 }}>Loading...</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -1090,14 +1065,7 @@ export default function AlefBeisMatchGame() {
   const currentPlayer = players[currentPlayerIndex];
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: '#fffbeb',
-        paddingTop: safeInsets.top,
-        paddingBottom: safeInsets.bottom,
-      }}
-    >
+    <SafeAreaView className="flex-1 bg-amber-50">
       <StatusBar style="dark" />
 
       {/* Header */}
@@ -1258,6 +1226,6 @@ export default function AlefBeisMatchGame() {
           }}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 }

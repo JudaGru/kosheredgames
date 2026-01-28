@@ -15,9 +15,8 @@ import Animated, {
   withSpring,
   withTiming
 } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDeviceType } from '@/hooks/useDeviceType';
-import { useWebSafeArea } from '@/hooks/useWebSafeArea';
 
 // Animals data with Hebrew names including nekudos
 const ANIMALS_DATA = [
@@ -539,9 +538,6 @@ function PlayerOptionButton({
 function PlayerSetupScreen({ onStartGame }: { onStartGame: (playerCount: number) => void }) {
   const isWeb = Platform.OS === 'web';
   const [backHovered, setBackHovered] = useState(false);
-  const nativeInsets = useSafeAreaInsets();
-  const webInsets = useWebSafeArea();
-  const safeInsets = isWeb ? webInsets : nativeInsets;
 
   // Sample animal symbols for the header display
   const displayAnimals = [
@@ -553,7 +549,7 @@ function PlayerSetupScreen({ onStartGame }: { onStartGame: (playerCount: number)
   ];
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#fffbeb', paddingTop: safeInsets.top, paddingBottom: safeInsets.bottom }}>
+    <SafeAreaView className="flex-1 bg-amber-50">
       <View
         style={{
           flex: 1,
@@ -678,7 +674,7 @@ function PlayerSetupScreen({ onStartGame }: { onStartGame: (playerCount: number)
           </Pressable>
         </Animated.View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -838,10 +834,6 @@ function VictoryScreen({
 export default function AnimalMatchGame() {
   const { isMobile, isLoading: isDetectingDevice } = useDeviceType();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-  const isWeb = Platform.OS === 'web';
-  const nativeInsets = useSafeAreaInsets();
-  const webInsets = useWebSafeArea();
-  const safeInsets = isWeb ? webInsets : nativeInsets;
   const [gameStarted, setGameStarted] = useState(false);
   const [playerCount, setPlayerCount] = useState(1);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -960,10 +952,10 @@ export default function AnimalMatchGame() {
   // Show loader while detecting device type - MUST be after all hooks
   if (isDetectingDevice) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#ecfdf5', alignItems: 'center', justifyContent: 'center', paddingTop: safeInsets.top, paddingBottom: safeInsets.bottom }}>
+      <SafeAreaView className="flex-1 bg-emerald-50 items-center justify-center">
         <StatusBar style="dark" />
         <Text style={{ color: '#059669', fontSize: 16 }}>Loading...</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -1049,7 +1041,7 @@ export default function AnimalMatchGame() {
   const currentPlayer = players[currentPlayerIndex];
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#fffbeb', paddingTop: safeInsets.top, paddingBottom: safeInsets.bottom }}>
+    <SafeAreaView className="flex-1 bg-amber-50">
       <StatusBar style="dark" />
 
       {/* Header */}
@@ -1210,6 +1202,6 @@ export default function AnimalMatchGame() {
           }}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 }

@@ -14,74 +14,37 @@ function TabBarIcon(props: {
   return <FontAwesome size={24} style={{ marginBottom: -3 }} {...props} />;
 }
 
-// Hook to detect if running in a mobile browser with potential overlays
-function useWebSafeAreaBottom(): number {
-  const [safeAreaBottom, setSafeAreaBottom] = useState(0);
+// Detect mobile browser and add fallback bottom padding
+function useMobileBrowserBottomPadding(): number {
+  const [extraPadding, setExtraPadding] = useState(0);
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
 
-    // Try to get the CSS env() value
-    const getCSSEnvValue = () => {
-      const testEl = document.createElement('div');
-      testEl.style.paddingBottom = 'env(safe-area-inset-bottom, 0px)';
-      document.body.appendChild(testEl);
-      const computedPadding = parseFloat(getComputedStyle(testEl).paddingBottom) || 0;
-      document.body.removeChild(testEl);
-      return computedPadding;
-    };
+    // Detect mobile browser
+    const isMobileBrowser = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    // Detect if this is a mobile browser
-    const isMobileBrowser = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
-
-    // Check if using standalone/PWA mode (no browser chrome)
+    // Check if standalone PWA mode
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as any).standalone === true;
 
-    let bottomInset = getCSSEnvValue();
-
-    // On mobile browsers (not standalone), add extra padding for gesture navigation
-    // Android Chrome and other mobile browsers often have ~24-34px gesture bars
-    if (isMobileBrowser && !isStandalone && bottomInset === 0) {
-      // Use a sensible default for mobile browsers with gesture navigation
-      bottomInset = 34;
+    // Add extra padding for mobile browsers (not PWAs) to account for gesture nav
+    if (isMobileBrowser && !isStandalone) {
+      setExtraPadding(16); // Extra padding for mobile browser gesture areas
     }
-
-    setSafeAreaBottom(bottomInset);
-
-    // Listen for orientation changes which might affect safe areas
-    const handleResize = () => {
-      let newInset = getCSSEnvValue();
-      if (isMobileBrowser && !isStandalone && newInset === 0) {
-        newInset = 34;
-      }
-      setSafeAreaBottom(newInset);
-    };
-
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('orientationchange', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('orientationchange', handleResize);
-    };
   }, []);
 
-  return safeAreaBottom;
+  return extraPadding;
 }
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const insets = useSafeAreaInsets();
-  const webSafeAreaBottom = useWebSafeAreaBottom();
-  const isWeb = Platform.OS === 'web';
+  const mobileBrowserPadding = useMobileBrowserBottomPadding();
 
   // Use safe area inset for bottom padding, with a minimum of 8px
-  // On web, use our custom hook that better detects mobile browser overlays
-  const bottomInset = isWeb ? webSafeAreaBottom : insets.bottom;
-  const bottomPadding = Math.max(bottomInset, 8);
+  // Add extra padding for mobile browsers that don't report safe areas correctly
+  const bottomPadding = Math.max(insets.bottom, 8) + mobileBrowserPadding;
   const tabBarHeight = 50 + bottomPadding;
 
   return (
