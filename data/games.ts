@@ -206,6 +206,7 @@ export const triviaGames: Game[] = [
     topic: 'Gedolim',
     difficulty: 'intermediate',
     ageRange: '10+',
+    comingSoon: true,
   },
 ];
 

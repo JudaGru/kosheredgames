@@ -8,6 +8,7 @@ export interface Game {
   topic: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   ageRange: string;
+  comingSoon?: boolean;
 }
 
 export interface GameCategory {

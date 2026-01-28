@@ -22,6 +22,7 @@ interface GameCardProps {
 
 export function GameCard({ game, onPress, animationIndex = 0, animationKey = 0 }: GameCardProps) {
   const { isWeb, isMobile } = useDeviceType();
+  const isComingSoon = game.comingSoon === true;
 
   // Card dimensions - rectangular on desktop (16:10 ratio), square on mobile
   const cardWidth = isMobile ? 120 : 220;
@@ -103,8 +104,8 @@ export function GameCard({ game, onPress, animationIndex = 0, animationKey = 0 }
       ]}
     >
       <Pressable
-        onPress={onPress}
-        {...(showHoverEffects
+        onPress={isComingSoon ? undefined : onPress}
+        {...(showHoverEffects && !isComingSoon
           ? {
               onMouseEnter: handleHoverIn,
               onMouseLeave: handleHoverOut,
@@ -115,6 +116,7 @@ export function GameCard({ game, onPress, animationIndex = 0, animationKey = 0 }
           height: '100%',
           borderRadius: 12,
           overflow: 'hidden',
+          opacity: isComingSoon ? 0.7 : 1,
         }}
       >
         {/* SVG Illustration - full card */}
@@ -129,20 +131,20 @@ export function GameCard({ game, onPress, animationIndex = 0, animationKey = 0 }
           />
         </View>
 
-        {/* Age Badge */}
+        {/* Coming Soon or Age Badge */}
         <View
           style={{
             position: 'absolute',
             top: 8,
             right: 8,
-            backgroundColor: 'rgba(0,0,0,0.6)',
+            backgroundColor: isComingSoon ? '#f59e0b' : 'rgba(0,0,0,0.6)',
             paddingHorizontal: 8,
             paddingVertical: 2,
             borderRadius: 999,
           }}
         >
-          <Text style={{ color: 'white', fontSize: 10, fontWeight: '500' }}>
-            {game.ageRange}
+          <Text style={{ color: 'white', fontSize: 10, fontWeight: '600' }}>
+            {isComingSoon ? 'Coming Soon' : game.ageRange}
           </Text>
         </View>
 

@@ -47,11 +47,10 @@ export default function TabLayout() {
   // Detect if mobile layout (native app or narrow web)
   const isMobileLayout = Platform.OS !== 'web' || width < 768;
 
-  // Use safe area inset for bottom padding
-  // Add extra padding for mobile browsers that don't report safe areas correctly
-  const bottomPadding = Math.max(insets.bottom, 4) + mobileBrowserPadding;
-  // Smaller tab bar on mobile (icons only), taller on desktop (with labels)
-  const tabBarHeight = isMobileLayout ? 44 + bottomPadding : 56 + bottomPadding;
+  // Bottom padding: use safe area inset or mobile browser fallback, no minimum
+  const bottomPadding = insets.bottom > 0 ? insets.bottom : mobileBrowserPadding;
+  // Compact tab bar on mobile (icons only), taller on desktop (with labels)
+  const tabBarHeight = isMobileLayout ? 48 + bottomPadding : 56 + bottomPadding;
 
   return (
     <Tabs
@@ -65,7 +64,7 @@ export default function TabLayout() {
           borderTopColor: colorScheme === 'dark' ? '#1e293b' : '#e2e8f0',
           height: tabBarHeight,
           paddingBottom: bottomPadding,
-          paddingTop: isMobileLayout ? 6 : 8,
+          paddingTop: isMobileLayout ? 10 : 8,
         },
         tabBarLabelStyle: {
           fontSize: 12,
