@@ -646,6 +646,10 @@ function VictoryScreen({ playerCount, players, playerMatches, elapsedTime, onPla
 export default function HolidayMatchGame() {
   const { isMobile, isLoading: isDetectingDevice } = useDeviceType();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const isWeb = Platform.OS === 'web';
+  const nativeInsets = useSafeAreaInsets();
+  const webInsets = useWebSafeArea();
+  const safeInsets = isWeb ? webInsets : nativeInsets;
   const [gameStarted, setGameStarted] = useState(false);
   const [playerCount, setPlayerCount] = useState(1);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -720,10 +724,10 @@ export default function HolidayMatchGame() {
   // Show loader while detecting device type - MUST be after all hooks
   if (isDetectingDevice) {
     return (
-      <SafeAreaView className="flex-1 bg-violet-50 items-center justify-center">
+      <View style={{ flex: 1, backgroundColor: '#f5f3ff', alignItems: 'center', justifyContent: 'center', paddingTop: safeInsets.top, paddingBottom: safeInsets.bottom }}>
         <StatusBar style="dark" />
         <Text style={{ color: '#7c3aed', fontSize: 16 }}>Loading...</Text>
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -770,7 +774,7 @@ export default function HolidayMatchGame() {
   if (!gameStarted) return <PlayerSetupScreen onStartGame={handleStartGame} />;
 
   return (
-    <SafeAreaView className="flex-1 bg-violet-50">
+    <View style={{ flex: 1, backgroundColor: '#f5f3ff', paddingTop: safeInsets.top, paddingBottom: safeInsets.bottom }}>
       <StatusBar style="dark" />
 
       <View className="bg-white border-b border-violet-200">
@@ -813,6 +817,6 @@ export default function HolidayMatchGame() {
       </View>
 
       {gameComplete && <VictoryScreen playerCount={playerCount} players={players} playerMatches={playerMatches} elapsedTime={elapsedTime} onPlayAgain={() => initializeGame()} onBackToHome={() => setGameStarted(false)} />}
-    </SafeAreaView>
+    </View>
   );
 }

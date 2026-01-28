@@ -14,9 +14,10 @@ import Animated, {
   withSpring,
   withTiming
 } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path, Circle, Rect, G, Ellipse, Line } from 'react-native-svg';
 import { useDeviceType } from '@/hooks/useDeviceType';
+import { useWebSafeArea } from '@/hooks/useWebSafeArea';
 
 // Custom SVG Icons for Shabbos items
 function CandlesIcon({ size, color }: { size: number; color: string }) {
@@ -613,6 +614,9 @@ function HeaderButton({ onPress, icon }: { onPress: () => void; icon: string }) 
 function PlayerSetupScreen({ onStartGame }: { onStartGame: (playerCount: number) => void }) {
   const isWeb = Platform.OS === 'web';
   const [backHovered, setBackHovered] = useState(false);
+  const nativeInsets = useSafeAreaInsets();
+  const webInsets = useWebSafeArea();
+  const safeInsets = isWeb ? webInsets : nativeInsets;
 
   const displayItems = [
     { symbol: '🕯️', color: '#eab308' },
@@ -623,7 +627,7 @@ function PlayerSetupScreen({ onStartGame }: { onStartGame: (playerCount: number)
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-yellow-50">
+    <View style={{ flex: 1, backgroundColor: '#fefce8', paddingTop: safeInsets.top, paddingBottom: safeInsets.bottom }}>
       <View
         style={{
           flex: 1,
@@ -743,7 +747,7 @@ function PlayerSetupScreen({ onStartGame }: { onStartGame: (playerCount: number)
           </Pressable>
         </Animated.View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -904,6 +908,10 @@ function VictoryScreen({ playerCount, players, playerMatches, elapsedTime, onPla
 export default function ShabbosMatchGame() {
   const { isMobile, isLoading: isDetectingDevice } = useDeviceType();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const isWeb = Platform.OS === 'web';
+  const nativeInsets = useSafeAreaInsets();
+  const webInsets = useWebSafeArea();
+  const safeInsets = isWeb ? webInsets : nativeInsets;
   const [gameStarted, setGameStarted] = useState(false);
   const [playerCount, setPlayerCount] = useState(1);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -976,10 +984,10 @@ export default function ShabbosMatchGame() {
   // Show loader while detecting device type - MUST be after all hooks
   if (isDetectingDevice) {
     return (
-      <SafeAreaView className="flex-1 bg-amber-50 items-center justify-center">
+      <View style={{ flex: 1, backgroundColor: '#fffbeb', alignItems: 'center', justifyContent: 'center', paddingTop: safeInsets.top, paddingBottom: safeInsets.bottom }}>
         <StatusBar style="dark" />
         <Text style={{ color: '#d97706', fontSize: 16 }}>Loading...</Text>
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -1026,7 +1034,7 @@ export default function ShabbosMatchGame() {
   if (!gameStarted) return <PlayerSetupScreen onStartGame={handleStartGame} />;
 
   return (
-    <SafeAreaView className="flex-1 bg-yellow-50">
+    <View style={{ flex: 1, backgroundColor: '#fefce8', paddingTop: safeInsets.top, paddingBottom: safeInsets.bottom }}>
       <StatusBar style="dark" />
 
       <View className="bg-white border-b border-yellow-200">
@@ -1069,6 +1077,6 @@ export default function ShabbosMatchGame() {
       </View>
 
       {gameComplete && <VictoryScreen playerCount={playerCount} players={players} playerMatches={playerMatches} elapsedTime={elapsedTime} onPlayAgain={() => initializeGame()} onBackToHome={() => setGameStarted(false)} />}
-    </SafeAreaView>
+    </View>
   );
 }
