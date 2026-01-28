@@ -43,10 +43,10 @@ function useWebSafeAreaBottom(): number {
     let bottomInset = getCSSEnvValue();
 
     // On mobile browsers (not standalone), add extra padding for gesture navigation
-    // Android Chrome and other mobile browsers often have ~20-24px gesture bars
+    // Android Chrome and other mobile browsers often have ~24-34px gesture bars
     if (isMobileBrowser && !isStandalone && bottomInset === 0) {
       // Use a sensible default for mobile browsers with gesture navigation
-      bottomInset = 20;
+      bottomInset = 34;
     }
 
     setSafeAreaBottom(bottomInset);
@@ -55,7 +55,7 @@ function useWebSafeAreaBottom(): number {
     const handleResize = () => {
       let newInset = getCSSEnvValue();
       if (isMobileBrowser && !isStandalone && newInset === 0) {
-        newInset = 20;
+        newInset = 34;
       }
       setSafeAreaBottom(newInset);
     };

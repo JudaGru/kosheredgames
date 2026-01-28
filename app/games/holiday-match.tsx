@@ -14,8 +14,9 @@ import Animated, {
   withSpring,
   withTiming
 } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDeviceType } from '@/hooks/useDeviceType';
+import { useWebSafeArea } from '@/hooks/useWebSafeArea';
 
 // Jewish Holidays data
 const HOLIDAYS_DATA = [
@@ -344,6 +345,9 @@ function HeaderButton({ onPress, icon }: { onPress: () => void; icon: string }) 
 function PlayerSetupScreen({ onStartGame }: { onStartGame: (playerCount: number) => void }) {
   const isWeb = Platform.OS === 'web';
   const [backHovered, setBackHovered] = useState(false);
+  const nativeInsets = useSafeAreaInsets();
+  const webInsets = useWebSafeArea();
+  const safeInsets = isWeb ? webInsets : nativeInsets;
 
   // Display holiday symbols for the header
   const displayHolidays = [
@@ -355,7 +359,7 @@ function PlayerSetupScreen({ onStartGame }: { onStartGame: (playerCount: number)
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-violet-50">
+    <View style={{ flex: 1, backgroundColor: '#f5f3ff', paddingTop: safeInsets.top, paddingBottom: safeInsets.bottom }}>
       <View
         style={{
           flex: 1,
@@ -480,7 +484,7 @@ function PlayerSetupScreen({ onStartGame }: { onStartGame: (playerCount: number)
           </Pressable>
         </Animated.View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
