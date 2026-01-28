@@ -20,108 +20,108 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const TRIVIA_QUESTIONS = [
   {
     id: 1,
-    question: 'How many blessings are in the Shemoneh Esrei (Amidah)?',
-    options: ['18', '19', '20', '17'],
+    question: 'What do we wash our hands for before eating bread?',
+    options: ['Cleanliness', 'Spiritual purity', 'To remove dirt', 'Health reasons'],
     correctIndex: 1,
-    explanation: 'Although called Shemoneh Esrei (18), there are actually 19 blessings today, after one was added against heretics.',
+    explanation: 'We wash Netillas Yadayim for spiritual purity, similar to the Kohanim who washed before serving in the Beis Hamikdash.',
   },
   {
     id: 2,
-    question: 'When does Shabbos begin?',
-    options: ['At sunset', 'At nightfall', '18 minutes before sunset', 'At noon on Friday'],
-    correctIndex: 2,
-    explanation: 'Shabbos begins 18 minutes before sunset (in most communities) to add from the weekday to the holy day.',
+    question: 'How many wicks must a Havdalah candle have?',
+    options: ['At least 1', 'At least 2', 'Exactly 3', 'Exactly 4'],
+    correctIndex: 1,
+    explanation: 'A Havdalah candle must have at least 2 wicks to create a torch-like flame (avukah), though braided candles often have more.',
   },
   {
     id: 3,
-    question: 'How many times a day do we say Shema?',
-    options: ['Once', 'Twice', 'Three times', 'Four times'],
-    correctIndex: 1,
-    explanation: 'We say Shema twice daily - once in Shacharis (morning) and once in Maariv (evening).',
+    question: 'What is the bracha on wine?',
+    options: ['Shehakol', 'Ha\'adamah', 'Borei Pri Hagafen', 'Mezonos'],
+    correctIndex: 2,
+    explanation: 'We say Borei Pri Hagafen on wine and grape juice because of their special importance.',
   },
   {
     id: 4,
-    question: 'What bracha do we say on bread?',
-    options: ['Shehakol', 'Mezonos', 'Hamotzi', 'Ha\'adamah'],
-    correctIndex: 2,
-    explanation: 'We say Hamotzi Lechem Min Ha\'aretz on bread.',
+    question: 'When do we say Kiddush Levanah (blessing on the moon)?',
+    options: ['Every night', 'Once a month', 'Once a year', 'Only on Shabbos'],
+    correctIndex: 1,
+    explanation: 'Kiddush Levanah is said once a month when the moon is visible, ideally after the first 3 days of the new month.',
   },
   {
     id: 5,
-    question: 'How long must we wait between eating meat and milk?',
-    options: ['1 hour', '3 hours', '6 hours', 'No waiting needed'],
-    correctIndex: 2,
-    explanation: 'The most common custom is to wait 6 hours between meat and dairy.',
+    question: 'What must a Kosher animal have to be considered Kosher?',
+    options: ['Feathers and wings', 'Split hooves and chews cud', 'Fins and scales', 'Four legs'],
+    correctIndex: 1,
+    explanation: 'A Kosher land animal must have fully split hooves AND chew its cud (ruminant). Both signs are required.',
   },
   {
     id: 6,
-    question: 'What is the minimum age for a boy\'s Bar Mitzvah?',
-    options: ['12 years', '13 years', '14 years', '15 years'],
+    question: 'How many brachos are in Birkas Hamazon (Grace After Meals)?',
+    options: ['3', '4', '5', '6'],
     correctIndex: 1,
-    explanation: 'A boy becomes Bar Mitzvah at age 13, when he becomes obligated in mitzvos.',
+    explanation: 'Birkas Hamazon has 4 main brachos: thanking for food, for the Land, for Jerusalem, and for Hashem\'s goodness.',
   },
   {
     id: 7,
-    question: 'How many strings are on each corner of Tzitzis?',
-    options: ['4 strings', '8 strings', '12 strings', '6 strings'],
+    question: 'What is forbidden during the Nine Days before Tisha B\'Av?',
+    options: ['Eating bread', 'Eating meat and drinking wine', 'Going to work', 'Saying brachos'],
     correctIndex: 1,
-    explanation: 'Each corner has 8 strings (4 strings doubled over).',
+    explanation: 'During the Nine Days, we refrain from eating meat and drinking wine (except on Shabbos) as a sign of mourning.',
   },
   {
     id: 8,
-    question: 'What bracha is made on vegetables?',
-    options: ['Ha\'eitz', 'Ha\'adamah', 'Shehakol', 'Mezonos'],
+    question: 'How many men are needed for a minyan?',
+    options: ['7', '10', '12', '13'],
     correctIndex: 1,
-    explanation: 'The bracha on vegetables that grow from the ground is Borei Pri Ha\'adamah.',
+    explanation: 'A minyan requires 10 adult Jewish men (over Bar Mitzvah age) to recite certain prayers like Kaddish and Kedusha.',
   },
   {
     id: 9,
-    question: 'When do we light Chanukah candles?',
-    options: ['At sunrise', 'At sunset', 'At nightfall', 'Any time after dark'],
-    correctIndex: 2,
-    explanation: 'Chanukah candles are lit at nightfall (tzeis hakochavim), or at sunset according to some opinions.',
+    question: 'What bracha do we say when seeing lightning?',
+    options: ['Borei Meorei Ha\'eish', 'Oseh Maaseh Bereishis', 'Shehecheyanu', 'Hagomel'],
+    correctIndex: 1,
+    explanation: 'We say Oseh Maaseh Bereishis (Who makes the works of creation) when seeing lightning.',
   },
   {
     id: 10,
-    question: 'How many days is Pesach observed in Israel?',
-    options: ['7 days', '8 days', '6 days', '9 days'],
-    correctIndex: 0,
-    explanation: 'Pesach is 7 days in Israel, and 8 days outside of Israel.',
+    question: 'What is the purpose of the Eruv around a community?',
+    options: ['To mark Jewish areas', 'To allow carrying on Shabbos', 'To protect from harm', 'For decoration'],
+    correctIndex: 1,
+    explanation: 'An Eruv creates a symbolic private domain that permits carrying objects outdoors on Shabbos within its boundaries.',
   },
   {
     id: 11,
-    question: 'What is the bracha on fruit from a tree?',
-    options: ['Ha\'adamah', 'Ha\'eitz', 'Shehakol', 'Mezonos'],
+    question: 'When must we hear the Shofar?',
+    options: ['Every Shabbos', 'On Rosh Hashanah', 'On Pesach', 'Every Monday and Thursday'],
     correctIndex: 1,
-    explanation: 'The bracha on fruit from a tree is Borei Pri Ha\'eitz.',
+    explanation: 'We are commanded to hear the Shofar on Rosh Hashanah (unless it falls on Shabbos).',
   },
   {
     id: 12,
-    question: 'How many cups of wine are drunk at the Pesach Seder?',
-    options: ['2 cups', '3 cups', '4 cups', '5 cups'],
-    correctIndex: 2,
-    explanation: 'We drink 4 cups of wine at the Seder, corresponding to the 4 expressions of redemption.',
+    question: 'What is Bitul Chametz?',
+    options: ['Selling chametz', 'Nullifying chametz in our hearts', 'Burning chametz', 'Hiding chametz'],
+    correctIndex: 1,
+    explanation: 'Bitul Chametz is the verbal declaration nullifying any chametz we may have missed, making it ownerless in our minds.',
   },
   {
     id: 13,
-    question: 'What is the first bracha we make in the morning?',
-    options: ['Modeh Ani', 'Asher Yatzar', 'Al Netilas Yadayim', 'Elokai Neshama'],
-    correctIndex: 0,
-    explanation: 'Upon waking, we immediately say Modeh Ani to thank Hashem for returning our soul.',
+    question: 'How many fasts are there in the Jewish calendar (excluding Yom Kippur)?',
+    options: ['3', '4', '5', '6'],
+    correctIndex: 2,
+    explanation: 'There are 5 minor fasts: Tzom Gedaliah, 10 Teves, Taanis Esther, 17 Tammuz, and Tisha B\'Av (which is major).',
   },
   {
     id: 14,
-    question: 'How many Aliyos are there to the Torah on Shabbos morning?',
-    options: ['5', '6', '7', '8'],
-    correctIndex: 2,
-    explanation: 'On Shabbos morning, there are 7 Aliyos to the Torah.',
+    question: 'What is the bracha on smelling spices?',
+    options: ['Borei Minei Besamim', 'Shehakol', 'Ha\'eitz', 'Hagafen'],
+    correctIndex: 0,
+    explanation: 'We say Borei Minei Besamim on fragrant spices, including during Havdalah.',
   },
   {
     id: 15,
-    question: 'What is the mitzvah of Mezuzah?',
-    options: ['To wear on our arm', 'To affix on doorposts', 'To carry in our pocket', 'To place under our pillow'],
+    question: 'What must be checked before eating a vegetable for bugs?',
+    options: ['The color', 'Leaves and crevices for insects', 'The weight', 'The smell'],
     correctIndex: 1,
-    explanation: 'The mitzvah of Mezuzah is to affix a scroll containing Shema on our doorposts.',
+    explanation: 'Certain vegetables like lettuce and broccoli must be carefully checked for insects, which are forbidden to eat.',
   },
 ];
 
@@ -542,87 +542,6 @@ function ResultsScreen({
   );
 }
 
-function InitialAnimation({ onComplete }: { onComplete: () => void }) {
-  const scale = useSharedValue(0);
-  const opacity = useSharedValue(0);
-  const bookRotate = useSharedValue(-15);
-  const sparkles = useSharedValue(0);
-
-  useEffect(() => {
-    opacity.value = withTiming(1, { duration: 400 });
-    scale.value = withSpring(1, { damping: 12, stiffness: 100 });
-    bookRotate.value = withSequence(
-      withTiming(10, { duration: 300 }),
-      withTiming(-5, { duration: 200 }),
-      withTiming(0, { duration: 150 })
-    );
-    sparkles.value = withDelay(300, withTiming(1, { duration: 500 }));
-
-    const timer = setTimeout(() => {
-      opacity.value = withTiming(0, { duration: 300 });
-      scale.value = withTiming(0.8, { duration: 300 });
-      setTimeout(onComplete, 300);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, [opacity, scale, bookRotate, sparkles, onComplete]);
-
-  const containerStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ scale: scale.value }],
-  }));
-
-  const bookStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${bookRotate.value}deg` }],
-  }));
-
-  const sparkleStyle = useAnimatedStyle(() => ({
-    opacity: sparkles.value,
-    transform: [{ scale: sparkles.value }],
-  }));
-
-  return (
-    <View
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(139, 92, 246, 0.95)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1000,
-      }}
-    >
-      <Animated.View style={containerStyle}>
-        <View style={{ alignItems: 'center' }}>
-          <Animated.View style={bookStyle}>
-            <Text style={{ fontSize: 80 }}>📖</Text>
-          </Animated.View>
-          <Text
-            style={{
-              fontSize: 32,
-              fontWeight: 'bold',
-              color: 'white',
-              marginTop: 20,
-              textShadowColor: 'rgba(0,0,0,0.2)',
-              textShadowOffset: { width: 0, height: 2 },
-              textShadowRadius: 4,
-            }}
-          >
-            Halacha Trivia
-          </Text>
-          <Animated.View style={[sparkleStyle, { flexDirection: 'row', marginTop: 16 }]}>
-            <Text style={{ fontSize: 24, marginHorizontal: 8 }}>✨</Text>
-            <Text style={{ fontSize: 24, marginHorizontal: 8 }}>⭐</Text>
-            <Text style={{ fontSize: 24, marginHorizontal: 8 }}>✨</Text>
-          </Animated.View>
-        </View>
-      </Animated.View>
-    </View>
-  );
-}
 
 export default function HalachaTriviaGame() {
   const isWeb = Platform.OS === 'web';
@@ -633,11 +552,12 @@ export default function HalachaTriviaGame() {
   const [score, setScore] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [shuffledQuestions, setShuffledQuestions] = useState<typeof TRIVIA_QUESTIONS>([]);
-  const [showInitialAnimation, setShowInitialAnimation] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const questionTransition = useSharedValue(1);
+  const refreshRotation = useSharedValue(0);
 
-  const initializeGame = useCallback((showAnimation = true) => {
+  const initializeGame = useCallback(() => {
     const shuffled = [...TRIVIA_QUESTIONS].sort(() => Math.random() - 0.5).slice(0, 10);
     setShuffledQuestions(shuffled);
     setCurrentQuestionIndex(0);
@@ -646,9 +566,6 @@ export default function HalachaTriviaGame() {
     setScore(0);
     setIsComplete(false);
     questionTransition.value = 1;
-    if (showAnimation) {
-      setShowInitialAnimation(true);
-    }
   }, [questionTransition]);
 
   useEffect(() => {
@@ -687,6 +604,23 @@ export default function HalachaTriviaGame() {
     transform: [{ scale: 0.95 + questionTransition.value * 0.05 }],
   }));
 
+  const handleRefresh = useCallback(() => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    refreshRotation.value = withSequence(
+      withTiming(360, { duration: 500, easing: Easing.out(Easing.ease) }),
+      withTiming(0, { duration: 0 })
+    );
+    setTimeout(() => {
+      initializeGame();
+      setIsRefreshing(false);
+    }, 300);
+  }, [initializeGame, isRefreshing, refreshRotation]);
+
+  const refreshButtonStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${refreshRotation.value}deg` }],
+  }));
+
   if (shuffledQuestions.length === 0) {
     return (
       <SafeAreaView className="flex-1 bg-slate-50 items-center justify-center">
@@ -701,11 +635,6 @@ export default function HalachaTriviaGame() {
   return (
     <SafeAreaView className="flex-1 bg-slate-50">
       <StatusBar style="dark" />
-
-      {/* Initial Animation */}
-      {showInitialAnimation && (
-        <InitialAnimation onComplete={() => setShowInitialAnimation(false)} />
-      )}
 
       {/* Header */}
       <View className="bg-white border-b border-slate-200">
@@ -724,10 +653,12 @@ export default function HalachaTriviaGame() {
           </View>
 
           <Pressable
-            onPress={() => initializeGame(true)}
+            onPress={handleRefresh}
             className="w-10 h-10 rounded-full bg-violet-50 items-center justify-center active:bg-violet-100"
           >
-            <FontAwesome name="refresh" size={18} color="#8b5cf6" />
+            <Animated.View style={refreshButtonStyle}>
+              <FontAwesome name="refresh" size={18} color="#8b5cf6" />
+            </Animated.View>
           </Pressable>
         </View>
 

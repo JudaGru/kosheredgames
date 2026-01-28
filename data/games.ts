@@ -18,8 +18,8 @@ export const matchingGames: Game[] = [
     description: 'Match Hebrew letters with their names and sounds',
     gameType: 'matching',
     topic: 'Hebrew Letters',
-    difficulty: 'beginner',
-    ageRange: '4-8',
+    difficulty: 'intermediate',
+    ageRange: '6+',
   },
   {
     id: 'match-holidays',
@@ -28,7 +28,7 @@ export const matchingGames: Game[] = [
     gameType: 'matching',
     topic: 'Jewish Holidays',
     difficulty: 'beginner',
-    ageRange: '6-12',
+    ageRange: '5+',
   },
   {
     id: 'match-animals',
@@ -37,7 +37,7 @@ export const matchingGames: Game[] = [
     gameType: 'matching',
     topic: 'Hebrew Vocabulary',
     difficulty: 'beginner',
-    ageRange: '4-8',
+    ageRange: '4+',
   },
   {
     id: 'match-shabbos',
@@ -46,7 +46,7 @@ export const matchingGames: Game[] = [
     gameType: 'matching',
     topic: 'Shabbos',
     difficulty: 'beginner',
-    ageRange: '4-8',
+    ageRange: '4+',
   },
   {
     id: 'match-midos',
@@ -55,7 +55,7 @@ export const matchingGames: Game[] = [
     gameType: 'matching',
     topic: 'Midos',
     difficulty: 'beginner',
-    ageRange: '4-8',
+    ageRange: '5+',
   },
 ];
 
@@ -67,7 +67,7 @@ export const flashcardGames: Game[] = [
     gameType: 'flashcards',
     topic: 'Bereishis',
     difficulty: 'beginner',
-    ageRange: '8+',
+    ageRange: '7+',
   },
   {
     id: 'flash-noach',
@@ -76,7 +76,7 @@ export const flashcardGames: Game[] = [
     gameType: 'flashcards',
     topic: 'Noach',
     difficulty: 'beginner',
-    ageRange: '8+',
+    ageRange: '6+',
   },
   {
     id: 'flash-lech-lecha',
@@ -84,7 +84,7 @@ export const flashcardGames: Game[] = [
     description: 'Learn about Avraham Avinu\'s journey',
     gameType: 'flashcards',
     topic: 'Lech Lecha',
-    difficulty: 'beginner',
+    difficulty: 'intermediate',
     ageRange: '8+',
   },
   {
@@ -94,7 +94,7 @@ export const flashcardGames: Game[] = [
     gameType: 'flashcards',
     topic: 'Pesach',
     difficulty: 'beginner',
-    ageRange: '8+',
+    ageRange: '6+',
   },
   {
     id: 'flash-shavuos',
@@ -102,7 +102,7 @@ export const flashcardGames: Game[] = [
     description: 'Quiz yourself on Matan Torah and Shavuos',
     gameType: 'flashcards',
     topic: 'Shavuos',
-    difficulty: 'beginner',
+    difficulty: 'intermediate',
     ageRange: '8+',
   },
   {
@@ -112,7 +112,7 @@ export const flashcardGames: Game[] = [
     gameType: 'flashcards',
     topic: 'Purim',
     difficulty: 'beginner',
-    ageRange: '8+',
+    ageRange: '6+',
   },
   {
     id: 'flash-yehoshua',
@@ -133,7 +133,7 @@ export const triviaGames: Game[] = [
     gameType: 'trivia',
     topic: 'Weekly Parsha',
     difficulty: 'intermediate',
-    ageRange: '10+',
+    ageRange: '9+',
   },
   {
     id: 'trivia-halacha',
@@ -142,7 +142,7 @@ export const triviaGames: Game[] = [
     gameType: 'trivia',
     topic: 'Halacha',
     difficulty: 'intermediate',
-    ageRange: '10+',
+    ageRange: '9+',
   },
   {
     id: 'trivia-jewish-history',
@@ -151,7 +151,7 @@ export const triviaGames: Game[] = [
     gameType: 'trivia',
     topic: 'Jewish History',
     difficulty: 'advanced',
-    ageRange: '14+',
+    ageRange: '10+',
   },
   {
     id: 'trivia-true-false',
@@ -160,7 +160,7 @@ export const triviaGames: Game[] = [
     gameType: 'trivia',
     topic: 'Torah',
     difficulty: 'beginner',
-    ageRange: '8+',
+    ageRange: '6+',
   },
   {
     id: 'trivia-nach-true-false',
@@ -169,7 +169,7 @@ export const triviaGames: Game[] = [
     gameType: 'trivia',
     topic: 'Nach',
     difficulty: 'intermediate',
-    ageRange: '10+',
+    ageRange: '9+',
   },
   {
     id: 'trivia-holidays-true-false',
@@ -178,7 +178,7 @@ export const triviaGames: Game[] = [
     gameType: 'trivia',
     topic: 'Jewish Holidays',
     difficulty: 'beginner',
-    ageRange: '8+',
+    ageRange: '6+',
   },
   {
     id: 'trivia-who-am-i',
@@ -187,7 +187,7 @@ export const triviaGames: Game[] = [
     gameType: 'trivia',
     topic: 'Torah Characters',
     difficulty: 'beginner',
-    ageRange: '8+',
+    ageRange: '7+',
   },
   {
     id: 'trivia-nach-who-am-i',
@@ -196,7 +196,7 @@ export const triviaGames: Game[] = [
     gameType: 'trivia',
     topic: 'Nach',
     difficulty: 'intermediate',
-    ageRange: '10+',
+    ageRange: '9+',
   },
   {
     id: 'trivia-gedolim-who-am-i',
@@ -355,7 +355,7 @@ export const jigsawPuzzleGames: Game[] = [
     gameType: 'jigsaw-puzzles',
     topic: 'Eretz Yisroel',
     difficulty: 'beginner',
-    ageRange: '6+',
+    ageRange: '5+',
   },
   {
     id: 'jigsaw-menorah',
@@ -363,8 +363,8 @@ export const jigsawPuzzleGames: Game[] = [
     description: 'Assemble the golden Menorah from the Beis Hamikdash',
     gameType: 'jigsaw-puzzles',
     topic: 'Beis Hamikdash',
-    difficulty: 'intermediate',
-    ageRange: '8+',
+    difficulty: 'beginner',
+    ageRange: '5+',
   },
   {
     id: 'jigsaw-shabbos',
@@ -373,7 +373,7 @@ export const jigsawPuzzleGames: Game[] = [
     gameType: 'jigsaw-puzzles',
     topic: 'Shabbos',
     difficulty: 'beginner',
-    ageRange: '6+',
+    ageRange: '5+',
   },
   {
     id: 'jigsaw-sukkos',
@@ -382,7 +382,7 @@ export const jigsawPuzzleGames: Game[] = [
     gameType: 'jigsaw-puzzles',
     topic: 'Sukkos',
     difficulty: 'beginner',
-    ageRange: '6+',
+    ageRange: '5+',
   },
   {
     id: 'jigsaw-purim',
@@ -391,7 +391,7 @@ export const jigsawPuzzleGames: Game[] = [
     gameType: 'jigsaw-puzzles',
     topic: 'Purim',
     difficulty: 'beginner',
-    ageRange: '6+',
+    ageRange: '5+',
   },
   {
     id: 'jigsaw-torah',
@@ -400,7 +400,7 @@ export const jigsawPuzzleGames: Game[] = [
     gameType: 'jigsaw-puzzles',
     topic: 'Torah',
     difficulty: 'beginner',
-    ageRange: '6+',
+    ageRange: '5+',
   },
 ];
 
@@ -412,7 +412,7 @@ export const sequencingGames: Game[] = [
     gameType: 'sequencing',
     topic: 'Yetzias Mitzrayim',
     difficulty: 'beginner',
-    ageRange: '6+',
+    ageRange: '5+',
   },
   {
     id: 'sequence-creation',
@@ -421,7 +421,7 @@ export const sequencingGames: Game[] = [
     gameType: 'sequencing',
     topic: 'Bereishis',
     difficulty: 'beginner',
-    ageRange: '6+',
+    ageRange: '5+',
   },
   {
     id: 'sequence-avos',
@@ -430,7 +430,7 @@ export const sequencingGames: Game[] = [
     gameType: 'sequencing',
     topic: 'Bereishis',
     difficulty: 'beginner',
-    ageRange: '6+',
+    ageRange: '5+',
   },
   {
     id: 'sequence-yomim-tovim',
@@ -439,7 +439,7 @@ export const sequencingGames: Game[] = [
     gameType: 'sequencing',
     topic: 'Jewish Holidays',
     difficulty: 'intermediate',
-    ageRange: '8+',
+    ageRange: '6+',
   },
 ];
 

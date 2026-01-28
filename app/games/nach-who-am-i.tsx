@@ -11,7 +11,6 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withDelay,
-  withSequence,
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
@@ -357,89 +356,6 @@ function VictoryScreen({
   );
 }
 
-// Initial animation
-function InitialAnimation({ onComplete }: { onComplete: () => void }) {
-  const scale = useSharedValue(0);
-  const opacity = useSharedValue(0);
-  const iconRotate = useSharedValue(-15);
-  const sparkles = useSharedValue(0);
-
-  useEffect(() => {
-    opacity.value = withTiming(1, { duration: 400 });
-    scale.value = withSpring(1, { damping: 12, stiffness: 100 });
-    iconRotate.value = withSequence(
-      withTiming(10, { duration: 300 }),
-      withTiming(-5, { duration: 200 }),
-      withTiming(0, { duration: 150 })
-    );
-    sparkles.value = withDelay(300, withTiming(1, { duration: 500 }));
-
-    const timer = setTimeout(() => {
-      opacity.value = withTiming(0, { duration: 300 });
-      scale.value = withTiming(0.8, { duration: 300 });
-      setTimeout(onComplete, 300);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, [opacity, scale, iconRotate, sparkles, onComplete]);
-
-  const containerStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ scale: scale.value }],
-  }));
-
-  const iconStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${iconRotate.value}deg` }],
-  }));
-
-  const sparkleStyle = useAnimatedStyle(() => ({
-    opacity: sparkles.value,
-    transform: [{ scale: sparkles.value }],
-  }));
-
-  return (
-    <View
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(79, 70, 229, 0.95)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1000,
-      }}
-    >
-      <Animated.View style={containerStyle}>
-        <View style={{ alignItems: 'center' }}>
-          <Animated.View style={iconStyle}>
-            <Text style={{ fontSize: 80 }}>📜</Text>
-          </Animated.View>
-          <Text
-            style={{
-              fontSize: 32,
-              fontWeight: 'bold',
-              color: 'white',
-              marginTop: 20,
-              textShadowColor: 'rgba(0,0,0,0.2)',
-              textShadowOffset: { width: 0, height: 2 },
-              textShadowRadius: 4,
-            }}
-          >
-            Nach Who Am I?
-          </Text>
-          <Animated.View style={[sparkleStyle, { flexDirection: 'row', marginTop: 16 }]}>
-            <Text style={{ fontSize: 24, marginHorizontal: 8 }}>✨</Text>
-            <Text style={{ fontSize: 24, marginHorizontal: 8 }}>👑</Text>
-            <Text style={{ fontSize: 24, marginHorizontal: 8 }}>✨</Text>
-          </Animated.View>
-        </View>
-      </Animated.View>
-    </View>
-  );
-}
-
 function AnswerOption({
   name,
   hebrew,
@@ -535,9 +451,8 @@ export default function NachWhoAmIGame() {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [gameComplete, setGameComplete] = useState(false);
   const [options, setOptions] = useState<Character[]>([]);
-  const [showInitialAnimation, setShowInitialAnimation] = useState(true);
 
-  const initializeGame = useCallback((showAnimation = true) => {
+  const initializeGame = useCallback(() => {
     const shuffled = shuffleArray(CHARACTERS).slice(0, 5);
     setCharacters(shuffled);
     setCurrentIndex(0);
@@ -546,9 +461,6 @@ export default function NachWhoAmIGame() {
     setAnswered(false);
     setSelectedAnswer(null);
     setGameComplete(false);
-    if (showAnimation) {
-      setShowInitialAnimation(true);
-    }
   }, []);
 
   useEffect(() => {
@@ -611,11 +523,6 @@ export default function NachWhoAmIGame() {
     <SafeAreaView className="flex-1 bg-slate-50">
       <StatusBar style="dark" />
 
-      {/* Initial Animation */}
-      {showInitialAnimation && (
-        <InitialAnimation onComplete={() => setShowInitialAnimation(false)} />
-      )}
-
       {/* Header */}
       <View className="bg-white border-b border-slate-200">
         <View className="flex-row items-center justify-between px-4 py-3">
@@ -633,7 +540,7 @@ export default function NachWhoAmIGame() {
           </View>
 
           <Pressable
-            onPress={() => initializeGame(true)}
+            onPress={() => initializeGame()}
             className="w-10 h-10 rounded-full bg-indigo-50 items-center justify-center active:bg-indigo-100"
           >
             <FontAwesome name="refresh" size={18} color="#4f46e5" />

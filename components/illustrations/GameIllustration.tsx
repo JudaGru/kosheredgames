@@ -47,6 +47,7 @@ import { NachTrueFalseIllustration } from './NachTrueFalseIllustration';
 import { HolidaysTrueFalseIllustration } from './HolidaysTrueFalseIllustration';
 import { DaysOfCreationIllustration } from './DaysOfCreationIllustration';
 import { JewishHolidaysOrderIllustration } from './JewishHolidaysOrderIllustration';
+import { AvosImahosIllustration } from './AvosImahosIllustration';
 import { NachWhoAmIIllustration } from './NachWhoAmIIllustration';
 import { GedolimWhoAmIIllustration } from './GedolimWhoAmIIllustration';
 import { LetterGridIllustration } from './LetterGridIllustration';
@@ -204,6 +205,9 @@ export function GameIllustration({ gameType, topic, title, gameId, width, height
   }
   if (gameId === 'sequence-yomim-tovim') {
     return <JewishHolidaysOrderIllustration {...props} />;
+  }
+  if (gameId === 'sequence-avos') {
+    return <AvosImahosIllustration {...props} />;
   }
   if (gameId === 'trivia-nach-who-am-i') {
     return <NachWhoAmIIllustration {...props} />;

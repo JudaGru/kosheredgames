@@ -76,11 +76,10 @@ export function JewishHolidaysOrderIllustration({
       {/* Arrow showing order */}
       <Path d="M175 45 L195 45 M190 40 L195 45 L190 50" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none" />
 
-      {/* Title banner */}
-      <G transform="translate(10, 105)">
-        <Rect x="0" y="0" width="120" height="28" rx="6" fill="white" opacity="0.95" />
-        <SvgText x="60" y="12" fontSize="10" fontWeight="bold" fill={primaryColor} textAnchor="middle">Jewish Holidays</SvgText>
-        <SvgText x="60" y="23" fontSize="8" fill="#64748b" textAnchor="middle">Put in Order</SvgText>
+      {/* Title banner - centered */}
+      <G transform="translate(50, 108)">
+        <Rect x="0" y="0" width="120" height="24" rx="6" fill="white" opacity="0.95" />
+        <SvgText x="60" y="16" fontSize="11" fontWeight="bold" fill={primaryColor} textAnchor="middle">Jewish Holidays</SvgText>
       </G>
     </Svg>
   );

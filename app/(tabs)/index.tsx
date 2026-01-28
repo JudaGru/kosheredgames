@@ -12,28 +12,30 @@ import { gameCategories } from '@/data/games';
 import type { Game } from '@/types/game';
 
 // Helper function to check if a game's age range matches the selected filter
+// A game matches if a child in the filter age range could play it
+// (i.e., the game's minimum age is at or below the filter's maximum age)
 function gameMatchesAgeFilter(gameAgeRange: string, filter: AgeFilter): boolean {
   if (filter === 'all') return true;
 
-  // Parse the game's age range (e.g., "4-8", "6+", "10+", "8-14")
+  // Parse the game's age range (e.g., "4+", "6+", "10+")
   const rangeMatch = gameAgeRange.match(/^(\d+)(?:-(\d+)|\+)?$/);
   if (!rangeMatch) return true; // If we can't parse, show the game
 
   const gameMinAge = parseInt(rangeMatch[1], 10);
-  const gameMaxAge = rangeMatch[2] ? parseInt(rangeMatch[2], 10) : 99; // "+" means no upper limit
 
-  // Define filter ranges
-  const filterRanges: Record<Exclude<AgeFilter, 'all'>, [number, number]> = {
-    '3-5': [3, 5],
-    '6-8': [6, 8],
-    '9-12': [9, 12],
-    '13+': [13, 99],
+  // Define what maximum age each filter represents
+  // A game is shown if a child at the filter's max age could play it
+  const filterMaxAge: Record<Exclude<AgeFilter, 'all'>, number> = {
+    '3-5': 5,
+    '6-8': 8,
+    '9-12': 12,
+    '13+': 99,
   };
 
-  const [filterMin, filterMax] = filterRanges[filter];
+  const maxAge = filterMaxAge[filter];
 
-  // Check if there's any overlap between game range and filter range
-  return gameMinAge <= filterMax && gameMaxAge >= filterMin;
+  // Show the game if the child's age (up to filter max) meets the game's minimum age requirement
+  return gameMinAge <= maxAge;
 }
 
 export default function HomeScreen() {
@@ -173,6 +175,8 @@ export default function HomeScreen() {
       navigateToGame('/games/days-of-creation');
     } else if (game.id === 'sequence-yomim-tovim') {
       navigateToGame('/games/jewish-holidays-order');
+    } else if (game.id === 'sequence-avos') {
+      navigateToGame('/games/avos-imahos');
     } else if (game.id === 'trivia-nach-who-am-i') {
       navigateToGame('/games/nach-who-am-i');
     } else if (game.id === 'trivia-gedolim-who-am-i') {

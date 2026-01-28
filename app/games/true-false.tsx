@@ -2,12 +2,11 @@ import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Platform, Pressable, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, {
   Easing,
   FadeIn,
   FadeInDown,
-  FadeOutUp,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
@@ -109,8 +108,8 @@ function Confetti() {
   );
 }
 
-// Victory screen
-function VictoryScreen({
+// Inline Results Display
+function InlineResults({
   score,
   total,
   onPlayAgain,
@@ -123,15 +122,22 @@ function VictoryScreen({
 }) {
   const isWeb = Platform.OS === 'web';
   const trophyScale = useSharedValue(0);
-  const trophyRotate = useSharedValue(-180);
+  const cardScale = useSharedValue(0.9);
+  const cardOpacity = useSharedValue(0);
 
   useEffect(() => {
-    trophyScale.value = withDelay(300, withSpring(1, { damping: 8, stiffness: 100 }));
-    trophyRotate.value = withDelay(300, withSpring(0, { damping: 10, stiffness: 80 }));
-  }, [trophyScale, trophyRotate]);
+    cardOpacity.value = withTiming(1, { duration: 400 });
+    cardScale.value = withSpring(1, { damping: 12, stiffness: 100 });
+    trophyScale.value = withDelay(200, withSpring(1, { damping: 8, stiffness: 100 }));
+  }, [trophyScale, cardScale, cardOpacity]);
 
   const trophyStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: trophyScale.value }, { rotate: `${trophyRotate.value}deg` }],
+    transform: [{ scale: trophyScale.value }],
+  }));
+
+  const cardStyle = useAnimatedStyle(() => ({
+    opacity: cardOpacity.value,
+    transform: [{ scale: cardScale.value }],
   }));
 
   const percentage = Math.round((score / total) * 100);
@@ -142,201 +148,111 @@ function VictoryScreen({
     return 'Keep practicing!';
   };
 
+  const getEmoji = () => {
+    if (percentage >= 90) return '🏆';
+    if (percentage >= 70) return '🌟';
+    if (percentage >= 50) return '👍';
+    return '📚';
+  };
+
   return (
-    <View
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.75)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-      }}
-    >
+    <Animated.View style={cardStyle}>
       {percentage >= 70 && <Confetti />}
 
-      <Animated.View
-        entering={FadeIn.duration(400).delay(200)}
-        className="bg-white rounded-3xl items-center w-full"
+      {/* Results Card */}
+      <View
         style={{
-          maxWidth: 400,
-          paddingTop: isWeb ? 48 : 40,
-          paddingBottom: isWeb ? 40 : 32,
-          paddingHorizontal: isWeb ? 40 : 28,
+          backgroundColor: 'white',
+          borderRadius: 24,
+          padding: 28,
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: 20 },
-          shadowOpacity: 0.4,
-          shadowRadius: 30,
-          elevation: 15,
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.15,
+          shadowRadius: 16,
+          elevation: 8,
+          alignItems: 'center',
         }}
       >
         <Animated.View style={trophyStyle}>
-          <Text style={{ fontSize: 72 }}>{percentage >= 80 ? '🏆' : '📚'}</Text>
+          <Text style={{ fontSize: 64 }}>{getEmoji()}</Text>
         </Animated.View>
 
         <Text
           style={{
             fontWeight: 'bold',
             color: '#1e293b',
-            marginTop: 24,
-            fontSize: isWeb ? 36 : 28,
+            marginTop: 16,
+            fontSize: isWeb ? 28 : 24,
             textAlign: 'center',
-            paddingHorizontal: 8,
           }}
         >
           {percentage >= 60 ? 'Mazal Tov!' : 'Game Over'}
         </Text>
-        <Text style={{ color: '#64748b', textAlign: 'center', marginTop: 12, fontSize: 16 }}>
+        <Text style={{ color: '#64748b', textAlign: 'center', marginTop: 8, fontSize: 15 }}>
           {getMessage()}
         </Text>
 
-        <Animated.View entering={FadeIn.duration(400).delay(500)} style={{ marginTop: 28, width: '100%' }}>
-          <View
+        <View
+          style={{
+            alignItems: 'center',
+            backgroundColor: '#ecfeff',
+            borderRadius: 16,
+            paddingVertical: 20,
+            paddingHorizontal: 32,
+            marginTop: 20,
+            width: '100%',
+          }}
+        >
+          <Text style={{ fontSize: 40, fontWeight: 'bold', color: '#0891b2' }}>
+            {score}/{total}
+          </Text>
+          <Text
             style={{
-              alignItems: 'center',
-              backgroundColor: '#ecfeff',
-              borderRadius: 20,
-              paddingVertical: 24,
-              paddingHorizontal: 24,
+              fontSize: 12,
+              color: '#0e7490',
+              marginTop: 6,
+              textTransform: 'uppercase',
+              letterSpacing: 1.5,
+              fontWeight: '600',
             }}
           >
-            <Text style={{ fontSize: 48, fontWeight: 'bold', color: '#0891b2' }}>
-              {score}/{total}
-            </Text>
-            <Text
-              style={{
-                fontSize: 13,
-                color: '#0e7490',
-                marginTop: 8,
-                textTransform: 'uppercase',
-                letterSpacing: 1.5,
-                fontWeight: '600',
-              }}
-            >
-              Correct
-            </Text>
-            <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#06b6d4', marginTop: 8 }}>
-              {percentage}%
-            </Text>
-          </View>
-        </Animated.View>
+            Correct
+          </Text>
+          <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#06b6d4', marginTop: 6 }}>
+            {percentage}%
+          </Text>
+        </View>
 
-        <Animated.View entering={FadeIn.duration(400).delay(800)} style={{ width: '100%', marginTop: 28 }}>
+        <View style={{ width: '100%', marginTop: 20 }}>
           <Pressable
             onPress={onPlayAgain}
             style={{
               backgroundColor: '#0891b2',
-              borderRadius: 16,
-              paddingVertical: 18,
-              paddingHorizontal: 32,
+              borderRadius: 14,
+              paddingVertical: 16,
               shadowColor: '#0891b2',
               shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.4,
-              shadowRadius: 12,
-              elevation: 6,
+              shadowOpacity: 0.3,
+              shadowRadius: 8,
+              elevation: 4,
             }}
           >
-            <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 17, textAlign: 'center' }}>
+            <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16, textAlign: 'center' }}>
               Play Again
             </Text>
           </Pressable>
 
-          <Pressable onPress={onBackToHome} style={{ marginTop: 16, paddingVertical: 14 }}>
-            <Text style={{ color: '#64748b', fontWeight: '600', fontSize: 16, textAlign: 'center' }}>
+          <Pressable onPress={onBackToHome} style={{ marginTop: 12, paddingVertical: 12 }}>
+            <Text style={{ color: '#64748b', fontWeight: '600', fontSize: 15, textAlign: 'center' }}>
               Back to Home
             </Text>
           </Pressable>
-        </Animated.View>
-      </Animated.View>
-    </View>
-  );
-}
-
-// Initial animation
-function InitialAnimation({ onComplete }: { onComplete: () => void }) {
-  const scale = useSharedValue(0);
-  const opacity = useSharedValue(0);
-  const iconRotate = useSharedValue(-15);
-  const sparkles = useSharedValue(0);
-
-  useEffect(() => {
-    opacity.value = withTiming(1, { duration: 400 });
-    scale.value = withSpring(1, { damping: 12, stiffness: 100 });
-    iconRotate.value = withSequence(
-      withTiming(10, { duration: 300 }),
-      withTiming(-5, { duration: 200 }),
-      withTiming(0, { duration: 150 })
-    );
-    sparkles.value = withDelay(300, withTiming(1, { duration: 500 }));
-
-    const timer = setTimeout(() => {
-      opacity.value = withTiming(0, { duration: 300 });
-      scale.value = withTiming(0.8, { duration: 300 });
-      setTimeout(onComplete, 300);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, [opacity, scale, iconRotate, sparkles, onComplete]);
-
-  const containerStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ scale: scale.value }],
-  }));
-
-  const iconStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${iconRotate.value}deg` }],
-  }));
-
-  const sparkleStyle = useAnimatedStyle(() => ({
-    opacity: sparkles.value,
-    transform: [{ scale: sparkles.value }],
-  }));
-
-  return (
-    <View
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(8, 145, 178, 0.95)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1000,
-      }}
-    >
-      <Animated.View style={containerStyle}>
-        <View style={{ alignItems: 'center' }}>
-          <Animated.View style={iconStyle}>
-            <Text style={{ fontSize: 80 }}>✅❌</Text>
-          </Animated.View>
-          <Text
-            style={{
-              fontSize: 32,
-              fontWeight: 'bold',
-              color: 'white',
-              marginTop: 20,
-              textShadowColor: 'rgba(0,0,0,0.2)',
-              textShadowOffset: { width: 0, height: 2 },
-              textShadowRadius: 4,
-            }}
-          >
-            True or False
-          </Text>
-          <Animated.View style={[sparkleStyle, { flexDirection: 'row', marginTop: 16 }]}>
-            <Text style={{ fontSize: 24, marginHorizontal: 8 }}>✨</Text>
-            <Text style={{ fontSize: 24, marginHorizontal: 8 }}>⭐</Text>
-            <Text style={{ fontSize: 24, marginHorizontal: 8 }}>✨</Text>
-          </Animated.View>
         </View>
-      </Animated.View>
-    </View>
+      </View>
+    </Animated.View>
   );
 }
+
 
 export default function TrueFalseGame() {
   const isWeb = Platform.OS === 'web';
@@ -347,14 +263,18 @@ export default function TrueFalseGame() {
   const [lastAnswerCorrect, setLastAnswerCorrect] = useState(false);
   const [gameComplete, setGameComplete] = useState(false);
   const [answered, setAnswered] = useState(false);
-  const [showInitialAnimation, setShowInitialAnimation] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const cardScale = useSharedValue(1);
   const cardOpacity = useSharedValue(1);
   const trueHover = useSharedValue(0);
   const falseHover = useSharedValue(0);
+  const refreshRotation = useSharedValue(0);
+  const backButtonHover = useSharedValue(0);
+  const refreshButtonHover = useSharedValue(0);
+  const contentTransition = useSharedValue(1);
 
-  const initializeGame = useCallback((showAnimation = true) => {
+  const initializeGame = useCallback(() => {
     const shuffled = shuffleArray(QUESTIONS).slice(0, 10);
     setQuestions(shuffled);
     setCurrentIndex(0);
@@ -364,10 +284,30 @@ export default function TrueFalseGame() {
     setAnswered(false);
     cardScale.value = 1;
     cardOpacity.value = 1;
-    if (showAnimation) {
-      setShowInitialAnimation(true);
-    }
-  }, [cardScale, cardOpacity]);
+    contentTransition.value = 1;
+  }, [cardScale, cardOpacity, contentTransition]);
+
+  const handleRefresh = useCallback(() => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+
+    // Spin the refresh button
+    refreshRotation.value = withSequence(
+      withTiming(360, { duration: 500, easing: Easing.out(Easing.ease) }),
+      withTiming(0, { duration: 0 })
+    );
+
+    // Animate content out and back in
+    contentTransition.value = withSequence(
+      withTiming(0, { duration: 200, easing: Easing.in(Easing.cubic) }),
+      withTiming(1, { duration: 200, easing: Easing.out(Easing.cubic) })
+    );
+
+    setTimeout(() => {
+      initializeGame();
+      setIsRefreshing(false);
+    }, 200);
+  }, [initializeGame, isRefreshing, refreshRotation, contentTransition]);
 
   useEffect(() => {
     initializeGame();
@@ -381,6 +321,22 @@ export default function TrueFalseGame() {
   const falseButtonStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: falseHover.value * -3 }],
     shadowOpacity: 0.3 + falseHover.value * 0.2,
+  }));
+
+  const refreshButtonStyle = useAnimatedStyle(() => ({
+    transform: [
+      { rotate: `${refreshRotation.value}deg` },
+      { scale: 1 + refreshButtonHover.value * 0.1 },
+    ],
+  }));
+
+  const backButtonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: 1 + backButtonHover.value * 0.1 }],
+  }));
+
+  const contentContainerStyle = useAnimatedStyle(() => ({
+    opacity: contentTransition.value,
+    transform: [{ scale: 0.95 + contentTransition.value * 0.05 }],
   }));
 
   const currentQuestion = questions[currentIndex];
@@ -434,20 +390,19 @@ export default function TrueFalseGame() {
     <SafeAreaView className="flex-1 bg-slate-50">
       <StatusBar style="dark" />
 
-      {/* Initial Animation */}
-      {showInitialAnimation && (
-        <InitialAnimation onComplete={() => setShowInitialAnimation(false)} />
-      )}
-
       {/* Header */}
       <View className="bg-white border-b border-slate-200">
         <View className="flex-row items-center justify-between px-4 py-3">
-          <Pressable
-            onPress={() => router.back()}
-            className="w-10 h-10 rounded-full bg-slate-100 items-center justify-center active:bg-slate-200"
-          >
-            <FontAwesome name="arrow-left" size={18} color="#64748b" />
-          </Pressable>
+          <Animated.View style={backButtonStyle}>
+            <Pressable
+              onPress={() => router.back()}
+              onHoverIn={isWeb ? () => { backButtonHover.value = withSpring(1, { damping: 15, stiffness: 400 }); } : undefined}
+              onHoverOut={isWeb ? () => { backButtonHover.value = withSpring(0, { damping: 15, stiffness: 400 }); } : undefined}
+              className="w-10 h-10 rounded-full bg-slate-100 items-center justify-center active:bg-slate-200"
+            >
+              <FontAwesome name="arrow-left" size={18} color="#64748b" />
+            </Pressable>
+          </Animated.View>
 
           <View className="items-center flex-1 mx-4">
             <Text className={`font-bold text-slate-800 ${isWeb ? 'text-xl' : 'text-lg'}`}>
@@ -456,10 +411,14 @@ export default function TrueFalseGame() {
           </View>
 
           <Pressable
-            onPress={() => initializeGame(true)}
+            onPress={handleRefresh}
+            onHoverIn={isWeb ? () => { refreshButtonHover.value = withSpring(1, { damping: 15, stiffness: 400 }); } : undefined}
+            onHoverOut={isWeb ? () => { refreshButtonHover.value = withSpring(0, { damping: 15, stiffness: 400 }); } : undefined}
             className="w-10 h-10 rounded-full bg-cyan-50 items-center justify-center active:bg-cyan-100"
           >
-            <FontAwesome name="refresh" size={18} color="#0891b2" />
+            <Animated.View style={refreshButtonStyle}>
+              <FontAwesome name="refresh" size={18} color="#0891b2" />
+            </Animated.View>
           </Pressable>
         </View>
 
@@ -481,124 +440,128 @@ export default function TrueFalseGame() {
       </View>
 
       {/* Game Content */}
-      <View className="flex-1 justify-center px-6">
-        <Animated.View style={cardStyle}>
-          {/* Question Card */}
-          <View
-            style={{
-              backgroundColor: 'white',
-              borderRadius: 20,
-              padding: 24,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.1,
-              shadowRadius: 12,
-              elevation: 5,
-              minHeight: 200,
-            }}
-          >
-            <Text
-              className="text-center text-slate-800 font-semibold"
-              style={{ fontSize: isWeb ? 22 : 20, lineHeight: isWeb ? 32 : 28 }}
-            >
-              {currentQuestion?.statement}
-            </Text>
-
-            {/* Feedback */}
-            {showFeedback && (
-              <Animated.View entering={FadeInDown.duration(300)} className="mt-6">
-                <View
-                  className={`rounded-xl p-4 ${
-                    lastAnswerCorrect ? 'bg-green-50' : 'bg-red-50'
-                  }`}
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 24 }}
+      >
+        <Animated.View style={contentContainerStyle}>
+          {!gameComplete ? (
+            <Animated.View style={cardStyle}>
+              {/* Question Card */}
+              <View
+                style={{
+                  backgroundColor: 'white',
+                  borderRadius: 20,
+                  padding: 24,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 12,
+                  elevation: 5,
+                  minHeight: 200,
+                }}
+              >
+                <Text
+                  className="text-center text-slate-800 font-semibold"
+                  style={{ fontSize: isWeb ? 22 : 20, lineHeight: isWeb ? 32 : 28 }}
                 >
-                  <View className="flex-row items-center mb-2">
-                    <FontAwesome
-                      name={lastAnswerCorrect ? 'check-circle' : 'times-circle'}
-                      size={20}
-                      color={lastAnswerCorrect ? '#22c55e' : '#ef4444'}
-                    />
-                    <Text
-                      className={`font-bold ml-2 ${
-                        lastAnswerCorrect ? 'text-green-700' : 'text-red-700'
+                  {currentQuestion?.statement}
+                </Text>
+
+                {/* Feedback */}
+                {showFeedback && (
+                  <Animated.View entering={FadeInDown.duration(300)} className="mt-6">
+                    <View
+                      className={`rounded-xl p-4 ${
+                        lastAnswerCorrect ? 'bg-green-50' : 'bg-red-50'
                       }`}
                     >
-                      {lastAnswerCorrect ? 'Correct!' : 'Incorrect'}
-                    </Text>
-                  </View>
-                  <Text
-                    className={lastAnswerCorrect ? 'text-green-600' : 'text-red-600'}
-                    style={{ fontSize: 14 }}
-                  >
-                    {currentQuestion?.explanation}
-                  </Text>
+                      <View className="flex-row items-center mb-2">
+                        <FontAwesome
+                          name={lastAnswerCorrect ? 'check-circle' : 'times-circle'}
+                          size={20}
+                          color={lastAnswerCorrect ? '#22c55e' : '#ef4444'}
+                        />
+                        <Text
+                          className={`font-bold ml-2 ${
+                            lastAnswerCorrect ? 'text-green-700' : 'text-red-700'
+                          }`}
+                        >
+                          {lastAnswerCorrect ? 'Correct!' : 'Incorrect'}
+                        </Text>
+                      </View>
+                      <Text
+                        className={lastAnswerCorrect ? 'text-green-600' : 'text-red-600'}
+                        style={{ fontSize: 14 }}
+                      >
+                        {currentQuestion?.explanation}
+                      </Text>
+                    </View>
+                  </Animated.View>
+                )}
+              </View>
+
+              {/* Answer Buttons */}
+              {!showFeedback && (
+                <View className="flex-row mt-8" style={{ gap: 16 }}>
+                  <Animated.View style={[trueButtonStyle, { flex: 1 }]}>
+                    <Pressable
+                      onPress={() => handleAnswer(true)}
+                      onHoverIn={isWeb ? () => { trueHover.value = withSpring(1, { damping: 15, stiffness: 400 }); } : undefined}
+                      onHoverOut={isWeb ? () => { trueHover.value = withSpring(0, { damping: 15, stiffness: 400 }); } : undefined}
+                      disabled={answered}
+                      style={{
+                        backgroundColor: '#22c55e',
+                        borderRadius: 16,
+                        paddingVertical: 20,
+                        alignItems: 'center',
+                        shadowColor: '#22c55e',
+                        shadowOffset: { width: 0, height: 4 },
+                        shadowRadius: 8,
+                        elevation: 5,
+                        opacity: answered ? 0.6 : 1,
+                      }}
+                    >
+                      <FontAwesome name="check" size={28} color="white" />
+                      <Text className="text-white font-bold text-lg mt-2">TRUE</Text>
+                    </Pressable>
+                  </Animated.View>
+
+                  <Animated.View style={[falseButtonStyle, { flex: 1 }]}>
+                    <Pressable
+                      onPress={() => handleAnswer(false)}
+                      onHoverIn={isWeb ? () => { falseHover.value = withSpring(1, { damping: 15, stiffness: 400 }); } : undefined}
+                      onHoverOut={isWeb ? () => { falseHover.value = withSpring(0, { damping: 15, stiffness: 400 }); } : undefined}
+                      disabled={answered}
+                      style={{
+                        backgroundColor: '#ef4444',
+                        borderRadius: 16,
+                        paddingVertical: 20,
+                        alignItems: 'center',
+                        shadowColor: '#ef4444',
+                        shadowOffset: { width: 0, height: 4 },
+                        shadowRadius: 8,
+                        elevation: 5,
+                        opacity: answered ? 0.6 : 1,
+                      }}
+                    >
+                      <FontAwesome name="times" size={28} color="white" />
+                      <Text className="text-white font-bold text-lg mt-2">FALSE</Text>
+                    </Pressable>
+                  </Animated.View>
                 </View>
-              </Animated.View>
-            )}
-          </View>
-
-          {/* Answer Buttons */}
-          {!showFeedback && (
-            <View className="flex-row mt-8" style={{ gap: 16 }}>
-              <Animated.View style={[trueButtonStyle, { flex: 1 }]}>
-                <Pressable
-                  onPress={() => handleAnswer(true)}
-                  onHoverIn={isWeb ? () => { trueHover.value = withSpring(1, { damping: 15, stiffness: 400 }); } : undefined}
-                  onHoverOut={isWeb ? () => { trueHover.value = withSpring(0, { damping: 15, stiffness: 400 }); } : undefined}
-                  disabled={answered}
-                  style={{
-                    backgroundColor: '#22c55e',
-                    borderRadius: 16,
-                    paddingVertical: 20,
-                    alignItems: 'center',
-                    shadowColor: '#22c55e',
-                    shadowOffset: { width: 0, height: 4 },
-                    shadowRadius: 8,
-                    elevation: 5,
-                    opacity: answered ? 0.6 : 1,
-                  }}
-                >
-                  <FontAwesome name="check" size={28} color="white" />
-                  <Text className="text-white font-bold text-lg mt-2">TRUE</Text>
-                </Pressable>
-              </Animated.View>
-
-              <Animated.View style={[falseButtonStyle, { flex: 1 }]}>
-                <Pressable
-                  onPress={() => handleAnswer(false)}
-                  onHoverIn={isWeb ? () => { falseHover.value = withSpring(1, { damping: 15, stiffness: 400 }); } : undefined}
-                  onHoverOut={isWeb ? () => { falseHover.value = withSpring(0, { damping: 15, stiffness: 400 }); } : undefined}
-                  disabled={answered}
-                  style={{
-                    backgroundColor: '#ef4444',
-                    borderRadius: 16,
-                    paddingVertical: 20,
-                    alignItems: 'center',
-                    shadowColor: '#ef4444',
-                    shadowOffset: { width: 0, height: 4 },
-                    shadowRadius: 8,
-                    elevation: 5,
-                    opacity: answered ? 0.6 : 1,
-                  }}
-                >
-                  <FontAwesome name="times" size={28} color="white" />
-                  <Text className="text-white font-bold text-lg mt-2">FALSE</Text>
-                </Pressable>
-              </Animated.View>
-            </View>
+              )}
+            </Animated.View>
+          ) : (
+            <InlineResults
+              score={score}
+              total={questions.length}
+              onPlayAgain={handleRefresh}
+              onBackToHome={() => router.back()}
+            />
           )}
         </Animated.View>
-      </View>
-
-      {/* Victory Modal */}
-      {gameComplete && (
-        <VictoryScreen
-          score={score}
-          total={questions.length}
-          onPlayAgain={initializeGame}
-          onBackToHome={() => router.back()}
-        />
-      )}
+      </ScrollView>
     </SafeAreaView>
   );
 }

@@ -93,6 +93,16 @@ export function WhoAmIIllustration({
       {/* Sparkles */}
       <Circle cx="85" cy="115" r="2" fill="white" opacity="0.7" />
       <Circle cx="135" cy="115" r="2" fill={accentColor} opacity="0.8" />
+
+      {/* Title banner at bottom */}
+      <G transform="translate(110, 118)">
+        {/* Banner background */}
+        <Rect x="-30" y="-12" width="60" height="24" rx="12" fill="white" opacity="0.95" />
+        {/* Title text */}
+        <SvgText x="0" y="4" fontSize="13" fontWeight="bold" fill={primaryColor} textAnchor="middle">
+          Torah
+        </SvgText>
+      </G>
     </Svg>
   );
 }

@@ -115,16 +115,14 @@ export function TenMakkosIllustration({
         </SvgText>
       </G>
 
-      {/* 10 indicator */}
-      <G transform="translate(175, 15)">
-        <Circle r="14" fill="white" opacity="0.9" />
-        <SvgText x="0" y="5" fontSize="12" fontWeight="bold" fill={primaryColor} textAnchor="middle">
-          10
-        </SvgText>
-      </G>
-
       {/* Sparkles */}
       <Circle cx="145" cy="25" r="2" fill="white" opacity="0.7" />
+
+      {/* Title banner - centered */}
+      <G transform="translate(50, 108)">
+        <Rect x="0" y="0" width="120" height="24" rx="6" fill="white" opacity="0.95" />
+        <SvgText x="60" y="16" fontSize="11" fontWeight="bold" fill={primaryColor} textAnchor="middle">Ten Makkos</SvgText>
+      </G>
     </Svg>
   );
 }

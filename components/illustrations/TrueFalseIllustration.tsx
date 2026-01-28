@@ -100,6 +100,16 @@ export function TrueFalseIllustration({
       <Circle cx="170" cy="25" r="3" fill={accentColor} opacity="0.9" />
       <Circle cx="50" cy="35" r="2" fill="white" opacity="0.7" />
       <Circle cx="185" cy="100" r="2" fill="white" opacity="0.6" />
+
+      {/* Title banner at bottom */}
+      <G transform="translate(110, 118)">
+        {/* Banner background */}
+        <Rect x="-30" y="-12" width="60" height="24" rx="12" fill="white" opacity="0.95" />
+        {/* Title text */}
+        <SvgText x="0" y="4" fontSize="13" fontWeight="bold" fill={primaryColor} textAnchor="middle">
+          Torah
+        </SvgText>
+      </G>
     </Svg>
   );
 }

@@ -63,11 +63,10 @@ export function DaysOfCreationIllustration({
         ))}
       </G>
 
-      {/* Title banner */}
-      <G transform="translate(10, 105)">
-        <Rect x="0" y="0" width="115" height="28" rx="6" fill="white" opacity="0.95" />
-        <SvgText x="57" y="12" fontSize="10" fontWeight="bold" fill={primaryColor} textAnchor="middle">Days of Creation</SvgText>
-        <SvgText x="57" y="23" fontSize="8" fill="#64748b" textAnchor="middle">Put in Order</SvgText>
+      {/* Title banner - centered */}
+      <G transform="translate(50, 108)">
+        <Rect x="0" y="0" width="120" height="24" rx="6" fill="white" opacity="0.95" />
+        <SvgText x="60" y="16" fontSize="11" fontWeight="bold" fill={primaryColor} textAnchor="middle">Days of Creation</SvgText>
       </G>
     </Svg>
   );

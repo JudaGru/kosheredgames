@@ -133,9 +133,9 @@ export function JewishHistoryTriviaIllustration({
       {/* Title banner at bottom */}
       <G transform="translate(110, 118)">
         {/* Banner background */}
-        <Rect x="-45" y="-12" width="90" height="24" rx="12" fill="white" opacity="0.95" />
+        <Rect x="-55" y="-12" width="110" height="24" rx="12" fill="white" opacity="0.95" />
         {/* Title text */}
-        <SvgText x="0" y="4" fontSize="13" fontWeight="bold" fill={primaryColor} textAnchor="middle">
+        <SvgText x="0" y="4" fontSize="12" fontWeight="bold" fill={primaryColor} textAnchor="middle">
           Jewish History
         </SvgText>
       </G>

@@ -2,6 +2,7 @@ import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -16,6 +17,11 @@ function TabBarIcon(props: {
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const isWeb = Platform.OS === 'web';
+  const insets = useSafeAreaInsets();
+
+  // Use safe area inset for bottom padding, with a minimum of 8px
+  const bottomPadding = isWeb ? 8 : Math.max(insets.bottom, 8);
+  const tabBarHeight = isWeb ? 60 : 50 + bottomPadding;
 
   return (
     <Tabs
@@ -26,8 +32,8 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: colorScheme === 'dark' ? Colors.dark.background : '#ffffff',
           borderTopColor: colorScheme === 'dark' ? '#1e293b' : '#e2e8f0',
-          height: isWeb ? 60 : 85,
-          paddingBottom: isWeb ? 8 : 28,
+          height: tabBarHeight,
+          paddingBottom: bottomPadding,
           paddingTop: 8,
         },
         tabBarLabelStyle: {
@@ -62,6 +68,13 @@ export default function TabLayout() {
         options={{
           title: 'Feedback',
           tabBarIcon: ({ color }) => <TabBarIcon name="comment" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="suggest-game"
+        options={{
+          title: 'Suggest',
+          tabBarIcon: ({ color }) => <TabBarIcon name="lightbulb-o" color={color} />,
         }}
       />
       {/* Hide old tabs */}

@@ -83,10 +83,10 @@ const TRIVIA_QUESTIONS = [
   },
   {
     id: 10,
-    question: 'Who was Esther married to?',
-    options: ['Haman', 'Mordechai', 'King Achashverosh', 'King Shlomo'],
-    correctIndex: 2,
-    explanation: 'Esther was married to King Achashverosh of Persia and used her position to save the Jewish people.',
+    question: 'Who led the Maccabees in the Chanukah story?',
+    options: ['Mattisyahu', 'Yehuda HaMaccabi', 'Shimon', 'Elazar'],
+    correctIndex: 1,
+    explanation: 'Yehuda HaMaccabi (Judah the Maccabee) led the Jewish revolt against the Greeks after his father Mattisyahu passed away.',
   },
 ];
 
@@ -510,87 +510,6 @@ function ResultsScreen({
   );
 }
 
-function InitialAnimation({ onComplete }: { onComplete: () => void }) {
-  const scale = useSharedValue(0);
-  const opacity = useSharedValue(0);
-  const scrollRotate = useSharedValue(-15);
-  const sparkles = useSharedValue(0);
-
-  useEffect(() => {
-    opacity.value = withTiming(1, { duration: 400 });
-    scale.value = withSpring(1, { damping: 12, stiffness: 100 });
-    scrollRotate.value = withSequence(
-      withTiming(10, { duration: 300 }),
-      withTiming(-5, { duration: 200 }),
-      withTiming(0, { duration: 150 })
-    );
-    sparkles.value = withDelay(300, withTiming(1, { duration: 500 }));
-
-    const timer = setTimeout(() => {
-      opacity.value = withTiming(0, { duration: 300 });
-      scale.value = withTiming(0.8, { duration: 300 });
-      setTimeout(onComplete, 300);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, [opacity, scale, scrollRotate, sparkles, onComplete]);
-
-  const containerStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ scale: scale.value }],
-  }));
-
-  const scrollStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${scrollRotate.value}deg` }],
-  }));
-
-  const sparkleStyle = useAnimatedStyle(() => ({
-    opacity: sparkles.value,
-    transform: [{ scale: sparkles.value }],
-  }));
-
-  return (
-    <View
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(8, 145, 178, 0.95)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1000,
-      }}
-    >
-      <Animated.View style={containerStyle}>
-        <View style={{ alignItems: 'center' }}>
-          <Animated.View style={scrollStyle}>
-            <Text style={{ fontSize: 80 }}>🏛️</Text>
-          </Animated.View>
-          <Text
-            style={{
-              fontSize: 32,
-              fontWeight: 'bold',
-              color: 'white',
-              marginTop: 20,
-              textShadowColor: 'rgba(0,0,0,0.2)',
-              textShadowOffset: { width: 0, height: 2 },
-              textShadowRadius: 4,
-            }}
-          >
-            Jewish History
-          </Text>
-          <Animated.View style={[sparkleStyle, { flexDirection: 'row', marginTop: 16 }]}>
-            <Text style={{ fontSize: 24, marginHorizontal: 8 }}>✨</Text>
-            <Text style={{ fontSize: 24, marginHorizontal: 8 }}>⭐</Text>
-            <Text style={{ fontSize: 24, marginHorizontal: 8 }}>✨</Text>
-          </Animated.View>
-        </View>
-      </Animated.View>
-    </View>
-  );
-}
 
 export default function JewishHistoryTriviaGame() {
   const isWeb = Platform.OS === 'web';
@@ -601,11 +520,12 @@ export default function JewishHistoryTriviaGame() {
   const [score, setScore] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [shuffledQuestions, setShuffledQuestions] = useState<typeof TRIVIA_QUESTIONS>([]);
-  const [showInitialAnimation, setShowInitialAnimation] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const questionTransition = useSharedValue(1);
+  const refreshRotation = useSharedValue(0);
 
-  const initializeGame = useCallback((showAnimation = true) => {
+  const initializeGame = useCallback(() => {
     const shuffled = [...TRIVIA_QUESTIONS].sort(() => Math.random() - 0.5).slice(0, 10);
     setShuffledQuestions(shuffled);
     setCurrentQuestionIndex(0);
@@ -614,9 +534,6 @@ export default function JewishHistoryTriviaGame() {
     setScore(0);
     setIsComplete(false);
     questionTransition.value = 1;
-    if (showAnimation) {
-      setShowInitialAnimation(true);
-    }
   }, [questionTransition]);
 
   useEffect(() => {
@@ -655,6 +572,23 @@ export default function JewishHistoryTriviaGame() {
     transform: [{ scale: 0.95 + questionTransition.value * 0.05 }],
   }));
 
+  const handleRefresh = useCallback(() => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    refreshRotation.value = withSequence(
+      withTiming(360, { duration: 500, easing: Easing.out(Easing.ease) }),
+      withTiming(0, { duration: 0 })
+    );
+    setTimeout(() => {
+      initializeGame();
+      setIsRefreshing(false);
+    }, 300);
+  }, [initializeGame, isRefreshing, refreshRotation]);
+
+  const refreshButtonStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${refreshRotation.value}deg` }],
+  }));
+
   if (shuffledQuestions.length === 0) {
     return (
       <SafeAreaView className="flex-1 bg-slate-50 items-center justify-center">
@@ -669,11 +603,6 @@ export default function JewishHistoryTriviaGame() {
   return (
     <SafeAreaView className="flex-1 bg-slate-50">
       <StatusBar style="dark" />
-
-      {/* Initial Animation */}
-      {showInitialAnimation && (
-        <InitialAnimation onComplete={() => setShowInitialAnimation(false)} />
-      )}
 
       {/* Header */}
       <View className="bg-white border-b border-slate-200">
@@ -692,10 +621,12 @@ export default function JewishHistoryTriviaGame() {
           </View>
 
           <Pressable
-            onPress={() => initializeGame(true)}
+            onPress={handleRefresh}
             className="w-10 h-10 rounded-full bg-cyan-50 items-center justify-center active:bg-cyan-100"
           >
-            <FontAwesome name="refresh" size={18} color="#0891b2" />
+            <Animated.View style={refreshButtonStyle}>
+              <FontAwesome name="refresh" size={18} color="#0891b2" />
+            </Animated.View>
           </Pressable>
         </View>
 
