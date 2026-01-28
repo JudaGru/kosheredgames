@@ -47,10 +47,12 @@ export default function TabLayout() {
   // Detect if mobile layout (native app or narrow web)
   const isMobileLayout = Platform.OS !== 'web' || width < 768;
 
-  // Bottom padding: use safe area inset or mobile browser fallback, no minimum
-  const bottomPadding = insets.bottom > 0 ? insets.bottom : mobileBrowserPadding;
-  // Compact tab bar on mobile (icons only), taller on desktop (with labels)
-  const tabBarHeight = isMobileLayout ? 48 + bottomPadding : 56 + bottomPadding;
+  // Safe area padding for devices with notches/gesture bars
+  const safeAreaBottom = insets.bottom > 0 ? insets.bottom : mobileBrowserPadding;
+  // Equal padding above and below icons for visual balance
+  const iconPadding = isMobileLayout ? 12 : 8;
+  // Total height: icon area + safe area
+  const tabBarHeight = (isMobileLayout ? 26 : 24) + (iconPadding * 2) + safeAreaBottom;
 
   return (
     <Tabs
@@ -63,8 +65,8 @@ export default function TabLayout() {
           backgroundColor: colorScheme === 'dark' ? Colors.dark.background : '#ffffff',
           borderTopColor: colorScheme === 'dark' ? '#1e293b' : '#e2e8f0',
           height: tabBarHeight,
-          paddingBottom: bottomPadding,
-          paddingTop: isMobileLayout ? 10 : 8,
+          paddingBottom: safeAreaBottom + iconPadding,
+          paddingTop: iconPadding,
         },
         tabBarLabelStyle: {
           fontSize: 12,

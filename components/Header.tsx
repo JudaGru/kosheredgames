@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, LinearGradient, Path, Stop, Text as SvgText } from 'react-native-svg';
 import { Colors } from '@/constants/Colors';
 
-export type AgeFilter = 'all' | '3+' | '4+' | '5+' | '6+' | '7+' | '8+';
+export type AgeFilter = 'all' | '5-under' | '6-under' | '7-under' | '8-under' | '9-under' | '10-under';
 
 interface HeaderProps {
   selectedAge: AgeFilter;
@@ -83,12 +83,12 @@ function LogoWordmark({ height = 40 }: { height?: number }) {
 
 const ageFilters: { value: AgeFilter; label: string }[] = [
   { value: 'all', label: 'All Ages' },
-  { value: '3+', label: '3+' },
-  { value: '4+', label: '4+' },
-  { value: '5+', label: '5+' },
-  { value: '6+', label: '6+' },
-  { value: '7+', label: '7+' },
-  { value: '8+', label: '8+' },
+  { value: '10-under', label: '10 & Under' },
+  { value: '9-under', label: '9 & Under' },
+  { value: '8-under', label: '8 & Under' },
+  { value: '7-under', label: '7 & Under' },
+  { value: '6-under', label: '6 & Under' },
+  { value: '5-under', label: '5 & Under' },
 ];
 
 function AgeFilterDropdown({ selectedAge, onAgeChange }: HeaderProps) {

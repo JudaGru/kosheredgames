@@ -432,6 +432,7 @@ export const sequencingGames: Game[] = [
     topic: 'Bereishis',
     difficulty: 'beginner',
     ageRange: '5+',
+    comingSoon: true,
   },
   {
     id: 'sequence-yomim-tovim',

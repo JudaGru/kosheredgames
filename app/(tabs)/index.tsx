@@ -12,25 +12,25 @@ import { gameCategories } from '@/data/games';
 import type { Game } from '@/types/game';
 
 // Helper function to check if a game's age range matches the selected filter
-// Filter is in "X+" format (e.g., "5+") meaning "show games for age X and up"
+// Filter is in "X-under" format (e.g., "7-under") meaning "show games for age X and under"
 // A game matches if its minimum age requirement is at or below the selected age
 function gameMatchesAgeFilter(gameAgeRange: string, filter: AgeFilter): boolean {
   if (filter === 'all') return true;
 
   // Parse the game's age range (e.g., "4+", "6+", "10+")
-  const gameMatch = gameAgeRange.match(/^(\d+)\+?$/);
+  const gameMatch = gameAgeRange.match(/^(\d+)/);
   if (!gameMatch) return true; // If we can't parse, show the game
 
   const gameMinAge = parseInt(gameMatch[1], 10);
 
-  // Parse the filter age (e.g., "5+" -> 5)
-  const filterMatch = filter.match(/^(\d+)\+$/);
+  // Parse the filter age (e.g., "7-under" -> 7)
+  const filterMatch = filter.match(/^(\d+)-under$/);
   if (!filterMatch) return true;
 
   const filterAge = parseInt(filterMatch[1], 10);
 
   // Show the game if its minimum age is at or below the selected filter age
-  // e.g., if user selects "5+", show games tagged "4+", "5+" but not "6+"
+  // e.g., if user selects "7 & Under", show games tagged "4+", "5+", "6+", "7+" but not "8+"
   return gameMinAge <= filterAge;
 }
 
