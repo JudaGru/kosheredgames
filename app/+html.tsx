@@ -33,7 +33,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
         <meta property="og:title" content="AlephPlay - Fun Jewish Educational Games for Kids" />
         <meta
           property="og:description"
-          content="Fun educational Jewish games for children. Learn Torah, Hebrew, Parsha, holidays and more through fun matching games, flashcards, word searches, trivia, and puzzles."
+          content="Fun, ad-free educational Jewish games for children. Learn Torah, Hebrew, Parsha, holidays and more through fun matching games, flashcards, word searches, trivia, and puzzles."
         />
         <meta property="og:image" content="https://alephplay.com/og-image.png" />
         <meta property="og:site_name" content="AlephPlay" />
@@ -45,7 +45,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
         <meta property="twitter:title" content="AlephPlay - Fun Jewish Educational Games for Kids" />
         <meta
           property="twitter:description"
-          content="Fun educational Jewish games for children. Learn Torah, Hebrew, Parsha, holidays and more through fun matching games, flashcards, word searches, trivia, and puzzles."
+          content="Fun, ad-free educational Jewish games for children. Learn Torah, Hebrew, Parsha, holidays and more through fun matching games, flashcards, word searches, trivia, and puzzles."
         />
         <meta property="twitter:image" content="https://alephplay.com/og-image.png" />
 
@@ -76,7 +76,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
               '@type': 'WebSite',
               name: 'AlephPlay',
               url: 'https://alephplay.com',
-              description: 'Fun educational Jewish games for children',
+              description: 'Fun, ad-free educational Jewish games for children',
               potentialAction: {
                 '@type': 'SearchAction',
                 target: 'https://alephplay.com/search?q={search_term_string}',
@@ -95,7 +95,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
               '@type': 'EducationalOrganization',
               name: 'AlephPlay',
               url: 'https://alephplay.com',
-              description: 'Fun educational Jewish games for children to learn Torah, Hebrew, and Jewish traditions',
+              description: 'Fun, ad-free educational Jewish games for children to learn Torah, Hebrew, and Jewish traditions',
               areaServed: 'Worldwide',
               audience: {
                 '@type': 'EducationalAudience',

@@ -155,13 +155,13 @@ export const seoConfigs = {
   categories: {
     title: 'Game Categories',
     description:
-      'Browse all categories of Jewish educational games including matching games, flashcards, word searches, trivia, crosswords, and jigsaw puzzles.',
+      'Browse all categories of fun, ad-free Jewish educational games including matching games, flashcards, word searches, trivia, crosswords, and jigsaw puzzles.',
     keywords: 'Jewish game categories, Torah learning categories, Hebrew games by type',
     url: '/categories',
   },
   favorites: {
     title: 'My Favorite Games',
-    description: 'Your saved favorite Jewish educational games. Quick access to the games you love most.',
+    description: 'Your saved favorite Jewish educational games. Quick access to the ad-free games you love most.',
     url: '/favorites',
   },
 };
@@ -189,7 +189,7 @@ export function getGameSEOConfig(game: {
 
   return {
     title: `${game.title} - Fun ${gameTypeLabel}`,
-    description: `${game.description} A Fun Jewish educational ${gameTypeLabel.toLowerCase()} about ${game.topic} for ages ${game.ageRange}. Play now at AlephPlay!`,
+    description: `${game.description} A fun, ad-free Jewish educational ${gameTypeLabel.toLowerCase()} about ${game.topic} for ages ${game.ageRange}. Play now at AlephPlay!`,
     keywords: `${game.title}, ${game.topic}, Jewish ${gameTypeLabel.toLowerCase()}, Torah games, Hebrew learning, kids games, educational games, ${game.topic} game`,
     url: game.route,
     type: 'game' as const,

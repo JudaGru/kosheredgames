@@ -59,7 +59,7 @@ export default function AboutScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <LogoLarge />
-          <Text style={styles.tagline}>Educational Jewish Games for Children</Text>
+          <Text style={styles.tagline}>Fun, Ad-Free Educational Jewish Games for Children</Text>
         </View>
 
         <View style={styles.section}>

@@ -1,7 +1,7 @@
 {
   "name": "AlephPlay",
   "short_name": "AlephPlay",
-  "description": "Fun educational Jewish games for children. Learn Torah, Hebrew, Parsha, holidays and more.",
+  "description": "Fun, ad-free educational Jewish games for children. Learn Torah, Hebrew, Parsha, holidays and more.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
