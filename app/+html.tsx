@@ -13,8 +13,8 @@ export default function Root({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover" />
 
         {/* Primary Meta Tags */}
-        <title>AlephPlay - Fun Jewish Educational Games for Kids</title>
-        <meta name="title" content="AlephPlay - Fun Jewish Educational Games for Kids" />
+        <title>AlephPlay - Fun Jewish Educational Games for Kids - Ad-Free</title>
+        <meta name="title" content="AlephPlay - Fun Jewish Educational Games for Kids - Ad-Free" />
         <meta
           name="description"
           content="Fun educational Jewish games for children. Learn Torah, Hebrew, Parsha, holidays and more through fun matching games, flashcards, word searches, trivia, and puzzles. Safe, ad-free learning for ages 4+."
@@ -30,7 +30,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://alephplay.com/" />
-        <meta property="og:title" content="AlephPlay - Fun Jewish Educational Games for Kids" />
+        <meta property="og:title" content="AlephPlay - Fun Jewish Educational Games for Kids - Ad-Free" />
         <meta
           property="og:description"
           content="Fun, ad-free educational Jewish games for children. Learn Torah, Hebrew, Parsha, holidays and more through fun matching games, flashcards, word searches, trivia, and puzzles."
@@ -42,7 +42,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://alephplay.com/" />
-        <meta property="twitter:title" content="AlephPlay - Fun Jewish Educational Games for Kids" />
+        <meta property="twitter:title" content="AlephPlay - Fun Jewish Educational Games for Kids - Ad-Free" />
         <meta
           property="twitter:description"
           content="Fun, ad-free educational Jewish games for children. Learn Torah, Hebrew, Parsha, holidays and more through fun matching games, flashcards, word searches, trivia, and puzzles."

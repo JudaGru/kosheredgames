@@ -145,7 +145,7 @@ export function SEO({
 // Pre-defined SEO configs for common pages
 export const seoConfigs = {
   home: {
-    title: 'Fun Jewish Educational Games for Kids',
+    title: 'Fun Jewish Educational Games for Kids - Ad-Free',
     description:
       'Fun educational Jewish games for children. Learn Torah, Hebrew, Parsha, holidays and more through fun matching games, flashcards, word searches, trivia, and puzzles. Safe, ad-free learning for ages 4+.',
     keywords:
