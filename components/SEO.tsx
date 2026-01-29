@@ -145,9 +145,9 @@ export function SEO({
 // Pre-defined SEO configs for common pages
 export const seoConfigs = {
   home: {
-    title: 'Free Jewish Educational Games for Kids',
+    title: 'Fun Jewish Educational Games for Kids',
     description:
-      'Free educational Jewish games for children. Learn Torah, Hebrew, Parsha, holidays and more through fun matching games, flashcards, word searches, trivia, and puzzles. Safe, ad-free learning for ages 4+.',
+      'Fun educational Jewish games for children. Learn Torah, Hebrew, Parsha, holidays and more through fun matching games, flashcards, word searches, trivia, and puzzles. Safe, ad-free learning for ages 4+.',
     keywords:
       'Jewish games, Torah games, Hebrew learning, Parsha games, Jewish education, kosher games, kids games, educational games',
     url: '/',
@@ -188,8 +188,8 @@ export function getGameSEOConfig(game: {
   const gameTypeLabel = gameTypeLabels[game.gameType] || 'Game';
 
   return {
-    title: `${game.title} - Free ${gameTypeLabel}`,
-    description: `${game.description} A free Jewish educational ${gameTypeLabel.toLowerCase()} about ${game.topic} for ages ${game.ageRange}. Play now at AlephPlay!`,
+    title: `${game.title} - Fun ${gameTypeLabel}`,
+    description: `${game.description} A Fun Jewish educational ${gameTypeLabel.toLowerCase()} about ${game.topic} for ages ${game.ageRange}. Play now at AlephPlay!`,
     keywords: `${game.title}, ${game.topic}, Jewish ${gameTypeLabel.toLowerCase()}, Torah games, Hebrew learning, kids games, educational games, ${game.topic} game`,
     url: game.route,
     type: 'game' as const,

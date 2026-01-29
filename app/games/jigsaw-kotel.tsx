@@ -1,10 +1,9 @@
+import { SEO } from '@/components/SEO';
 import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, Pressable, Text, useWindowDimensions, View } from 'react-native';
-import { useIsMobileLayout } from '../../hooks/useDeviceType';
-import { SEO } from '@/components/SEO';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, {
   Easing,
@@ -19,6 +18,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, G, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
+import { useIsMobileLayout } from '../../hooks/useDeviceType';
 
 // Kotel illustration - a stylized Western Wall scene
 function KotelImage({ width, height }: { width: number; height: number }) {
@@ -715,8 +715,8 @@ export default function JigsawKotelGame() {
 
   // SEO for this game page
   const seoConfig = {
-    title: 'Kosel Jigsaw Puzzle - Free Jewish Game',
-    description: 'Piece together a beautiful image of the Western Wall (Kotel) in this free jigsaw puzzle game. A fun Jewish educational game for ages 6+.',
+    title: 'Kosel Jigsaw Puzzle - Fun Jewish Game',
+    description: 'Piece together a beautiful image of the Western Wall (Kotel) in this fun jigsaw puzzle game. A fun Jewish educational game for ages 6+.',
     keywords: 'Kotel puzzle, Western Wall game, Jewish jigsaw puzzle, Eretz Yisroel games, Jerusalem puzzle, kosher games for kids',
     url: '/games/jigsaw-kotel',
     type: 'game' as const,
