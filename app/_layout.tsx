@@ -4,9 +4,11 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { View } from 'react-native';
 import 'react-native-reanimated';
 import '../global.css';
 
+import { BetaBanner } from '@/components/BetaBanner';
 import { Loader } from '@/components/Loader';
 import { usePageTracking } from '@/hooks/useAnalytics';
 
@@ -59,7 +61,9 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={AppTheme}>
-      <Stack
+      <View style={{ flex: 1 }}>
+        <BetaBanner />
+        <Stack
         screenOptions={{
           headerShown: false,
           animation: 'fade',
@@ -278,6 +282,7 @@ function RootLayoutNav() {
           }}
         />
       </Stack>
+      </View>
     </ThemeProvider>
   );
 }
