@@ -1,8 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Colors } from '@/constants/Colors';
 
@@ -10,7 +9,6 @@ const BANNER_DISMISSED_KEY = 'beta_banner_dismissed';
 
 export function BetaBanner() {
   const [isVisible, setIsVisible] = useState(false);
-  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     checkBannerStatus();
@@ -40,12 +38,7 @@ export function BetaBanner() {
   if (!isVisible) return null;
 
   return (
-    <View
-      style={[
-        styles.container,
-        { paddingTop: Platform.OS === 'web' ? 8 : insets.top + 4 },
-      ]}
-    >
+    <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.iconContainer}>
           <Ionicons name="gift-outline" size={20} color={Colors.accent[500]} />

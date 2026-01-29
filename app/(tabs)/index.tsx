@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { router, useFocusEffect } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 
+import { BetaBanner } from '@/components/BetaBanner';
 import { Header, AgeFilter } from '@/components/Header';
 import { CategoryRow } from '@/components/CategoryRow';
 import { Loader } from '@/components/Loader';
@@ -204,6 +205,8 @@ export default function HomeScreen() {
         selectedAge={selectedAge}
         onAgeChange={setSelectedAge}
       />
+
+      <BetaBanner />
 
       <ScrollView
         className="flex-1"
