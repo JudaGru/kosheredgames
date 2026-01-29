@@ -66,7 +66,7 @@ function LogoWordmark({ height = 40 }: { height?: number }) {
 
       {/* "Play" text */}
       <SvgText
-        x="116"
+        x="112"
         y="28"
         fontSize="25"
         fontWeight="bold"
@@ -181,10 +181,13 @@ export function Header({ selectedAge, onAgeChange }: HeaderProps) {
 
   return (
     <View
-      style={{ paddingTop: isMobile ? insets.top + 8 : 16 }}
+      style={[
+        styles.headerContainer,
+        { paddingTop: isMobile ? insets.top + 12 : 20 }
+      ]}
     >
       {/* Top row: Logo, Tagline (centered), Age Filter and Search */}
-      <View className="flex-row items-center justify-between px-4 pb-2">
+      <View className="flex-row items-center justify-between px-4 pb-3">
         {/* Logo */}
         <LogoWordmark height={isMobile ? 36 : 44} />
 
@@ -214,15 +217,18 @@ export function Header({ selectedAge, onAgeChange }: HeaderProps) {
 }
 
 const styles = StyleSheet.create({
+  headerContainer: {
+    backgroundColor: 'transparent',
+  },
   dropdownButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: 'rgba(0, 0, 0, 0.08)',
     gap: 6,
   },
   dropdownButtonText: {

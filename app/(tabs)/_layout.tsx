@@ -44,15 +44,19 @@ export default function TabLayout() {
   const mobileBrowserPadding = useMobileBrowserBottomPadding();
   const { width } = useWindowDimensions();
 
-  // Detect if mobile layout (native app or narrow web)
-  const isMobileLayout = Platform.OS !== 'web' || width < 768;
+  // Detect mobile web specifically (web with narrow viewport)
+  const isMobileWeb = Platform.OS === 'web' && width < 768;
 
   // Safe area padding for devices with notches/gesture bars
   const safeAreaBottom = insets.bottom > 0 ? insets.bottom : mobileBrowserPadding;
-  // Equal padding above and below icons for visual balance
-  const iconPadding = isMobileLayout ? 12 : 8;
-  // Total height: icon area + safe area
-  const tabBarHeight = (isMobileLayout ? 26 : 24) + (iconPadding * 2) + safeAreaBottom;
+  // Show labels on web (both desktop and mobile web)
+  const showLabels = Platform.OS === 'web';
+  // Icon size
+  const iconSize = isMobileWeb ? 20 : 24;
+  // Padding around the tab bar content
+  const iconPadding = isMobileWeb ? 6 : 8;
+  // Fixed tab bar height that includes room for labels
+  const tabBarHeight = isMobileWeb ? 60 + safeAreaBottom : 70 + safeAreaBottom;
 
   return (
     <Tabs
@@ -60,7 +64,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].tabIconDefault,
         headerShown: false,
-        tabBarShowLabel: !isMobileLayout, // Hide labels on mobile
+        tabBarShowLabel: showLabels, // Show labels on all web platforms
         tabBarStyle: {
           backgroundColor: colorScheme === 'dark' ? Colors.dark.background : '#ffffff',
           borderTopColor: colorScheme === 'dark' ? '#1e293b' : '#e2e8f0',
@@ -69,8 +73,9 @@ export default function TabLayout() {
           paddingTop: iconPadding,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: isMobileWeb ? 10 : 12,
           fontWeight: '600',
+          marginTop: isMobileWeb ? -2 : 0,
         },
       }}
     >
@@ -78,35 +83,35 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} size={isMobileLayout ? 26 : 24} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} size={iconSize} />,
         }}
       />
       <Tabs.Screen
         name="search"
         options={{
           title: 'Search',
-          tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} size={isMobileLayout ? 26 : 24} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} size={iconSize} />,
         }}
       />
       <Tabs.Screen
         name="suggest-game"
         options={{
           title: 'Suggest',
-          tabBarIcon: ({ color }) => <TabBarIcon name="lightbulb-o" color={color} size={isMobileLayout ? 26 : 24} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="lightbulb-o" color={color} size={iconSize} />,
         }}
       />
       <Tabs.Screen
         name="feedback"
         options={{
           title: 'Feedback',
-          tabBarIcon: ({ color }) => <TabBarIcon name="comment" color={color} size={isMobileLayout ? 26 : 24} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="comment" color={color} size={iconSize} />,
         }}
       />
       <Tabs.Screen
         name="about"
         options={{
           title: 'About',
-          tabBarIcon: ({ color }) => <TabBarIcon name="info-circle" color={color} size={isMobileLayout ? 26 : 24} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="info-circle" color={color} size={iconSize} />,
         }}
       />
       {/* Hide old tabs */}
