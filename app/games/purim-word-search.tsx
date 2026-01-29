@@ -27,7 +27,7 @@ const PURIM_WORDS = [
   { english: 'ESTHER', hebrew: 'אסתר', found: false },
   { english: 'MORDECHAI', hebrew: 'מרדכי', found: false },
   { english: 'HAMAN', hebrew: 'המן', found: false },
-  { english: 'SHALACH', hebrew: 'משלוח מנות', found: false },
+  { english: 'MISHLOACH', hebrew: 'משלוח מנות', found: false },
   { english: 'COSTUME', hebrew: 'תחפושת', found: false },
   { english: 'GRAGGER', hebrew: 'רעשן', found: false },
 ];

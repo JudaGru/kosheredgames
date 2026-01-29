@@ -2,7 +2,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Keyboard, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Keyboard, Platform, Pressable, ScrollView, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import Animated, {
   Easing,
   FadeIn,
@@ -69,7 +69,7 @@ const CLUES: ClueData[] = [
   // Down clues
   { number: 2, clue: 'A Shabbos meal', answer: 'SEUDAH', row: 0, col: 0, direction: 'down' },
   { number: 3, clue: 'Shabbos joy and delight', answer: 'ONEG', row: 0, col: 5, direction: 'down' },
-  { number: 4, clue: 'Friday night blessing over wine', answer: 'KIDDUSH', row: 0, col: 8, direction: 'down' },
+  { number: 4, clue: 'Friday night bracha over wine', answer: 'KIDDUSH', row: 0, col: 8, direction: 'down' },
   { number: 6, clue: 'Shabbat Shalom means Sabbath _____', answer: 'PEACE', row: 3, col: 4, direction: 'down' },
 ];
 
@@ -585,6 +585,7 @@ function VictoryScreen({
 
 export default function ShabbosCrosswordGame() {
   const { isMobile } = useIsMobileLayout();
+  const { width: screenWidth } = useWindowDimensions();
   const [grid] = useState(() => buildGrid());
   const [userInputs, setUserInputs] = useState<string[][]>(() =>
     Array(GRID_SIZE)
@@ -597,7 +598,10 @@ export default function ShabbosCrosswordGame() {
   const [gameKey, setGameKey] = useState(0); // Key for re-mounting animations
   const inputRef = useRef<TextInput>(null);
 
-  const cellSize = isMobile ? 38 : 42;
+  // Calculate cell size based on screen width to prevent cutoff
+  // Account for padding (16px * 2 = 32px) and grid container padding (8px * 2 = 16px)
+  const maxCellSize = isMobile ? Math.floor((screenWidth - 48) / GRID_SIZE) : 42;
+  const cellSize = isMobile ? Math.min(38, maxCellSize) : 42;
 
   // Check if a word is completed correctly
   const isWordComplete = useCallback(
@@ -832,6 +836,7 @@ export default function ShabbosCrosswordGame() {
           gap: 20,
         }}
         showsVerticalScrollIndicator={false}
+        horizontal={false}
       >
         {/* Grid */}
         <Animated.View

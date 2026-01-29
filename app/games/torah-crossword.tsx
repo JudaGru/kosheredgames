@@ -43,7 +43,7 @@ const GRID_SIZE = 10;
 const CLUES: ClueData[] = [
   // Across clues
   { number: 1, clue: 'Loving-kindness', answer: 'CHESED', row: 0, col: 0, direction: 'across' },
-  { number: 4, clue: 'The Five Books of Moses', answer: 'TORAH', row: 2, col: 2, direction: 'across' },
+  { number: 4, clue: 'The Five Books of Moshe', answer: 'TORAH', row: 2, col: 2, direction: 'across' },
   { number: 5, clue: 'A blessing we say', answer: 'BRACHA', row: 5, col: 2, direction: 'across' },
   { number: 6, clue: 'A commandment from Hashem', answer: 'MITZVAH', row: 7, col: 0, direction: 'across' },
   // Down clues

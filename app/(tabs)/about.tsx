@@ -91,7 +91,7 @@ export default function AboutScreen() {
             icon="book"
             iconColor="#10b981"
             title="Strictly Educational"
-            description="All our games teach real Torah content including Parsha, Hebrew, holidays, halacha, and Jewish history."
+            description="All our games teach real Torah content including Parsha, Hebrew, yomim tovim, halacha, and Jewish history."
           />
           <FeatureCard
             icon="graduation-cap"

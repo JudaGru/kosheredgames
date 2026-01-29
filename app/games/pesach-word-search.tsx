@@ -26,7 +26,7 @@ const PESACH_WORDS = [
   { english: 'SEDER', hebrew: 'סדר', found: false },
   { english: 'MATZAH', hebrew: 'מצה', found: false },
   { english: 'MAROR', hebrew: 'מרור', found: false },
-  { english: 'CHAROSET', hebrew: 'חרוסת', found: false },
+  { english: 'CHAROSES', hebrew: 'חרוסת', found: false },
   { english: 'HAGGADAH', hebrew: 'הגדה', found: false },
   { english: 'AFIKOMAN', hebrew: 'אפיקומן', found: false },
   { english: 'PLAGUES', hebrew: 'מכות', found: false },

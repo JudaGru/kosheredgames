@@ -46,7 +46,7 @@ const CLUES: ClueData[] = [
   { number: 5, clue: 'Chocolate coins', answer: 'GELT', row: 7, col: 0, direction: 'across' },
   { number: 6, clue: 'Spinning top game', answer: 'DREIDEL', row: 9, col: 0, direction: 'across' },
   // Down clues
-  { number: 2, clue: 'Judah and the warriors', answer: 'MACCABEE', row: 1, col: 1, direction: 'down' },
+  { number: 2, clue: 'Yehudah and the warriors', answer: 'MACCABEE', row: 1, col: 1, direction: 'down' },
   { number: 3, clue: 'The eight-day Festival of Lights', answer: 'CHANUKAH', row: 0, col: 7, direction: 'down' },
 ];
 
