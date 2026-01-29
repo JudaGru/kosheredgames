@@ -396,9 +396,9 @@ function WordListItem({
       style={[
         containerStyle,
         {
-          paddingVertical: 5,
-          paddingHorizontal: 8,
-          borderRadius: 6,
+          paddingVertical: 4,
+          paddingHorizontal: 6,
+          borderRadius: 5,
           borderWidth: 1,
           borderColor: isFound ? '#86efac' : '#e2e8f0',
         },
@@ -407,7 +407,7 @@ function WordListItem({
       <View style={{ position: 'relative' }}>
         <Text
           style={{
-            fontSize: 11,
+            fontSize: 9,
             fontWeight: '600',
             color: isFound ? '#166534' : '#334155',
           }}
@@ -1209,24 +1209,32 @@ export default function TorahWordSearchGame() {
                 ))}
               </ScrollView>
             ) : (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{
-                  flexDirection: 'row',
-                  gap: 6,
-                  paddingHorizontal: 4,
-                }}
-              >
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 6 }}>
                 {placedWords.map((w) => (
-                  <WordListItem
+                  <View
                     key={w.word}
-                    word={w.word}
-                    isFound={foundWords.has(w.word)}
-                    isWeb={isWeb}
-                  />
+                    style={{
+                      paddingVertical: 5,
+                      paddingHorizontal: 8,
+                      backgroundColor: foundWords.has(w.word) ? '#dcfce7' : 'white',
+                      borderRadius: 6,
+                      borderWidth: 1,
+                      borderColor: foundWords.has(w.word) ? '#86efac' : '#e2e8f0',
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 11,
+                        fontWeight: '600',
+                        color: foundWords.has(w.word) ? '#166534' : '#334155',
+                        textDecorationLine: foundWords.has(w.word) ? 'line-through' : 'none',
+                      }}
+                    >
+                      {w.word}
+                    </Text>
+                  </View>
                 ))}
-              </ScrollView>
+              </View>
             )}
           </View>
         </View>

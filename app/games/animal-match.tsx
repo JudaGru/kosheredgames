@@ -539,6 +539,17 @@ function PlayerSetupScreen({ onStartGame }: { onStartGame: (playerCount: number)
   const isWeb = Platform.OS === 'web';
   const [backHovered, setBackHovered] = useState(false);
 
+  // Detect mobile browser (for extra padding on Android/iOS browsers)
+  const [isMobileBrowser, setIsMobileBrowser] = useState(false);
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      const mobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const standalone = window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as any).standalone === true;
+      setIsMobileBrowser(mobile && !standalone);
+    }
+  }, []);
+
   // Sample animal symbols for the header display
   const displayAnimals = [
     { symbol: '🦁', color: '#f59e0b' },
@@ -559,44 +570,52 @@ function PlayerSetupScreen({ onStartGame }: { onStartGame: (playerCount: number)
           paddingHorizontal: 24,
         }}
       >
-        {/* Header Section */}
+        {/* Header Section - more compact on mobile browser */}
         <Animated.View
           entering={FadeIn.duration(500)}
           className="items-center"
-          style={{ width: '100%', maxWidth: 380, marginBottom: isWeb ? 40 : 24 }}
+          style={{ width: '100%', maxWidth: 380, marginBottom: isWeb ? 40 : (isMobileBrowser ? 8 : 20) }}
         >
-          {/* Animal symbols row */}
+          {/* Animal symbols row - smaller on mobile browser */}
           <View
             style={{
               flexDirection: 'row',
               justifyContent: 'center',
-              marginBottom: isWeb ? 20 : 12,
+              marginTop: isMobileBrowser ? 8 : 0,
+              marginBottom: isWeb ? 20 : (isMobileBrowser ? 6 : 12),
               gap: isWeb ? 12 : 4,
             }}
           >
-            {displayAnimals.map((animal, index) => (
-              <Animated.View
-                key={index}
-                entering={FadeIn.duration(400).delay(100 + index * 80)}
-                style={{
-                  width: isWeb ? 52 : 40,
-                  height: isWeb ? 52 : 40,
-                  borderRadius: isWeb ? 26 : 20,
-                  backgroundColor: 'white',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  shadowColor: animal.color,
-                  shadowOffset: { width: 0, height: 3 },
-                  shadowOpacity: 0.2,
-                  shadowRadius: 6,
-                  elevation: 3,
-                  borderWidth: 2,
-                  borderColor: animal.color + '30',
-                }}
-              >
-                <Text style={{ fontSize: isWeb ? 24 : 18 }}>{animal.symbol}</Text>
-              </Animated.View>
-            ))}
+            {displayAnimals.map((animal, index) => {
+              // Desktop web = full size, mobile browser = medium, native mobile = smaller
+              const isDesktopWeb = isWeb && !isMobileBrowser;
+              const iconSize = isDesktopWeb ? 52 : (isMobileBrowser ? 28 : 20);
+              const fontSize = isDesktopWeb ? 24 : (isMobileBrowser ? 13 : 9);
+
+              return (
+                <Animated.View
+                  key={index}
+                  entering={FadeIn.duration(400).delay(100 + index * 80)}
+                  style={{
+                    width: iconSize,
+                    height: iconSize,
+                    borderRadius: iconSize / 2,
+                    backgroundColor: 'white',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    shadowColor: animal.color,
+                    shadowOffset: { width: 0, height: isDesktopWeb ? 3 : 2 },
+                    shadowOpacity: 0.2,
+                    shadowRadius: isDesktopWeb ? 6 : 4,
+                    elevation: isDesktopWeb ? 3 : 2,
+                    borderWidth: isDesktopWeb ? 2 : 1.5,
+                    borderColor: animal.color + '30',
+                  }}
+                >
+                  <Text style={{ fontSize }}>{animal.symbol}</Text>
+                </Animated.View>
+              );
+            })}
           </View>
 
           {/* Title with styled effect */}
@@ -615,8 +634,7 @@ function PlayerSetupScreen({ onStartGame }: { onStartGame: (playerCount: number)
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                marginTop: 8,
-                marginBottom: isWeb ? 16 : 8,
+                marginTop: isMobileBrowser ? 4 : 8,
                 gap: 8,
               }}
             >
@@ -637,10 +655,10 @@ function PlayerSetupScreen({ onStartGame }: { onStartGame: (playerCount: number)
           </View>
         </Animated.View>
 
-        {/* Player selection section */}
+        {/* Player selection section - full size buttons, tighter gap on mobile browser */}
         <Animated.View
           entering={FadeIn.duration(500).delay(300)}
-          style={{ width: '100%', maxWidth: 340, gap: 14 }}
+          style={{ width: '100%', maxWidth: 340, gap: isMobileBrowser ? 10 : 14 }}
         >
           {[1, 2, 3, 4].map((playerCount, index) => (
             <PlayerOptionButton
@@ -659,7 +677,7 @@ function PlayerSetupScreen({ onStartGame }: { onStartGame: (playerCount: number)
             onHoverIn={isWeb ? () => setBackHovered(true) : undefined}
             onHoverOut={isWeb ? () => setBackHovered(false) : undefined}
             style={{
-              marginTop: isWeb ? 32 : 16,
+              marginTop: isWeb ? 32 : (isMobileBrowser ? 0 : 16),
               paddingVertical: 10,
               paddingHorizontal: 24,
               flexDirection: 'row',
