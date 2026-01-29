@@ -20,10 +20,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const TRIVIA_QUESTIONS = [
   {
     id: 1,
-    question: 'What do we wash our hands for before eating bread?',
-    options: ['Cleanliness', 'Spiritual purity', 'To remove dirt', 'Health reasons'],
+    question: 'Which direction do we light the Chanukah candles?',
+    options: ['Right to left', 'Left to right', 'Any direction', 'From the middle outward'],
     correctIndex: 1,
-    explanation: 'We wash Netillas Yadayim for spiritual purity, similar to the Kohanim who washed before serving in the Beis Hamikdash.',
+    explanation: 'We add candles from right to left, but light them from left to right, so we light the newest candle first.',
   },
   {
     id: 2,

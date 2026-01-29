@@ -53,19 +53,20 @@ function MakkaCard({
   index,
   isSelected,
   isCorrectPosition,
-  isIncorrectPosition,
   onPress,
   disabled,
+  shakeKey,
 }: {
   item: MakkaItem;
   index: number;
   isSelected: boolean;
   isCorrectPosition: boolean;
-  isIncorrectPosition: boolean;
   onPress: () => void;
   disabled: boolean;
+  shakeKey: number;
 }) {
   const scale = useSharedValue(0);
+  const shakeX = useSharedValue(0);
   const entranceDelay = index * 60;
 
   useEffect(() => {
@@ -75,11 +76,9 @@ function MakkaCard({
     );
   }, [entranceDelay, scale]);
 
-  const shakeAnim = useSharedValue(0);
-
   useEffect(() => {
-    if (isIncorrectPosition) {
-      shakeAnim.value = withSequence(
+    if (shakeKey > 0) {
+      shakeX.value = withSequence(
         withTiming(-10, { duration: 50 }),
         withTiming(10, { duration: 50 }),
         withTiming(-10, { duration: 50 }),
@@ -87,26 +86,24 @@ function MakkaCard({
         withTiming(0, { duration: 50 })
       );
     }
-  }, [isIncorrectPosition, shakeAnim]);
+  }, [shakeKey, shakeX]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
       { scale: scale.value },
-      { translateX: shakeAnim.value },
+      { translateX: shakeX.value },
     ],
     opacity: scale.value,
   }));
 
   const getBorderColor = () => {
     if (isCorrectPosition) return '#22c55e';
-    if (isIncorrectPosition) return '#ef4444';
     if (isSelected) return '#7c3aed';
     return '#e2e8f0';
   };
 
   const getBgColor = () => {
     if (isCorrectPosition) return '#dcfce7';
-    if (isIncorrectPosition) return '#fee2e2';
     if (isSelected) return '#f5f3ff';
     return 'white';
   };
@@ -462,17 +459,19 @@ export default function TenMakkosGame() {
   const [availableMakkos, setAvailableMakkos] = useState<MakkaItem[]>([]);
   const [placedMakkos, setPlacedMakkos] = useState<(MakkaItem | null)[]>(Array(10).fill(null));
   const [selectedMakka, setSelectedMakka] = useState<MakkaItem | null>(null);
-  const [incorrectPositions, setIncorrectPositions] = useState<Set<number>>(new Set());
   const [attempts, setAttempts] = useState(0);
   const [gameComplete, setGameComplete] = useState(false);
+  const [shakeMakkaId, setShakeMakkaId] = useState<number | null>(null);
+  const [shakeKey, setShakeKey] = useState(0);
 
   const initializeGame = useCallback(() => {
     setAvailableMakkos(shuffleArray([...MAKKOS]));
     setPlacedMakkos(Array(10).fill(null));
     setSelectedMakka(null);
-    setIncorrectPositions(new Set());
     setAttempts(0);
     setGameComplete(false);
+    setShakeMakkaId(null);
+    setShakeKey(0);
   }, []);
 
   useEffect(() => {
@@ -485,7 +484,6 @@ export default function TenMakkosGame() {
     } else {
       setSelectedMakka(makka);
     }
-    setIncorrectPositions(new Set());
   };
 
   const handleDropZonePress = (position: number) => {
@@ -512,11 +510,10 @@ export default function TenMakkosGame() {
         setGameComplete(true);
       }
     } else {
-      // Show incorrect feedback
-      setIncorrectPositions(new Set([position]));
-      setTimeout(() => {
-        setIncorrectPositions(new Set());
-      }, 500);
+      // Shake the selected card and deselect it
+      setShakeMakkaId(selectedMakka.id);
+      setShakeKey((prev) => prev + 1);
+      setSelectedMakka(null);
     }
   };
 
@@ -661,9 +658,9 @@ export default function TenMakkosGame() {
                     index={index}
                     isSelected={selectedMakka?.id === makka.id}
                     isCorrectPosition={isPlacedCorrectly}
-                    isIncorrectPosition={false}
                     onPress={() => handleMakkaPress(makka)}
                     disabled={false}
+                    shakeKey={shakeMakkaId === makka.id ? shakeKey : 0}
                   />
                 );
               })

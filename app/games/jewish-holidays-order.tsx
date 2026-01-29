@@ -53,6 +53,7 @@ function HolidayCard({
   isCorrectPosition,
   onPress,
   disabled,
+  shakeKey,
 }: {
   item: Holiday;
   index: number;
@@ -60,8 +61,10 @@ function HolidayCard({
   isCorrectPosition: boolean;
   onPress: () => void;
   disabled: boolean;
+  shakeKey: number;
 }) {
   const scale = useSharedValue(0);
+  const shakeX = useSharedValue(0);
   const entranceDelay = index * 60;
 
   useEffect(() => {
@@ -71,8 +74,20 @@ function HolidayCard({
     );
   }, [entranceDelay, scale]);
 
+  useEffect(() => {
+    if (shakeKey > 0) {
+      shakeX.value = withSequence(
+        withTiming(-10, { duration: 50 }),
+        withTiming(10, { duration: 50 }),
+        withTiming(-10, { duration: 50 }),
+        withTiming(10, { duration: 50 }),
+        withTiming(0, { duration: 50 })
+      );
+    }
+  }, [shakeKey, shakeX]);
+
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
+    transform: [{ scale: scale.value }, { translateX: shakeX.value }],
     opacity: scale.value,
   }));
 
@@ -438,6 +453,8 @@ export default function JewishHolidaysOrderGame() {
   const [selectedHoliday, setSelectedHoliday] = useState<Holiday | null>(null);
   const [attempts, setAttempts] = useState(0);
   const [gameComplete, setGameComplete] = useState(false);
+  const [shakeHolidayId, setShakeHolidayId] = useState<number | null>(null);
+  const [shakeKey, setShakeKey] = useState(0);
 
   const initializeGame = useCallback(() => {
     setAvailableHolidays(shuffleArray([...HOLIDAYS]));
@@ -445,6 +462,8 @@ export default function JewishHolidaysOrderGame() {
     setSelectedHoliday(null);
     setAttempts(0);
     setGameComplete(false);
+    setShakeHolidayId(null);
+    setShakeKey(0);
   }, []);
 
   useEffect(() => {
@@ -478,6 +497,11 @@ export default function JewishHolidaysOrderGame() {
       if (allPlaced) {
         setGameComplete(true);
       }
+    } else {
+      // Shake the selected card and deselect it
+      setShakeHolidayId(selectedHoliday.id);
+      setShakeKey((prev) => prev + 1);
+      setSelectedHoliday(null);
     }
   };
 
@@ -606,6 +630,7 @@ export default function JewishHolidaysOrderGame() {
                     isCorrectPosition={isPlacedCorrectly}
                     onPress={() => handleHolidayPress(holiday)}
                     disabled={false}
+                    shakeKey={shakeHolidayId === holiday.id ? shakeKey : 0}
                   />
                 );
               })

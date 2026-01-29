@@ -77,7 +77,7 @@ const TRIVIA_QUESTIONS = [
   {
     id: 9,
     question: 'What miracle is celebrated on Chanukah?',
-    options: ['Splitting of the sea', 'Oil lasting 8 days', 'Manna from heaven', 'Walls of Jericho falling'],
+    options: ['Splitting of the sea', 'Oil lasting 8 days', 'Manna from heaven', 'Walls of Yericho falling'],
     correctIndex: 1,
     explanation: 'The miracle of Chanukah celebrates the oil lasting 8 days when there was only enough for one day.',
   },

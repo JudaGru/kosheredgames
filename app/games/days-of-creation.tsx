@@ -50,6 +50,7 @@ function DayCard({
   isCorrectPosition,
   onPress,
   disabled,
+  shakeKey,
 }: {
   item: CreationDay;
   index: number;
@@ -57,8 +58,10 @@ function DayCard({
   isCorrectPosition: boolean;
   onPress: () => void;
   disabled: boolean;
+  shakeKey: number;
 }) {
   const scale = useSharedValue(0);
+  const shakeX = useSharedValue(0);
   const entranceDelay = index * 60;
 
   useEffect(() => {
@@ -68,12 +71,22 @@ function DayCard({
     );
   }, [entranceDelay, scale]);
 
-  const shakeAnim = useSharedValue(0);
+  useEffect(() => {
+    if (shakeKey > 0) {
+      shakeX.value = withSequence(
+        withTiming(-10, { duration: 50 }),
+        withTiming(10, { duration: 50 }),
+        withTiming(-10, { duration: 50 }),
+        withTiming(10, { duration: 50 }),
+        withTiming(0, { duration: 50 })
+      );
+    }
+  }, [shakeKey, shakeX]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
       { scale: scale.value },
-      { translateX: shakeAnim.value },
+      { translateX: shakeX.value },
     ],
     opacity: scale.value,
   }));
@@ -445,6 +458,8 @@ export default function DaysOfCreationGame() {
   const [selectedDay, setSelectedDay] = useState<CreationDay | null>(null);
   const [attempts, setAttempts] = useState(0);
   const [gameComplete, setGameComplete] = useState(false);
+  const [shakeDayId, setShakeDayId] = useState<number | null>(null);
+  const [shakeKey, setShakeKey] = useState(0);
 
   const initializeGame = useCallback(() => {
     setAvailableDays(shuffleArray([...CREATION_DAYS]));
@@ -452,6 +467,8 @@ export default function DaysOfCreationGame() {
     setSelectedDay(null);
     setAttempts(0);
     setGameComplete(false);
+    setShakeDayId(null);
+    setShakeKey(0);
   }, []);
 
   useEffect(() => {
@@ -485,6 +502,11 @@ export default function DaysOfCreationGame() {
       if (allPlaced) {
         setGameComplete(true);
       }
+    } else {
+      // Shake the selected card and deselect it
+      setShakeDayId(selectedDay.id);
+      setShakeKey((prev) => prev + 1);
+      setSelectedDay(null);
     }
   };
 
@@ -613,6 +635,7 @@ export default function DaysOfCreationGame() {
                     isCorrectPosition={isPlacedCorrectly}
                     onPress={() => handleDayPress(day)}
                     disabled={false}
+                    shakeKey={shakeDayId === day.id ? shakeKey : 0}
                   />
                 );
               })
