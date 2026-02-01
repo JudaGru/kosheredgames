@@ -51,6 +51,7 @@ import { AvosImahosIllustration } from './AvosImahosIllustration';
 import { NachWhoAmIIllustration } from './NachWhoAmIIllustration';
 import { GedolimWhoAmIIllustration } from './GedolimWhoAmIIllustration';
 import { LetterGridIllustration } from './LetterGridIllustration';
+import { VirtualPianoIllustration } from './VirtualPianoIllustration';
 import { Colors, getTopicColor } from '@/constants/Colors';
 import type { GameType } from '@/types/game';
 
@@ -218,6 +219,9 @@ export function GameIllustration({ gameType, topic, title, gameId, width, height
   if (gameId === 'letter-grid-torah') {
     return <LetterGridIllustration {...props} />;
   }
+  if (gameId === 'virtual-piano') {
+    return <VirtualPianoIllustration {...props} />;
+  }
 
   switch (gameType) {
     case 'matching':
@@ -232,6 +236,8 @@ export function GameIllustration({ gameType, topic, title, gameId, width, height
       return <SequencingIllustration {...props} />;
     case 'jigsaw-puzzles':
       return <JigsawPuzzlesIllustration {...props} />;
+    case 'music':
+      return <VirtualPianoIllustration {...props} />;
     default:
       return <MatchingIllustration {...props} />;
   }

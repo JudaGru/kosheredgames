@@ -180,6 +180,8 @@ export default function HomeScreen() {
       navigateToGame('/games/gedolim-who-am-i');
     } else if (game.id === 'letter-grid-torah') {
       navigateToGame('/games/letter-grid-torah');
+    } else if (game.id === 'virtual-piano') {
+      navigateToGame('/games/virtual-piano');
     } else {
       // For other games, show coming soon or navigate to a generic page
       console.log('Game pressed:');

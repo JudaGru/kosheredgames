@@ -20,3 +20,4 @@ export { WhoAmIIllustration } from './WhoAmIIllustration';
 export { GameIllustration } from './GameIllustration';
 export { AnimalMatchIllustration } from './AnimalMatchIllustration';
 export { ShabbosMatchIllustration } from './ShabbosMatchIllustration';
+export { VirtualPianoIllustration } from './VirtualPianoIllustration';

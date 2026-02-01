@@ -1,4 +1,4 @@
-export type GameType = 'matching' | 'flashcards' | 'trivia' | 'word-games' | 'sequencing' | 'jigsaw-puzzles';
+export type GameType = 'matching' | 'flashcards' | 'trivia' | 'word-games' | 'sequencing' | 'jigsaw-puzzles' | 'music';
 
 export interface Game {
   id: string;

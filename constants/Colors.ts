@@ -65,6 +65,11 @@ export const Colors = {
       secondary: '#6ee7b7',
       background: '#ecfdf5',
     },
+    music: {
+      primary: '#7c3aed', // Purple/Violet
+      secondary: '#a78bfa',
+      background: '#faf5ff',
+    },
   },
   // Topic accent colors - warm sandy tones
   topicColors: [

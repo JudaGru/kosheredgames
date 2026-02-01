@@ -405,6 +405,18 @@ export const jigsawPuzzleGames: Game[] = [
   },
 ];
 
+export const musicGames: Game[] = [
+  {
+    id: 'virtual-piano',
+    title: 'Virtual Piano',
+    description: 'Play a full 88-key piano with keyboard and touch support',
+    gameType: 'music',
+    topic: 'Music',
+    difficulty: 'beginner',
+    ageRange: '4+',
+  },
+];
+
 export const sequencingGames: Game[] = [
   {
     id: 'sequence-ten-makkos',
@@ -494,6 +506,14 @@ export const gameCategories: GameCategory[] = [
     description: 'Piece together beautiful Jewish-themed images',
     gameType: 'jigsaw-puzzles',
     games: jigsawPuzzleGames,
+  },
+  // Music & Creative
+  {
+    id: 'music',
+    title: 'Music',
+    description: 'Play and create music with virtual instruments',
+    gameType: 'music',
+    games: musicGames,
   },
 ];
 
