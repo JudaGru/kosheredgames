@@ -17,11 +17,11 @@ export default function Root({ children }: { children: React.ReactNode }) {
         <meta name="title" content="AlephPlay - Fun Jewish Educational Games for Kids - Ad-Free" />
         <meta
           name="description"
-          content="Fun educational Jewish games for children. Learn Torah, Hebrew, Parsha, holidays and more through fun matching games, flashcards, word searches, trivia, and puzzles. Safe, ad-free learning for ages 4+."
+          content="Fun educational Jewish games for children. Learn Torah, Hebrew, Parsha, Yomim Tovim and more through fun matching games, flashcards, word searches, trivia, and puzzles. Safe, ad-free learning for ages 4+."
         />
         <meta
           name="keywords"
-          content="Jewish games, Torah games, Hebrew learning, Parsha games, Jewish education, kosher games, kids games, educational games, Shabbos games, holiday games, flashcards, word search, trivia, matching games"
+          content="Jewish games, Torah games, Hebrew learning, Parsha games, Jewish education, kosher games, kids games, educational games, Shabbos games, Yomim Tovim games, flashcards, word search, trivia, matching games"
         />
         <meta name="author" content="AlephPlay" />
         <meta name="robots" content="index, follow" />
@@ -33,7 +33,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
         <meta property="og:title" content="AlephPlay - Fun Jewish Educational Games for Kids - Ad-Free" />
         <meta
           property="og:description"
-          content="Fun, ad-free educational Jewish games for children. Learn Torah, Hebrew, Parsha, holidays and more through fun matching games, flashcards, word searches, trivia, and puzzles."
+          content="Fun, ad-free educational Jewish games for children. Learn Torah, Hebrew, Parsha, Yomim Tovim and more through fun matching games, flashcards, word searches, trivia, and puzzles."
         />
         <meta property="og:image" content="https://alephplay.com/og-image.png" />
         <meta property="og:site_name" content="AlephPlay" />
@@ -45,7 +45,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
         <meta property="twitter:title" content="AlephPlay - Fun Jewish Educational Games for Kids - Ad-Free" />
         <meta
           property="twitter:description"
-          content="Fun, ad-free educational Jewish games for children. Learn Torah, Hebrew, Parsha, holidays and more through fun matching games, flashcards, word searches, trivia, and puzzles."
+          content="Fun, ad-free educational Jewish games for children. Learn Torah, Hebrew, Parsha, Yomim Tovim and more through fun matching games, flashcards, word searches, trivia, and puzzles."
         />
         <meta property="twitter:image" content="https://alephplay.com/og-image.png" />
 
