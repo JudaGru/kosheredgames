@@ -507,14 +507,14 @@ export const gameCategories: GameCategory[] = [
     gameType: 'jigsaw-puzzles',
     games: jigsawPuzzleGames,
   },
-  // Music & Creative
-  {
-    id: 'music',
-    title: 'Music',
-    description: 'Play and create music with virtual instruments',
-    gameType: 'music',
-    games: musicGames,
-  },
+  // Music & Creative - temporarily hidden
+  // {
+  //   id: 'music',
+  //   title: 'Music',
+  //   description: 'Play and create music with virtual instruments',
+  //   gameType: 'music',
+  //   games: musicGames,
+  // },
 ];
 
 export default gameCategories;

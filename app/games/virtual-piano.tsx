@@ -73,241 +73,45 @@ const KEYBOARD_MAP: Record<string, string> = {
 
 const ALL_PIANO_KEYS = generatePianoKeys();
 
-// Sample Jewish songs with note sequences
-interface SongNote {
-  note: string; // e.g., 'C4', 'D#5'
-  duration: number; // in milliseconds
-}
-
-interface Song {
-  id: string;
-  title: string;
-  hebrewTitle?: string;
-  notes: SongNote[];
-  tempo: number; // BPM
-}
-
-const SAMPLE_SONGS: Song[] = [
-  {
-    id: 'hava-nagila',
-    title: 'Hava Nagila',
-    hebrewTitle: 'הבה נגילה',
-    tempo: 140,
-    notes: [
-      // Hava nagila, hava nagila
-      { note: 'E4', duration: 300 },
-      { note: 'F4', duration: 300 },
-      { note: 'G#4', duration: 600 },
-      { note: 'G#4', duration: 300 },
-      { note: 'A4', duration: 300 },
-      { note: 'G#4', duration: 300 },
-      { note: 'F4', duration: 300 },
-      { note: 'E4', duration: 600 },
-      { note: 'E4', duration: 300 },
-      { note: 'F4', duration: 300 },
-      { note: 'G#4', duration: 600 },
-      { note: 'G#4', duration: 300 },
-      { note: 'A4', duration: 300 },
-      { note: 'G#4', duration: 300 },
-      { note: 'F4', duration: 300 },
-      { note: 'E4', duration: 600 },
-      // Hava neranena
-      { note: 'E4', duration: 300 },
-      { note: 'F4', duration: 300 },
-      { note: 'G#4', duration: 300 },
-      { note: 'A4', duration: 300 },
-      { note: 'B4', duration: 600 },
-      { note: 'B4', duration: 300 },
-      { note: 'C5', duration: 300 },
-      { note: 'B4', duration: 300 },
-      { note: 'A4', duration: 300 },
-      { note: 'G#4', duration: 600 },
-    ],
-  },
-  {
-    id: 'shabbat-shalom',
-    title: 'Shabbat Shalom',
-    hebrewTitle: 'שבת שלום',
-    tempo: 120,
-    notes: [
-      // Shabbat shalom
-      { note: 'C4', duration: 400 },
-      { note: 'E4', duration: 400 },
-      { note: 'G4', duration: 400 },
-      { note: 'G4', duration: 200 },
-      { note: 'A4', duration: 200 },
-      { note: 'G4', duration: 800 },
-      // Hey!
-      { note: 'E4', duration: 400 },
-      { note: 'G4', duration: 400 },
-      { note: 'A4', duration: 400 },
-      { note: 'A4', duration: 200 },
-      { note: 'B4', duration: 200 },
-      { note: 'A4', duration: 800 },
-      // Shabbat shalom
-      { note: 'G4', duration: 400 },
-      { note: 'A4', duration: 400 },
-      { note: 'B4', duration: 400 },
-      { note: 'C5', duration: 800 },
-      { note: 'B4', duration: 400 },
-      { note: 'A4', duration: 400 },
-      { note: 'G4', duration: 800 },
-    ],
-  },
-  {
-    id: 'maoz-tzur',
-    title: 'Maoz Tzur',
-    hebrewTitle: 'מעוז צור',
-    tempo: 100,
-    notes: [
-      // Ma-oz tzur ye-shu-a-ti
-      { note: 'D4', duration: 500 },
-      { note: 'D4', duration: 500 },
-      { note: 'D4', duration: 500 },
-      { note: 'E4', duration: 500 },
-      { note: 'F#4', duration: 500 },
-      { note: 'F#4', duration: 500 },
-      { note: 'F#4', duration: 500 },
-      { note: 'G4', duration: 500 },
-      // Le-cha na-eh le-sha-bei-ach
-      { note: 'A4', duration: 500 },
-      { note: 'A4', duration: 500 },
-      { note: 'A4', duration: 500 },
-      { note: 'B4', duration: 250 },
-      { note: 'A4', duration: 250 },
-      { note: 'G4', duration: 500 },
-      { note: 'F#4', duration: 500 },
-      { note: 'E4', duration: 500 },
-      { note: 'D4', duration: 1000 },
-    ],
-  },
-  {
-    id: 'dayenu',
-    title: 'Dayenu',
-    hebrewTitle: 'דיינו',
-    tempo: 130,
-    notes: [
-      // I-lu ho-tzi ho-tzi-a-nu
-      { note: 'A4', duration: 300 },
-      { note: 'A4', duration: 300 },
-      { note: 'A4', duration: 300 },
-      { note: 'G4', duration: 300 },
-      { note: 'F4', duration: 300 },
-      { note: 'E4', duration: 300 },
-      { note: 'D4', duration: 600 },
-      // Ho-tzi-a-nu mi-mitz-ra-yim
-      { note: 'D4', duration: 300 },
-      { note: 'E4', duration: 300 },
-      { note: 'F4', duration: 300 },
-      { note: 'G4', duration: 300 },
-      { note: 'A4', duration: 600 },
-      { note: 'A4', duration: 600 },
-      // Da-ye-nu!
-      { note: 'A4', duration: 200 },
-      { note: 'A4', duration: 200 },
-      { note: 'G4', duration: 200 },
-      { note: 'F4', duration: 200 },
-      { note: 'E4', duration: 400 },
-      { note: 'D4', duration: 800 },
-    ],
-  },
-  {
-    id: 'hatikva',
-    title: 'Hatikva',
-    hebrewTitle: 'התקווה',
-    tempo: 80,
-    notes: [
-      // Kol od ba-le-vav
-      { note: 'E4', duration: 600 },
-      { note: 'E4', duration: 300 },
-      { note: 'E4', duration: 300 },
-      { note: 'F4', duration: 600 },
-      { note: 'E4', duration: 600 },
-      { note: 'D4', duration: 600 },
-      { note: 'C4', duration: 600 },
-      // Pe-ni-ma
-      { note: 'D4', duration: 400 },
-      { note: 'E4', duration: 400 },
-      { note: 'F4', duration: 800 },
-      // Ne-fesh ye-hu-di
-      { note: 'G4', duration: 600 },
-      { note: 'G4', duration: 300 },
-      { note: 'G4', duration: 300 },
-      { note: 'A4', duration: 600 },
-      { note: 'G4', duration: 600 },
-      { note: 'F4', duration: 600 },
-      { note: 'E4', duration: 600 },
-      // Ho-mi-ya
-      { note: 'F4', duration: 400 },
-      { note: 'G4', duration: 400 },
-      { note: 'A4', duration: 800 },
-    ],
-  },
-  {
-    id: 'adon-olam',
-    title: 'Adon Olam',
-    hebrewTitle: 'אדון עולם',
-    tempo: 110,
-    notes: [
-      // A-don o-lam
-      { note: 'G4', duration: 400 },
-      { note: 'G4', duration: 200 },
-      { note: 'A4', duration: 200 },
-      { note: 'B4', duration: 400 },
-      { note: 'A4', duration: 400 },
-      // A-sher ma-lach
-      { note: 'G4', duration: 400 },
-      { note: 'F#4', duration: 200 },
-      { note: 'G4', duration: 200 },
-      { note: 'A4', duration: 400 },
-      { note: 'G4', duration: 400 },
-      // Be-te-rem kol
-      { note: 'G4', duration: 400 },
-      { note: 'A4', duration: 200 },
-      { note: 'B4', duration: 200 },
-      { note: 'C5', duration: 400 },
-      { note: 'B4', duration: 400 },
-      // Ye-tzir niv-ra
-      { note: 'A4', duration: 400 },
-      { note: 'G4', duration: 200 },
-      { note: 'F#4', duration: 200 },
-      { note: 'E4', duration: 400 },
-      { note: 'D4', duration: 800 },
-    ],
-  },
-];
-
-// Sound presets
-type SoundPreset = 'bright' | 'warm' | 'bell' | 'soft' | 'classic';
+// Sound presets - Grand Piano is now the star
+type SoundPreset = 'grand' | 'bright' | 'warm' | 'intimate' | 'concert';
 
 const SOUND_PRESETS: { id: SoundPreset; name: string }[] = [
-  { id: 'classic', name: 'Classic' },
+  { id: 'grand', name: 'Grand Piano' },
+  { id: 'concert', name: 'Concert Hall' },
+  { id: 'intimate', name: 'Intimate' },
   { id: 'bright', name: 'Bright' },
   { id: 'warm', name: 'Warm' },
-  { id: 'bell', name: 'Bell' },
-  { id: 'soft', name: 'Soft' },
 ];
 
-// Multi-preset Piano Synthesizer
+// Steinway-inspired Grand Piano Synthesizer
+// Models the physics of a concert grand piano with:
+// - Multiple strings per note (2-3 strings in unison, slightly detuned)
+// - Hammer strike transients
+// - Sympathetic string resonance
+// - Register-dependent timbre (bass vs treble)
+// - Natural harmonic series
+// - Damper pedal simulation
 class RealisticPianoSynth {
   private audioContext: AudioContext | null = null;
   private activeNotes: Map<string, {
     oscillators: OscillatorNode[];
     gainNodes: GainNode[];
     mainGain: GainNode;
+    filterNode?: BiquadFilterNode;
     releaseTimeout?: NodeJS.Timeout;
   }> = new Map();
   private masterGain: GainNode | null = null;
   private dryGain: GainNode | null = null;
   private wetGain: GainNode | null = null;
   private reverb: ConvolverNode | null = null;
+  private masterCompressor: DynamicsCompressorNode | null = null;
   private isInitialized = false;
   private isInitializing = false;
   private volumeMultiplier = 0.6;
-  private reverbAmount = 1.0; // Default 100%
-  private currentPreset: SoundPreset = 'classic';
+  private reverbAmount = 1.0;
+  private currentPreset: SoundPreset = 'grand';
 
-  // Initialize lazily - called on first user interaction for mobile browser support
   private ensureInitialized(): boolean {
     if (this.isInitialized) return true;
     if (this.isInitializing) return false;
@@ -316,7 +120,6 @@ class RealisticPianoSynth {
     this.isInitializing = true;
 
     try {
-      // Create AudioContext - on mobile this must happen during user gesture
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioContextClass) {
         console.warn('Web Audio API not supported');
@@ -325,21 +128,28 @@ class RealisticPianoSynth {
 
       this.audioContext = new AudioContextClass();
 
-      // Master gain - create immediately for fast first note
+      // Master compressor for smooth dynamics
+      this.masterCompressor = this.audioContext.createDynamicsCompressor();
+      this.masterCompressor.threshold.value = -24;
+      this.masterCompressor.knee.value = 30;
+      this.masterCompressor.ratio.value = 4;
+      this.masterCompressor.attack.value = 0.003;
+      this.masterCompressor.release.value = 0.25;
+
       this.masterGain = this.audioContext.createGain();
       this.masterGain.gain.value = this.volumeMultiplier;
 
-      // Dry gain for immediate sound
       this.dryGain = this.audioContext.createGain();
       this.dryGain.gain.value = 1;
-      this.dryGain.connect(this.masterGain);
+
+      this.dryGain.connect(this.masterCompressor);
+      this.masterCompressor.connect(this.masterGain);
       this.masterGain.connect(this.audioContext.destination);
 
       this.isInitialized = true;
       this.isInitializing = false;
 
-      // Create reverb in background after first note plays
-      setTimeout(() => this.initReverb(), 50);
+      setTimeout(() => this.initConcertHallReverb(), 50);
 
       return true;
     } catch (e) {
@@ -349,47 +159,54 @@ class RealisticPianoSynth {
     }
   }
 
-  private initReverb() {
-    if (!this.audioContext || !this.masterGain) return;
+  private initConcertHallReverb() {
+    if (!this.audioContext || !this.masterCompressor) return;
 
     try {
       this.reverb = this.audioContext.createConvolver();
-      this.createReverbImpulse();
+      this.createConcertHallImpulse();
 
       this.wetGain = this.audioContext.createGain();
       this.updateReverbMix();
 
       this.reverb.connect(this.wetGain);
-      this.wetGain.connect(this.masterGain);
+      this.wetGain.connect(this.masterCompressor);
     } catch (e) {
       console.warn('Reverb init failed:', e);
     }
   }
 
   async init() {
-    // No-op now - initialization happens lazily on first touch
+    // Lazy initialization on first touch
   }
 
   private updateReverbMix() {
     if (this.dryGain && this.wetGain) {
-      this.dryGain.gain.value = 1 - this.reverbAmount * 0.3;
-      this.wetGain.gain.value = this.reverbAmount * 0.7;
+      // More natural reverb blend for grand piano
+      this.dryGain.gain.value = 1 - this.reverbAmount * 0.25;
+      this.wetGain.gain.value = this.reverbAmount * 0.5;
     }
   }
 
-  private createReverbImpulse() {
+  // Concert hall impulse response - rich, spacious reverb
+  private createConcertHallImpulse() {
     if (!this.audioContext || !this.reverb) return;
 
     const sampleRate = this.audioContext.sampleRate;
-    // Shorter reverb - 1 second is enough and much faster to create
-    const length = Math.floor(sampleRate * 1);
+    const length = Math.floor(sampleRate * 2.5); // 2.5 second tail
     const impulse = this.audioContext.createBuffer(2, length, sampleRate);
 
     for (let channel = 0; channel < 2; channel++) {
       const data = impulse.getChannelData(channel);
       for (let i = 0; i < length; i++) {
-        const decay = Math.exp(-i / (sampleRate * 0.3));
-        data[i] = (Math.random() * 2 - 1) * decay * 0.5;
+        // Multi-stage decay for realistic hall
+        const earlyDecay = Math.exp(-i / (sampleRate * 0.1));
+        const lateDecay = Math.exp(-i / (sampleRate * 0.8));
+        const combined = earlyDecay * 0.3 + lateDecay * 0.7;
+
+        // Add some modulation for natural feel
+        const modulation = 1 + Math.sin(i * 0.0001) * 0.1;
+        data[i] = (Math.random() * 2 - 1) * combined * modulation * 0.4;
       }
     }
 
@@ -401,14 +218,12 @@ class RealisticPianoSynth {
   }
 
   playNote(frequency: number, noteId: string, velocity: number = 0.8) {
-    // Initialize on first touch (required for mobile browsers)
     if (!this.isInitialized) {
       if (!this.ensureInitialized()) return;
     }
 
     if (!this.audioContext || !this.masterGain) return;
 
-    // Resume audio context if suspended (mobile browsers suspend by default)
     if (this.audioContext.state === 'suspended') {
       this.audioContext.resume();
     }
@@ -419,163 +234,377 @@ class RealisticPianoSynth {
     const oscillators: OscillatorNode[] = [];
     const gainNodes: GainNode[] = [];
 
-    // Main envelope
     const mainGain = this.audioContext.createGain();
 
-    // Different sound based on preset
+    // Low-pass filter to shape the tone (like piano soundboard)
+    const filter = this.audioContext.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.Q.value = 1;
+
     switch (this.currentPreset) {
-      case 'classic':
-        this.createClassicSound(frequency, velocity, now, oscillators, gainNodes, mainGain);
+      case 'grand':
+        this.createGrandPianoSound(frequency, velocity, now, oscillators, gainNodes, mainGain, filter);
+        break;
+      case 'concert':
+        this.createConcertPianoSound(frequency, velocity, now, oscillators, gainNodes, mainGain, filter);
+        break;
+      case 'intimate':
+        this.createIntimatePianoSound(frequency, velocity, now, oscillators, gainNodes, mainGain, filter);
         break;
       case 'bright':
-        this.createBrightSound(frequency, velocity, now, oscillators, gainNodes, mainGain);
+        this.createBrightPianoSound(frequency, velocity, now, oscillators, gainNodes, mainGain, filter);
         break;
       case 'warm':
-        this.createWarmSound(frequency, velocity, now, oscillators, gainNodes, mainGain);
-        break;
-      case 'bell':
-        this.createBellSound(frequency, velocity, now, oscillators, gainNodes, mainGain);
-        break;
-      case 'soft':
-        this.createSoftSound(frequency, velocity, now, oscillators, gainNodes, mainGain);
+        this.createWarmPianoSound(frequency, velocity, now, oscillators, gainNodes, mainGain, filter);
         break;
     }
 
-    // Connect to dry path (always available)
+    filter.connect(mainGain);
     mainGain.connect(this.dryGain!);
-    // Connect to reverb if available (may not be ready on first note)
     if (this.reverb) {
       mainGain.connect(this.reverb);
     }
 
-    // Start all oscillators and schedule stop
     oscillators.forEach(osc => {
       osc.start(now);
-      osc.stop(now + 5); // Stop after 5 seconds max
+      osc.stop(now + 12); // Longer sustain for grand piano
     });
 
     this.activeNotes.set(noteId, {
       oscillators,
       gainNodes,
       mainGain,
+      filterNode: filter,
     });
   }
 
-  private createClassicSound(freq: number, vel: number, now: number, oscs: OscillatorNode[], gains: GainNode[], mainGain: GainNode) {
-    // Classic piano - simplified for mobile performance
-    const osc1 = this.audioContext!.createOscillator();
-    const gain1 = this.audioContext!.createGain();
-    osc1.type = 'triangle';
+  // Steinway Model D inspired grand piano sound
+  private createGrandPianoSound(freq: number, vel: number, now: number, oscs: OscillatorNode[], gains: GainNode[], mainGain: GainNode, filter: BiquadFilterNode) {
+    const ctx = this.audioContext!;
+
+    // Determine register for different timbral characteristics
+    const isLowBass = freq < 100;
+    const isBass = freq < 250;
+    const isMid = freq >= 250 && freq < 1000;
+    const isTreble = freq >= 1000;
+
+    // Number of strings (bass notes have 1-2, mid/treble have 3)
+    const numStrings = isLowBass ? 1 : isBass ? 2 : 3;
+
+    // Slight detuning between strings (in cents) - creates chorus/richness
+    const detuning = isBass ? 1.5 : 0.8;
+
+    // Filter frequency - higher notes are brighter
+    const filterFreq = Math.min(freq * 8, 12000);
+    filter.frequency.setValueAtTime(filterFreq * 1.5, now);
+    filter.frequency.exponentialRampToValueAtTime(filterFreq * 0.7, now + 0.1);
+    filter.frequency.exponentialRampToValueAtTime(filterFreq * 0.4, now + 2);
+
+    // === FUNDAMENTAL + STRINGS ===
+    for (let s = 0; s < numStrings; s++) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      // Custom waveform for piano-like timbre
+      const real = new Float32Array([0, 1, 0.5, 0.33, 0.25, 0.2, 0.16, 0.14, 0.12, 0.1]);
+      const imag = new Float32Array(real.length);
+      const wave = ctx.createPeriodicWave(real, imag);
+      osc.setPeriodicWave(wave);
+
+      // Detune strings slightly for richness
+      const detuneAmount = (s - (numStrings - 1) / 2) * detuning;
+      osc.detune.value = detuneAmount;
+      osc.frequency.value = freq;
+
+      const stringVol = vel * 0.35 / numStrings;
+      gain.gain.value = stringVol;
+
+      osc.connect(gain);
+      gain.connect(filter);
+      oscs.push(osc);
+      gains.push(gain);
+    }
+
+    // === HARMONICS (piano has strong even and odd harmonics) ===
+    const harmonics = [
+      { ratio: 2, amp: 0.4 },     // Octave
+      { ratio: 3, amp: 0.25 },    // Fifth
+      { ratio: 4, amp: 0.18 },    // 2nd octave
+      { ratio: 5, amp: 0.12 },    // Major 3rd
+      { ratio: 6, amp: 0.09 },    // 5th + octave
+      { ratio: 7, amp: 0.06 },    // Minor 7th
+      { ratio: 8, amp: 0.04 },    // 3rd octave
+    ];
+
+    // Reduce harmonics for high notes (they're naturally brighter)
+    const harmonicMultiplier = isTreble ? 0.4 : isMid ? 0.7 : 1.0;
+
+    harmonics.forEach(h => {
+      if (freq * h.ratio > 10000) return; // Skip if too high
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.value = freq * h.ratio;
+
+      // Slight random detuning for natural feel
+      osc.detune.value = (Math.random() - 0.5) * 2;
+
+      const harmVol = vel * h.amp * 0.25 * harmonicMultiplier;
+      gain.gain.value = harmVol;
+
+      osc.connect(gain);
+      gain.connect(filter);
+      oscs.push(osc);
+      gains.push(gain);
+    });
+
+    // === HAMMER ATTACK TRANSIENT ===
+    const attackOsc = ctx.createOscillator();
+    const attackGain = ctx.createGain();
+    const attackFilter = ctx.createBiquadFilter();
+
+    attackFilter.type = 'bandpass';
+    attackFilter.frequency.value = freq * 3;
+    attackFilter.Q.value = 2;
+
+    attackOsc.type = 'sawtooth';
+    attackOsc.frequency.value = freq * 1.5;
+
+    // Very short, percussive attack
+    attackGain.gain.setValueAtTime(vel * 0.15, now);
+    attackGain.gain.exponentialRampToValueAtTime(0.001, now + 0.015);
+
+    attackOsc.connect(attackFilter);
+    attackFilter.connect(attackGain);
+    attackGain.connect(filter);
+    oscs.push(attackOsc);
+    gains.push(attackGain);
+
+    // === SOUNDBOARD RESONANCE (low frequency body resonance) ===
+    if (isBass || isMid) {
+      const bodyOsc = ctx.createOscillator();
+      const bodyGain = ctx.createGain();
+
+      bodyOsc.type = 'sine';
+      bodyOsc.frequency.value = Math.max(freq * 0.5, 40);
+
+      bodyGain.gain.setValueAtTime(vel * 0.08, now);
+      bodyGain.gain.exponentialRampToValueAtTime(vel * 0.04, now + 0.3);
+      bodyGain.gain.exponentialRampToValueAtTime(0.001, now + 3);
+
+      bodyOsc.connect(bodyGain);
+      bodyGain.connect(filter);
+      oscs.push(bodyOsc);
+      gains.push(bodyGain);
+    }
+
+    // === ENVELOPE (realistic piano decay) ===
+    // Bass notes sustain longer, treble decays faster
+    const attackTime = 0.005;
+    const decayTime = isBass ? 0.4 : isMid ? 0.25 : 0.15;
+    const sustainLevel = isBass ? 0.5 : isMid ? 0.4 : 0.3;
+    const decayTotal = isBass ? 8 : isMid ? 5 : 3;
+
+    mainGain.gain.setValueAtTime(0.001, now);
+    mainGain.gain.exponentialRampToValueAtTime(vel * 0.8, now + attackTime);
+    mainGain.gain.exponentialRampToValueAtTime(vel * sustainLevel, now + decayTime);
+    mainGain.gain.exponentialRampToValueAtTime(0.001, now + decayTotal);
+  }
+
+  // Concert grand - extra sparkle and projection
+  private createConcertPianoSound(freq: number, vel: number, now: number, oscs: OscillatorNode[], gains: GainNode[], mainGain: GainNode, filter: BiquadFilterNode) {
+    this.createGrandPianoSound(freq, vel, now, oscs, gains, mainGain, filter);
+
+    // Add extra brilliance for concert projection
+    const ctx = this.audioContext!;
+    const brillianceOsc = ctx.createOscillator();
+    const brillianceGain = ctx.createGain();
+
+    brillianceOsc.type = 'sine';
+    brillianceOsc.frequency.value = freq * 4;
+
+    brillianceGain.gain.setValueAtTime(vel * 0.06, now);
+    brillianceGain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+
+    brillianceOsc.connect(brillianceGain);
+    brillianceGain.connect(filter);
+    oscs.push(brillianceOsc);
+    gains.push(brillianceGain);
+
+    // Boost filter for more presence
+    filter.frequency.value *= 1.3;
+  }
+
+  // Intimate piano - softer, more mellow
+  private createIntimatePianoSound(freq: number, vel: number, now: number, oscs: OscillatorNode[], gains: GainNode[], mainGain: GainNode, filter: BiquadFilterNode) {
+    const ctx = this.audioContext!;
+
+    // Warmer, softer fundamental
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+
+    const real = new Float32Array([0, 1, 0.6, 0.35, 0.2, 0.1]);
+    const imag = new Float32Array(real.length);
+    const wave = ctx.createPeriodicWave(real, imag);
+    osc1.setPeriodicWave(wave);
     osc1.frequency.value = freq;
-    gain1.gain.value = vel * 0.6;
+
+    gain1.gain.value = vel * 0.5;
     osc1.connect(gain1);
-    gain1.connect(mainGain);
+    gain1.connect(filter);
     oscs.push(osc1);
     gains.push(gain1);
 
-    const osc2 = this.audioContext!.createOscillator();
-    const gain2 = this.audioContext!.createGain();
+    // Soft second string
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.value = freq;
+    osc2.detune.value = 3;
+    gain2.gain.value = vel * 0.3;
+    osc2.connect(gain2);
+    gain2.connect(filter);
+    oscs.push(osc2);
+    gains.push(gain2);
+
+    // Gentle harmonics
+    const osc3 = ctx.createOscillator();
+    const gain3 = ctx.createGain();
+    osc3.type = 'sine';
+    osc3.frequency.value = freq * 2;
+    gain3.gain.value = vel * 0.15;
+    osc3.connect(gain3);
+    gain3.connect(filter);
+    oscs.push(osc3);
+    gains.push(gain3);
+
+    // Very soft filter
+    filter.frequency.setValueAtTime(freq * 5, now);
+    filter.frequency.exponentialRampToValueAtTime(freq * 2, now + 0.5);
+
+    // Gentle envelope
+    mainGain.gain.setValueAtTime(0.001, now);
+    mainGain.gain.exponentialRampToValueAtTime(vel * 0.6, now + 0.01);
+    mainGain.gain.exponentialRampToValueAtTime(vel * 0.35, now + 0.4);
+    mainGain.gain.exponentialRampToValueAtTime(0.001, now + 5);
+  }
+
+  // Bright piano - crisp, clear attack
+  private createBrightPianoSound(freq: number, vel: number, now: number, oscs: OscillatorNode[], gains: GainNode[], mainGain: GainNode, filter: BiquadFilterNode) {
+    const ctx = this.audioContext!;
+
+    // Strong fundamental with overtones
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+
+    const real = new Float32Array([0, 1, 0.7, 0.5, 0.4, 0.3, 0.2, 0.15, 0.1]);
+    const imag = new Float32Array(real.length);
+    const wave = ctx.createPeriodicWave(real, imag);
+    osc1.setPeriodicWave(wave);
+    osc1.frequency.value = freq;
+
+    gain1.gain.value = vel * 0.4;
+    osc1.connect(gain1);
+    gain1.connect(filter);
+    oscs.push(osc1);
+    gains.push(gain1);
+
+    // Bright harmonics
+    [2, 3, 4, 5].forEach((ratio, i) => {
+      if (freq * ratio > 12000) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq * ratio;
+      gain.gain.value = vel * 0.15 / (i + 1);
+      osc.connect(gain);
+      gain.connect(filter);
+      oscs.push(osc);
+      gains.push(gain);
+    });
+
+    // Sharp attack
+    const attackOsc = ctx.createOscillator();
+    const attackGain = ctx.createGain();
+    attackOsc.type = 'sawtooth';
+    attackOsc.frequency.value = freq * 2;
+    attackGain.gain.setValueAtTime(vel * 0.2, now);
+    attackGain.gain.exponentialRampToValueAtTime(0.001, now + 0.01);
+    attackOsc.connect(attackGain);
+    attackGain.connect(filter);
+    oscs.push(attackOsc);
+    gains.push(attackGain);
+
+    // Bright filter
+    filter.frequency.setValueAtTime(freq * 12, now);
+    filter.frequency.exponentialRampToValueAtTime(freq * 4, now + 0.5);
+
+    mainGain.gain.setValueAtTime(0.001, now);
+    mainGain.gain.exponentialRampToValueAtTime(vel * 0.85, now + 0.003);
+    mainGain.gain.exponentialRampToValueAtTime(vel * 0.4, now + 0.2);
+    mainGain.gain.exponentialRampToValueAtTime(0.001, now + 3.5);
+  }
+
+  // Warm piano - rich bass, mellow treble
+  private createWarmPianoSound(freq: number, vel: number, now: number, oscs: OscillatorNode[], gains: GainNode[], mainGain: GainNode, filter: BiquadFilterNode) {
+    const ctx = this.audioContext!;
+
+    // Rich fundamental
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.value = freq;
+    gain1.gain.value = vel * 0.55;
+    osc1.connect(gain1);
+    gain1.connect(filter);
+    oscs.push(osc1);
+    gains.push(gain1);
+
+    // Sub-harmonic warmth
+    if (freq > 80) {
+      const subOsc = ctx.createOscillator();
+      const subGain = ctx.createGain();
+      subOsc.type = 'sine';
+      subOsc.frequency.value = freq / 2;
+      subGain.gain.value = vel * 0.12;
+      subOsc.connect(subGain);
+      subGain.connect(filter);
+      oscs.push(subOsc);
+      gains.push(subGain);
+    }
+
+    // Warm harmonics (emphasize lower partials)
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
     osc2.type = 'sine';
     osc2.frequency.value = freq * 2;
     gain2.gain.value = vel * 0.25;
     osc2.connect(gain2);
-    gain2.connect(mainGain);
+    gain2.connect(filter);
     oscs.push(osc2);
     gains.push(gain2);
 
-    mainGain.gain.setValueAtTime(vel * 0.7, now);
-    mainGain.gain.exponentialRampToValueAtTime(vel * 0.3, now + 0.2);
-    mainGain.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
-  }
+    const osc3 = ctx.createOscillator();
+    const gain3 = ctx.createGain();
+    osc3.type = 'sine';
+    osc3.frequency.value = freq * 3;
+    gain3.gain.value = vel * 0.1;
+    osc3.connect(gain3);
+    gain3.connect(filter);
+    oscs.push(osc3);
+    gains.push(gain3);
 
-  private createBrightSound(freq: number, vel: number, now: number, oscs: OscillatorNode[], gains: GainNode[], mainGain: GainNode) {
-    // Bright - sawtooth for rich harmonics
-    const osc1 = this.audioContext!.createOscillator();
-    const gain1 = this.audioContext!.createGain();
-    osc1.type = 'sawtooth';
-    osc1.frequency.value = freq;
-    gain1.gain.value = vel * 0.35;
-    osc1.connect(gain1);
-    gain1.connect(mainGain);
-    oscs.push(osc1);
-    gains.push(gain1);
+    // Warm, rolled-off filter
+    filter.frequency.setValueAtTime(freq * 4, now);
+    filter.frequency.exponentialRampToValueAtTime(freq * 1.5, now + 0.8);
 
-    mainGain.gain.setValueAtTime(vel * 0.8, now);
-    mainGain.gain.exponentialRampToValueAtTime(vel * 0.2, now + 0.3);
-    mainGain.gain.exponentialRampToValueAtTime(0.001, now + 2);
-  }
-
-  private createWarmSound(freq: number, vel: number, now: number, oscs: OscillatorNode[], gains: GainNode[], mainGain: GainNode) {
-    // Warm - pure sine with sub
-    const osc1 = this.audioContext!.createOscillator();
-    const gain1 = this.audioContext!.createGain();
-    osc1.type = 'sine';
-    osc1.frequency.value = freq;
-    gain1.gain.value = vel * 0.7;
-    osc1.connect(gain1);
-    gain1.connect(mainGain);
-    oscs.push(osc1);
-    gains.push(gain1);
-
-    // Sub octave for warmth
-    const osc2 = this.audioContext!.createOscillator();
-    const gain2 = this.audioContext!.createGain();
-    osc2.type = 'sine';
-    osc2.frequency.value = freq / 2;
-    gain2.gain.value = vel * 0.2;
-    osc2.connect(gain2);
-    gain2.connect(mainGain);
-    oscs.push(osc2);
-    gains.push(gain2);
-
-    mainGain.gain.setValueAtTime(vel * 0.6, now);
-    mainGain.gain.exponentialRampToValueAtTime(vel * 0.3, now + 0.4);
-    mainGain.gain.exponentialRampToValueAtTime(0.001, now + 3);
-  }
-
-  private createBellSound(freq: number, vel: number, now: number, oscs: OscillatorNode[], gains: GainNode[], mainGain: GainNode) {
-    // Bell-like - triangle with fast decay
-    const osc1 = this.audioContext!.createOscillator();
-    const gain1 = this.audioContext!.createGain();
-    osc1.type = 'triangle';
-    osc1.frequency.value = freq;
-    gain1.gain.value = vel * 0.5;
-    osc1.connect(gain1);
-    gain1.connect(mainGain);
-    oscs.push(osc1);
-    gains.push(gain1);
-
-    // High harmonic for bell shimmer
-    const osc2 = this.audioContext!.createOscillator();
-    const gain2 = this.audioContext!.createGain();
-    osc2.type = 'sine';
-    osc2.frequency.value = freq * 2.5;
-    gain2.gain.value = vel * 0.3;
-    osc2.connect(gain2);
-    gain2.connect(mainGain);
-    oscs.push(osc2);
-    gains.push(gain2);
-
-    mainGain.gain.setValueAtTime(vel * 0.7, now);
-    mainGain.gain.exponentialRampToValueAtTime(vel * 0.15, now + 0.6);
-    mainGain.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
-  }
-
-  private createSoftSound(freq: number, vel: number, now: number, oscs: OscillatorNode[], gains: GainNode[], mainGain: GainNode) {
-    // Soft - pure sine
-    const osc1 = this.audioContext!.createOscillator();
-    const gain1 = this.audioContext!.createGain();
-    osc1.type = 'sine';
-    osc1.frequency.value = freq;
-    gain1.gain.value = vel * 0.8;
-    osc1.connect(gain1);
-    gain1.connect(mainGain);
-    oscs.push(osc1);
-    gains.push(gain1);
-
-    mainGain.gain.setValueAtTime(vel * 0.5, now);
-    mainGain.gain.exponentialRampToValueAtTime(vel * 0.3, now + 0.5);
-    mainGain.gain.exponentialRampToValueAtTime(0.001, now + 4);
+    // Long, warm envelope
+    mainGain.gain.setValueAtTime(0.001, now);
+    mainGain.gain.exponentialRampToValueAtTime(vel * 0.7, now + 0.008);
+    mainGain.gain.exponentialRampToValueAtTime(vel * 0.45, now + 0.5);
+    mainGain.gain.exponentialRampToValueAtTime(0.001, now + 6);
   }
 
   releaseNote(noteId: string) {
@@ -583,7 +612,7 @@ class RealisticPianoSynth {
     if (!active || !this.audioContext) return;
 
     const now = this.audioContext.currentTime;
-    const releaseTime = 0.3;
+    const releaseTime = 0.5; // Longer release for grand piano
 
     try {
       active.mainGain.gain.cancelScheduledValues(now);
@@ -591,9 +620,18 @@ class RealisticPianoSynth {
       active.mainGain.gain.setValueAtTime(currentValue, now);
       active.mainGain.gain.exponentialRampToValueAtTime(0.001, now + releaseTime);
 
+      // Also fade the filter for natural damper effect
+      if (active.filterNode) {
+        const currentFreq = active.filterNode.frequency.value;
+        active.filterNode.frequency.exponentialRampToValueAtTime(
+          Math.max(currentFreq * 0.3, 200),
+          now + releaseTime * 0.5
+        );
+      }
+
       active.releaseTimeout = setTimeout(() => {
         this.stopNoteImmediate(noteId);
-      }, releaseTime * 1000 + 50);
+      }, releaseTime * 1000 + 100);
     } catch {
       this.stopNoteImmediate(noteId);
     }
@@ -878,158 +916,20 @@ function PianoKeyComponent({
   );
 }
 
-
-// Songs Panel
-interface SongsPanelProps {
-  visible: boolean;
-  onClose: () => void;
-  onPlaySong: (song: Song) => void;
-  isPlaying: boolean;
-  currentSongId: string | null;
-  onStop: () => void;
-}
-
-function SongsPanel({
-  visible,
-  onClose,
-  onPlaySong,
-  isPlaying,
-  currentSongId,
-  onStop,
-}: SongsPanelProps) {
-  if (!visible) return null;
-
-  return (
-    <Pressable
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 100,
-      }}
-      onPress={onClose}
-    >
-      <Pressable
-        style={{
-          backgroundColor: '#fff',
-          borderRadius: 16,
-          padding: 24,
-          width: '90%',
-          maxWidth: 450,
-          maxHeight: '80%',
-        }}
-        onPress={(e) => e.stopPropagation()}
-      >
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <Text style={{ fontSize: 20, fontWeight: '700', color: '#111' }}>
-            Sample Songs
-          </Text>
-          <Pressable onPress={onClose} style={{ padding: 4 }}>
-            <Ionicons name="close" size={24} color="#666" />
-          </Pressable>
-        </View>
-
-        <Text style={{ fontSize: 13, color: '#666', marginBottom: 16 }}>
-          Listen to these Jewish melodies or play along with the highlighted keys.
-        </Text>
-
-        <ScrollView style={{ maxHeight: 400 }} showsVerticalScrollIndicator={false}>
-          {SAMPLE_SONGS.map((song) => {
-            const isCurrent = currentSongId === song.id;
-            return (
-              <View
-                key={song.id}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  padding: 14,
-                  backgroundColor: isCurrent ? '#f0f4ff' : '#f9fafb',
-                  borderRadius: 12,
-                  marginBottom: 10,
-                  borderWidth: isCurrent ? 2 : 1,
-                  borderColor: isCurrent ? '#4f46e5' : '#e5e7eb',
-                }}
-              >
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 16, fontWeight: '600', color: '#111', marginBottom: 2 }}>
-                    {song.title}
-                  </Text>
-                  {song.hebrewTitle && (
-                    <Text style={{ fontSize: 14, color: '#666', fontFamily: Platform.OS === 'web' ? 'inherit' : undefined }}>
-                      {song.hebrewTitle}
-                    </Text>
-                  )}
-                </View>
-                <Pressable
-                  onPress={() => {
-                    if (isCurrent && isPlaying) {
-                      onStop();
-                    } else {
-                      onPlaySong(song);
-                    }
-                  }}
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 22,
-                    backgroundColor: isCurrent && isPlaying ? '#ef4444' : '#4f46e5',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Ionicons
-                    name={isCurrent && isPlaying ? 'stop' : 'play'}
-                    size={20}
-                    color="#fff"
-                  />
-                </Pressable>
-              </View>
-            );
-          })}
-        </ScrollView>
-
-        <Pressable
-          onPress={onClose}
-          style={{
-            marginTop: 16,
-            backgroundColor: '#f3f4f6',
-            paddingVertical: 12,
-            borderRadius: 8,
-            alignItems: 'center',
-          }}
-        >
-          <Text style={{ color: '#374151', fontSize: 16, fontWeight: '600' }}>Close</Text>
-        </Pressable>
-      </Pressable>
-    </Pressable>
-  );
-}
-
 export default function VirtualPianoScreen() {
   const { width, height } = useWindowDimensions();
   const { isMobile } = useDeviceType();
   const isLandscape = width > height;
 
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
-  const [showSongs, setShowSongs] = useState(false);
   const [volume, setVolume] = useState(0.7);
   const [reverb, setReverb] = useState(1.0); // Default 100%
   const [showLabels, setShowLabels] = useState(true);
-  const [soundPreset, setSoundPreset] = useState<SoundPreset>('classic');
+  const [soundPreset, setSoundPreset] = useState<SoundPreset>('grand');
   const [currentOctave, setCurrentOctave] = useState(4);
-  const [isPlayingSong, setIsPlayingSong] = useState(false);
-  const [currentSongId, setCurrentSongId] = useState<string | null>(null);
-  const [currentNoteIndex, setCurrentNoteIndex] = useState(0);
-  const [highlightedNote, setHighlightedNote] = useState<string | null>(null);
 
   const synthRef = useRef<RealisticPianoSynth | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
-  const songTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize synth
   useEffect(() => {
@@ -1118,69 +1018,6 @@ export default function VirtualPianoScreen() {
     };
   }, [currentOctave]);
 
-  // Song playback functions
-  const stopSong = useCallback(() => {
-    if (songTimeoutRef.current) {
-      clearTimeout(songTimeoutRef.current);
-      songTimeoutRef.current = null;
-    }
-    setIsPlayingSong(false);
-    setCurrentSongId(null);
-    setCurrentNoteIndex(0);
-    setHighlightedNote(null);
-    synthRef.current?.stopAllNotes();
-  }, []);
-
-  const playSong = useCallback((song: Song) => {
-    stopSong();
-    setIsPlayingSong(true);
-    setCurrentSongId(song.id);
-    setShowSongs(false);
-
-    let noteIndex = 0;
-
-    const playNextNote = () => {
-      if (noteIndex >= song.notes.length) {
-        stopSong();
-        return;
-      }
-
-      const currentNote = song.notes[noteIndex];
-      const pianoKey = ALL_PIANO_KEYS.find(
-        (k) => `${k.note}${k.octave}` === currentNote.note
-      );
-
-      if (pianoKey) {
-        // Highlight and play the note
-        setHighlightedNote(currentNote.note);
-        setCurrentNoteIndex(noteIndex);
-        synthRef.current?.playNote(pianoKey.frequency, currentNote.note, 0.8);
-
-        // Release after a portion of the duration
-        setTimeout(() => {
-          synthRef.current?.releaseNote(currentNote.note);
-        }, currentNote.duration * 0.8);
-      }
-
-      noteIndex++;
-
-      // Schedule next note
-      songTimeoutRef.current = setTimeout(playNextNote, currentNote.duration);
-    };
-
-    // Start playing
-    playNextNote();
-  }, [stopSong]);
-
-  // Cleanup song on unmount
-  useEffect(() => {
-    return () => {
-      if (songTimeoutRef.current) {
-        clearTimeout(songTimeoutRef.current);
-      }
-    };
-  }, []);
-
   const handleKeyPress = useCallback((noteId: string, frequency: number) => {
     setPressedKeys((prev) => new Set(prev).add(noteId));
     synthRef.current?.playNote(frequency, noteId, 0.8);
@@ -1255,9 +1092,7 @@ export default function VirtualPianoScreen() {
 
         <Text style={{ color: '#fff', fontSize: 20, fontWeight: '700' }}>Virtual Piano</Text>
 
-        <Pressable onPress={() => setShowSongs(true)} style={{ padding: 8 }}>
-          <Ionicons name="musical-notes" size={24} color="#fff" />
-        </Pressable>
+        <View style={{ width: 40 }} />
       </View>
 
       {/* Controls */}
@@ -1391,46 +1226,11 @@ export default function VirtualPianoScreen() {
       </View>
 
       {/* Keyboard Hints */}
-      {Platform.OS === 'web' && !isPlayingSong && (
+      {Platform.OS === 'web' && (
         <View style={{ paddingVertical: 8, paddingHorizontal: 16, backgroundColor: '#1a1a2e' }}>
           <Text style={{ color: '#64748b', fontSize: 11, textAlign: 'center' }}>
             Keyboard: A-J lower, K-; upper | Arrows: Change octave
           </Text>
-        </View>
-      )}
-
-      {/* Song Playing Indicator */}
-      {isPlayingSong && currentSongId && (
-        <View style={{
-          paddingVertical: 10,
-          paddingHorizontal: 16,
-          backgroundColor: '#2d1f5e',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 12,
-        }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Ionicons name="musical-notes" size={18} color="#a78bfa" />
-            <Text style={{ color: '#fff', fontSize: 14, fontWeight: '600' }}>
-              {SAMPLE_SONGS.find(s => s.id === currentSongId)?.title}
-            </Text>
-          </View>
-          <Pressable
-            onPress={stopSong}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 4,
-              backgroundColor: '#ef4444',
-              paddingHorizontal: 12,
-              paddingVertical: 6,
-              borderRadius: 16,
-            }}
-          >
-            <Ionicons name="stop" size={14} color="#fff" />
-            <Text style={{ color: '#fff', fontSize: 12, fontWeight: '600' }}>Stop</Text>
-          </Pressable>
         </View>
       )}
 
@@ -1453,7 +1253,7 @@ export default function VirtualPianoScreen() {
                     key={noteId}
                     pianoKey={key}
                     isPressed={pressedKeys.has(noteId)}
-                    isHighlighted={highlightedNote === noteId}
+                    isHighlighted={false}
                     onPressIn={() => handleKeyPress(noteId, key.frequency)}
                     onPressOut={() => handleKeyRelease(noteId)}
                     whiteKeyWidth={whiteKeyWidth}
@@ -1473,7 +1273,7 @@ export default function VirtualPianoScreen() {
                     <PianoKeyComponent
                       pianoKey={key}
                       isPressed={pressedKeys.has(noteId)}
-                      isHighlighted={highlightedNote === noteId}
+                      isHighlighted={false}
                       onPressIn={() => handleKeyPress(noteId, key.frequency)}
                       onPressOut={() => handleKeyRelease(noteId)}
                       whiteKeyWidth={whiteKeyWidth}
@@ -1487,25 +1287,6 @@ export default function VirtualPianoScreen() {
         </ScrollView>
       </View>
 
-      {/* Current Note Display */}
-      <View style={{ paddingVertical: 16, alignItems: 'center', backgroundColor: '#252545' }}>
-        <Text style={{ color: '#64748b', fontSize: 12, marginBottom: 4 }}>
-          {isPlayingSong ? 'Song Note' : 'Now Playing'}
-        </Text>
-        <Text style={{ color: isPlayingSong ? '#a78bfa' : '#fff', fontSize: 24, fontWeight: '700', minHeight: 32 }}>
-          {highlightedNote || (pressedKeys.size > 0 ? Array.from(pressedKeys).join(' + ') : '-')}
-        </Text>
-      </View>
-
-      {/* Songs Panel */}
-      <SongsPanel
-        visible={showSongs}
-        onClose={() => setShowSongs(false)}
-        onPlaySong={playSong}
-        isPlaying={isPlayingSong}
-        currentSongId={currentSongId}
-        onStop={stopSong}
-      />
     </SafeAreaView>
   );
 }
