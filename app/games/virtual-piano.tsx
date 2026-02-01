@@ -90,6 +90,11 @@ const INSTRUMENTS: Record<string, { name: string; icon: string }> = {
 // Tone.js types
 let Tone: any = null;
 
+// Helper to get display note name (e.g., "C4" -> "C", "C#4" -> "C#")
+const getNoteName = (note: string): string => {
+  return note.replace(/[0-9]/g, '');
+};
+
 // Piano Key Component
 interface PianoKeyProps {
   noteObj: NoteDefinition;
@@ -101,6 +106,7 @@ interface PianoKeyProps {
   whiteKeyIndex: number;
   animationDelay: number;
   isAnimating: boolean;
+  showNotes: boolean;
 }
 
 function PianoKey({
@@ -113,6 +119,7 @@ function PianoKey({
   whiteKeyIndex,
   animationDelay,
   isAnimating,
+  showNotes,
 }: PianoKeyProps) {
   const pressAnim = useSharedValue(0);
   const entryAnim = useSharedValue(0);
@@ -220,6 +227,13 @@ function PianoKey({
               borderTopRightRadius: 4,
             }}
           />
+          {showNotes && (
+            <View style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 4 }}>
+              <Text style={{ color: isActive ? '#a78bfa' : '#666', fontSize: 8, fontWeight: '600' }}>
+                {getNoteName(noteObj.note)}
+              </Text>
+            </View>
+          )}
         </Pressable>
       </Animated.View>
     );
@@ -266,6 +280,13 @@ function PianoKey({
             borderTopRightRadius: 6,
           }}
         />
+        {showNotes && (
+          <View style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 8 }}>
+            <Text style={{ color: isActive ? '#6d28d9' : '#888', fontSize: 11, fontWeight: '600' }}>
+              {getNoteName(noteObj.note)}
+            </Text>
+          </View>
+        )}
       </Pressable>
     </Animated.View>
   );
@@ -280,6 +301,7 @@ export default function VirtualPianoScreen() {
   const [activeKeys, setActiveKeys] = useState<Set<string>>(new Set());
   const [instrument, setInstrument] = useState('piano');
   const [reverb, setReverb] = useState(30);
+  const [showNotes, setShowNotes] = useState(true);
   const [audioStarted, setAudioStarted] = useState(false);
   const [toneLoaded, setToneLoaded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(true);
@@ -684,6 +706,23 @@ export default function VirtualPianoScreen() {
             ))}
           </View>
         </View>
+
+        {/* Notes Toggle */}
+        <Pressable
+          onPress={() => setShowNotes(!showNotes)}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 4,
+            paddingHorizontal: isNarrowMobile ? 10 : 12,
+            paddingVertical: 6,
+            borderRadius: 8,
+            backgroundColor: showNotes ? '#7c3aed' : '#3a3a5a',
+          }}
+        >
+          <Ionicons name="musical-note" size={isNarrowMobile ? 12 : 14} color="#fff" />
+          <Text style={{ color: '#fff', fontSize: isNarrowMobile ? 10 : 11, fontWeight: '600' }}>Notes</Text>
+        </Pressable>
       </View>
 
       {/* Keyboard Hints - desktop only */}
@@ -745,6 +784,7 @@ export default function VirtualPianoScreen() {
                   whiteKeyIndex={index}
                   animationDelay={getAnimationDelay(index, whiteKeys.length)}
                   isAnimating={isAnimating}
+                  showNotes={showNotes}
                 />
               ))}
 
@@ -775,6 +815,7 @@ export default function VirtualPianoScreen() {
                   whiteKeyIndex={getWhiteKeyIndexForBlackKey(noteObj)}
                   animationDelay={getAnimationDelay(index, blackKeys.length) + 100}
                   isAnimating={isAnimating}
+                  showNotes={showNotes}
                 />
               ))}
             </View>
