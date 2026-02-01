@@ -123,6 +123,7 @@ function PianoKey({
 }: PianoKeyProps) {
   const pressAnim = useSharedValue(0);
   const entryAnim = useSharedValue(0);
+  const [isPressed, setIsPressed] = useState(false);
 
   // Entry animation - keys dance in
   useEffect(() => {
@@ -139,11 +140,14 @@ function PianoKey({
     }
   }, [isAnimating, animationDelay]);
 
+  // Animate on press (either from keyboard via isActive, or from tap via isPressed)
+  const shouldAnimate = isActive || isPressed;
+
   useEffect(() => {
-    pressAnim.value = withTiming(isActive ? 1 : 0, {
-      duration: isActive ? 0 : 80,
+    pressAnim.value = withTiming(shouldAnimate ? 1 : 0, {
+      duration: shouldAnimate ? 0 : 80,
     });
-  }, [isActive]);
+  }, [shouldAnimate]);
 
   const blackKeyWidth = whiteKeyWidth * 0.65;
   const blackKeyHeight = whiteKeyHeight * 0.62;
@@ -176,8 +180,10 @@ function PianoKey({
 
   // Handle tap - play note and auto-release after short duration
   const handleTap = () => {
+    setIsPressed(true);
     onPress();
     setTimeout(() => {
+      setIsPressed(false);
       onRelease();
     }, 200);
   };
@@ -202,12 +208,12 @@ function PianoKey({
           onPress={handleTap}
           style={({ pressed }) => ({
             flex: 1,
-            backgroundColor: isActive || pressed ? '#4c1d95' : '#1a1a1a',
+            backgroundColor: isActive || isPressed || pressed ? '#4c1d95' : '#1a1a1a',
             borderRadius: 4,
             borderBottomLeftRadius: 6,
             borderBottomRightRadius: 6,
             borderWidth: 1,
-            borderColor: isActive ? '#7c3aed' : '#000',
+            borderColor: isActive || isPressed ? '#7c3aed' : '#000',
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.5,
@@ -222,14 +228,14 @@ function PianoKey({
               left: 0,
               right: 0,
               height: '25%',
-              backgroundColor: isActive ? 'rgba(139,92,246,0.3)' : 'rgba(255,255,255,0.08)',
+              backgroundColor: isActive || isPressed ? 'rgba(139,92,246,0.3)' : 'rgba(255,255,255,0.08)',
               borderTopLeftRadius: 4,
               borderTopRightRadius: 4,
             }}
           />
           {showNotes && (
             <View style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 4 }}>
-              <Text style={{ color: isActive ? '#a78bfa' : '#666', fontSize: 8, fontWeight: '600' }}>
+              <Text style={{ color: isActive || isPressed ? '#a78bfa' : '#666', fontSize: 8, fontWeight: '600' }}>
                 {getNoteName(noteObj.note)}
               </Text>
             </View>
@@ -252,21 +258,24 @@ function PianoKey({
     >
       <Pressable
         onPress={handleTap}
-        style={({ pressed }) => ({
-          flex: 1,
-          backgroundColor: isActive || pressed ? '#e0e7ff' : '#fafafa',
-          borderRadius: 6,
-          borderBottomLeftRadius: 8,
-          borderBottomRightRadius: 8,
-          borderWidth: isActive ? 2 : 1,
-          borderColor: isActive ? '#7c3aed' : '#ccc',
-          borderBottomColor: isActive ? '#6d28d9' : '#999',
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: isActive ? 2 : 5 },
-          shadowOpacity: isActive ? 0.15 : 0.25,
-          shadowRadius: isActive ? 2 : 6,
-          elevation: isActive ? 2 : 6,
-        })}
+        style={({ pressed }) => {
+          const active = isActive || isPressed || pressed;
+          return {
+            flex: 1,
+            backgroundColor: active ? '#e0e7ff' : '#fafafa',
+            borderRadius: 6,
+            borderBottomLeftRadius: 8,
+            borderBottomRightRadius: 8,
+            borderWidth: active ? 2 : 1,
+            borderColor: active ? '#7c3aed' : '#ccc',
+            borderBottomColor: active ? '#6d28d9' : '#999',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: active ? 2 : 5 },
+            shadowOpacity: active ? 0.15 : 0.25,
+            shadowRadius: active ? 2 : 6,
+            elevation: active ? 2 : 6,
+          };
+        }}
       >
         <View
           style={{
@@ -275,14 +284,14 @@ function PianoKey({
             left: 0,
             right: 0,
             height: '15%',
-            backgroundColor: isActive ? 'rgba(139,92,246,0.15)' : 'rgba(255,255,255,0.8)',
+            backgroundColor: isActive || isPressed ? 'rgba(139,92,246,0.15)' : 'rgba(255,255,255,0.8)',
             borderTopLeftRadius: 6,
             borderTopRightRadius: 6,
           }}
         />
         {showNotes && (
           <View style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 8 }}>
-            <Text style={{ color: isActive ? '#6d28d9' : '#888', fontSize: 11, fontWeight: '600' }}>
+            <Text style={{ color: isActive || isPressed ? '#6d28d9' : '#888', fontSize: 11, fontWeight: '600' }}>
               {getNoteName(noteObj.note)}
             </Text>
           </View>
