@@ -1,7 +1,7 @@
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Platform,
   Pressable,
@@ -14,815 +14,212 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
+  withDelay,
+  withSequence,
+  withSpring,
   interpolate,
   Extrapolation,
+  runOnJS,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useDeviceType } from '@/hooks/useDeviceType';
 
-// Piano key definitions
-interface PianoKey {
+// Note definitions - 3 octaves
+interface NoteDefinition {
   note: string;
-  octave: number;
-  isBlack: boolean;
-  frequency: number;
+  key: string;
+  type: 'white' | 'black';
+  label: string;
 }
 
-// Generate all 88 piano keys
-const generatePianoKeys = (): PianoKey[] => {
-  const keys: PianoKey[] = [];
-  const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-  const blackNotes = ['C#', 'D#', 'F#', 'G#', 'A#'];
-
-  // First add A0, A#0, B0
-  const startNotes = ['A', 'A#', 'B'];
-  startNotes.forEach((note) => {
-    const isBlack = blackNotes.includes(note);
-    const semitone = notes.indexOf(note) - 9;
-    const frequency = 27.5 * Math.pow(2, semitone / 12);
-    keys.push({ note, octave: 0, isBlack, frequency });
-  });
-
-  // Then add C1 through B7
-  for (let octave = 1; octave <= 7; octave++) {
-    notes.forEach((note) => {
-      const isBlack = blackNotes.includes(note);
-      const semitone = (octave - 1) * 12 + notes.indexOf(note) + 3;
-      const frequency = 27.5 * Math.pow(2, semitone / 12);
-      keys.push({ note, octave, isBlack, frequency });
-    });
-  }
-
-  // Finally add C8
-  keys.push({ note: 'C', octave: 8, isBlack: false, frequency: 4186.01 });
-
-  return keys;
-};
-
-// Keyboard mappings
-const KEYBOARD_MAP: Record<string, string> = {
-  'a': 'C3', 'w': 'C#3', 's': 'D3', 'e': 'D#3', 'd': 'E3',
-  'f': 'F3', 't': 'F#3', 'g': 'G3', 'y': 'G#3', 'h': 'A3',
-  'u': 'A#3', 'j': 'B3',
-  'k': 'C4', 'o': 'C#4', 'l': 'D4', 'p': 'D#4', ';': 'E4',
-  "'": 'F4', ']': 'F#4',
-  'z': 'C3', 'x': 'D3', 'c': 'E3', 'v': 'F3', 'b': 'G3', 'n': 'A3', 'm': 'B3',
-  ',': 'C4', '.': 'D4', '/': 'E4',
-};
-
-const ALL_PIANO_KEYS = generatePianoKeys();
-
-// Sound presets - Grand Piano is now the star
-type SoundPreset = 'grand' | 'bright' | 'warm' | 'intimate' | 'concert';
-
-const SOUND_PRESETS: { id: SoundPreset; name: string }[] = [
-  { id: 'grand', name: 'Grand Piano' },
-  { id: 'concert', name: 'Concert Hall' },
-  { id: 'intimate', name: 'Intimate' },
-  { id: 'bright', name: 'Bright' },
-  { id: 'warm', name: 'Warm' },
+const NOTES: NoteDefinition[] = [
+  // Octave 3
+  { note: 'C3', key: '', type: 'white', label: '' },
+  { note: 'C#3', key: '', type: 'black', label: '' },
+  { note: 'D3', key: '', type: 'white', label: '' },
+  { note: 'D#3', key: '', type: 'black', label: '' },
+  { note: 'E3', key: '', type: 'white', label: '' },
+  { note: 'F3', key: '', type: 'white', label: '' },
+  { note: 'F#3', key: '', type: 'black', label: '' },
+  { note: 'G3', key: '', type: 'white', label: '' },
+  { note: 'G#3', key: '', type: 'black', label: '' },
+  { note: 'A3', key: '', type: 'white', label: '' },
+  { note: 'A#3', key: '', type: 'black', label: '' },
+  { note: 'B3', key: '', type: 'white', label: '' },
+  // Octave 4 (middle C) - with keyboard shortcuts
+  { note: 'C4', key: 'a', type: 'white', label: 'A' },
+  { note: 'C#4', key: 'w', type: 'black', label: 'W' },
+  { note: 'D4', key: 's', type: 'white', label: 'S' },
+  { note: 'D#4', key: 'e', type: 'black', label: 'E' },
+  { note: 'E4', key: 'd', type: 'white', label: 'D' },
+  { note: 'F4', key: 'f', type: 'white', label: 'F' },
+  { note: 'F#4', key: 't', type: 'black', label: 'T' },
+  { note: 'G4', key: 'g', type: 'white', label: 'G' },
+  { note: 'G#4', key: 'y', type: 'black', label: 'Y' },
+  { note: 'A4', key: 'h', type: 'white', label: 'H' },
+  { note: 'A#4', key: 'u', type: 'black', label: 'U' },
+  { note: 'B4', key: 'j', type: 'white', label: 'J' },
+  // Octave 5
+  { note: 'C5', key: 'k', type: 'white', label: 'K' },
+  { note: 'C#5', key: 'o', type: 'black', label: 'O' },
+  { note: 'D5', key: 'l', type: 'white', label: 'L' },
+  { note: 'D#5', key: 'p', type: 'black', label: 'P' },
+  { note: 'E5', key: ';', type: 'white', label: ';' },
+  { note: 'F5', key: '', type: 'white', label: '' },
+  { note: 'F#5', key: '', type: 'black', label: '' },
+  { note: 'G5', key: '', type: 'white', label: '' },
+  { note: 'G#5', key: '', type: 'black', label: '' },
+  { note: 'A5', key: '', type: 'white', label: '' },
+  { note: 'A#5', key: '', type: 'black', label: '' },
+  { note: 'B5', key: '', type: 'white', label: '' },
+  // Octave 6
+  { note: 'C6', key: '', type: 'white', label: '' },
 ];
 
-// Steinway-inspired Grand Piano Synthesizer
-// Models the physics of a concert grand piano with:
-// - Multiple strings per note (2-3 strings in unison, slightly detuned)
-// - Hammer strike transients
-// - Sympathetic string resonance
-// - Register-dependent timbre (bass vs treble)
-// - Natural harmonic series
-// - Damper pedal simulation
-class RealisticPianoSynth {
-  private audioContext: AudioContext | null = null;
-  private activeNotes: Map<string, {
-    oscillators: OscillatorNode[];
-    gainNodes: GainNode[];
-    mainGain: GainNode;
-    filterNode?: BiquadFilterNode;
-    releaseTimeout?: NodeJS.Timeout;
-  }> = new Map();
-  private masterGain: GainNode | null = null;
-  private dryGain: GainNode | null = null;
-  private wetGain: GainNode | null = null;
-  private reverb: ConvolverNode | null = null;
-  private masterCompressor: DynamicsCompressorNode | null = null;
-  private isInitialized = false;
-  private isInitializing = false;
-  private volumeMultiplier = 0.6;
-  private reverbAmount = 1.0;
-  private currentPreset: SoundPreset = 'grand';
-
-  private ensureInitialized(): boolean {
-    if (this.isInitialized) return true;
-    if (this.isInitializing) return false;
-    if (Platform.OS !== 'web') return false;
-
-    this.isInitializing = true;
-
-    try {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContextClass) {
-        console.warn('Web Audio API not supported');
-        return false;
-      }
-
-      this.audioContext = new AudioContextClass();
-
-      // Master compressor for smooth dynamics
-      this.masterCompressor = this.audioContext.createDynamicsCompressor();
-      this.masterCompressor.threshold.value = -24;
-      this.masterCompressor.knee.value = 30;
-      this.masterCompressor.ratio.value = 4;
-      this.masterCompressor.attack.value = 0.003;
-      this.masterCompressor.release.value = 0.25;
-
-      this.masterGain = this.audioContext.createGain();
-      this.masterGain.gain.value = this.volumeMultiplier;
-
-      this.dryGain = this.audioContext.createGain();
-      this.dryGain.gain.value = 1;
-
-      this.dryGain.connect(this.masterCompressor);
-      this.masterCompressor.connect(this.masterGain);
-      this.masterGain.connect(this.audioContext.destination);
-
-      this.isInitialized = true;
-      this.isInitializing = false;
-
-      setTimeout(() => this.initConcertHallReverb(), 50);
-
-      return true;
-    } catch (e) {
-      console.warn('Web Audio not available:', e);
-      this.isInitializing = false;
-      return false;
-    }
-  }
-
-  private initConcertHallReverb() {
-    if (!this.audioContext || !this.masterCompressor) return;
-
-    try {
-      this.reverb = this.audioContext.createConvolver();
-      this.createConcertHallImpulse();
-
-      this.wetGain = this.audioContext.createGain();
-      this.updateReverbMix();
-
-      this.reverb.connect(this.wetGain);
-      this.wetGain.connect(this.masterCompressor);
-    } catch (e) {
-      console.warn('Reverb init failed:', e);
-    }
-  }
-
-  async init() {
-    // Lazy initialization on first touch
-  }
-
-  private updateReverbMix() {
-    if (this.dryGain && this.wetGain) {
-      // More natural reverb blend for grand piano
-      this.dryGain.gain.value = 1 - this.reverbAmount * 0.25;
-      this.wetGain.gain.value = this.reverbAmount * 0.5;
-    }
-  }
-
-  // Concert hall impulse response - rich, spacious reverb
-  private createConcertHallImpulse() {
-    if (!this.audioContext || !this.reverb) return;
-
-    const sampleRate = this.audioContext.sampleRate;
-    const length = Math.floor(sampleRate * 2.5); // 2.5 second tail
-    const impulse = this.audioContext.createBuffer(2, length, sampleRate);
-
-    for (let channel = 0; channel < 2; channel++) {
-      const data = impulse.getChannelData(channel);
-      for (let i = 0; i < length; i++) {
-        // Multi-stage decay for realistic hall
-        const earlyDecay = Math.exp(-i / (sampleRate * 0.1));
-        const lateDecay = Math.exp(-i / (sampleRate * 0.8));
-        const combined = earlyDecay * 0.3 + lateDecay * 0.7;
-
-        // Add some modulation for natural feel
-        const modulation = 1 + Math.sin(i * 0.0001) * 0.1;
-        data[i] = (Math.random() * 2 - 1) * combined * modulation * 0.4;
-      }
-    }
-
-    this.reverb.buffer = impulse;
-  }
-
-  setPreset(preset: SoundPreset) {
-    this.currentPreset = preset;
-  }
-
-  playNote(frequency: number, noteId: string, velocity: number = 0.8) {
-    if (!this.isInitialized) {
-      if (!this.ensureInitialized()) return;
-    }
-
-    if (!this.audioContext || !this.masterGain) return;
-
-    if (this.audioContext.state === 'suspended') {
-      this.audioContext.resume();
-    }
-
-    this.stopNoteImmediate(noteId);
-
-    const now = this.audioContext.currentTime;
-    const oscillators: OscillatorNode[] = [];
-    const gainNodes: GainNode[] = [];
-
-    const mainGain = this.audioContext.createGain();
-
-    // Low-pass filter to shape the tone (like piano soundboard)
-    const filter = this.audioContext.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.Q.value = 1;
-
-    switch (this.currentPreset) {
-      case 'grand':
-        this.createGrandPianoSound(frequency, velocity, now, oscillators, gainNodes, mainGain, filter);
-        break;
-      case 'concert':
-        this.createConcertPianoSound(frequency, velocity, now, oscillators, gainNodes, mainGain, filter);
-        break;
-      case 'intimate':
-        this.createIntimatePianoSound(frequency, velocity, now, oscillators, gainNodes, mainGain, filter);
-        break;
-      case 'bright':
-        this.createBrightPianoSound(frequency, velocity, now, oscillators, gainNodes, mainGain, filter);
-        break;
-      case 'warm':
-        this.createWarmPianoSound(frequency, velocity, now, oscillators, gainNodes, mainGain, filter);
-        break;
-    }
-
-    filter.connect(mainGain);
-    mainGain.connect(this.dryGain!);
-    if (this.reverb) {
-      mainGain.connect(this.reverb);
-    }
-
-    oscillators.forEach(osc => {
-      osc.start(now);
-      osc.stop(now + 12); // Longer sustain for grand piano
-    });
-
-    this.activeNotes.set(noteId, {
-      oscillators,
-      gainNodes,
-      mainGain,
-      filterNode: filter,
-    });
-  }
-
-  // Steinway Model D inspired grand piano sound
-  private createGrandPianoSound(freq: number, vel: number, now: number, oscs: OscillatorNode[], gains: GainNode[], mainGain: GainNode, filter: BiquadFilterNode) {
-    const ctx = this.audioContext!;
-
-    // Determine register for different timbral characteristics
-    const isLowBass = freq < 100;
-    const isBass = freq < 250;
-    const isMid = freq >= 250 && freq < 1000;
-    const isTreble = freq >= 1000;
-
-    // Number of strings (bass notes have 1-2, mid/treble have 3)
-    const numStrings = isLowBass ? 1 : isBass ? 2 : 3;
-
-    // Slight detuning between strings (in cents) - creates chorus/richness
-    const detuning = isBass ? 1.5 : 0.8;
-
-    // Filter frequency - higher notes are brighter
-    const filterFreq = Math.min(freq * 8, 12000);
-    filter.frequency.setValueAtTime(filterFreq * 1.5, now);
-    filter.frequency.exponentialRampToValueAtTime(filterFreq * 0.7, now + 0.1);
-    filter.frequency.exponentialRampToValueAtTime(filterFreq * 0.4, now + 2);
-
-    // === FUNDAMENTAL + STRINGS ===
-    for (let s = 0; s < numStrings; s++) {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      // Custom waveform for piano-like timbre
-      const real = new Float32Array([0, 1, 0.5, 0.33, 0.25, 0.2, 0.16, 0.14, 0.12, 0.1]);
-      const imag = new Float32Array(real.length);
-      const wave = ctx.createPeriodicWave(real, imag);
-      osc.setPeriodicWave(wave);
-
-      // Detune strings slightly for richness
-      const detuneAmount = (s - (numStrings - 1) / 2) * detuning;
-      osc.detune.value = detuneAmount;
-      osc.frequency.value = freq;
-
-      const stringVol = vel * 0.35 / numStrings;
-      gain.gain.value = stringVol;
-
-      osc.connect(gain);
-      gain.connect(filter);
-      oscs.push(osc);
-      gains.push(gain);
-    }
-
-    // === HARMONICS (piano has strong even and odd harmonics) ===
-    const harmonics = [
-      { ratio: 2, amp: 0.4 },     // Octave
-      { ratio: 3, amp: 0.25 },    // Fifth
-      { ratio: 4, amp: 0.18 },    // 2nd octave
-      { ratio: 5, amp: 0.12 },    // Major 3rd
-      { ratio: 6, amp: 0.09 },    // 5th + octave
-      { ratio: 7, amp: 0.06 },    // Minor 7th
-      { ratio: 8, amp: 0.04 },    // 3rd octave
-    ];
-
-    // Reduce harmonics for high notes (they're naturally brighter)
-    const harmonicMultiplier = isTreble ? 0.4 : isMid ? 0.7 : 1.0;
-
-    harmonics.forEach(h => {
-      if (freq * h.ratio > 10000) return; // Skip if too high
-
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc.type = 'sine';
-      osc.frequency.value = freq * h.ratio;
-
-      // Slight random detuning for natural feel
-      osc.detune.value = (Math.random() - 0.5) * 2;
-
-      const harmVol = vel * h.amp * 0.25 * harmonicMultiplier;
-      gain.gain.value = harmVol;
-
-      osc.connect(gain);
-      gain.connect(filter);
-      oscs.push(osc);
-      gains.push(gain);
-    });
-
-    // === HAMMER ATTACK TRANSIENT ===
-    const attackOsc = ctx.createOscillator();
-    const attackGain = ctx.createGain();
-    const attackFilter = ctx.createBiquadFilter();
-
-    attackFilter.type = 'bandpass';
-    attackFilter.frequency.value = freq * 3;
-    attackFilter.Q.value = 2;
-
-    attackOsc.type = 'sawtooth';
-    attackOsc.frequency.value = freq * 1.5;
-
-    // Very short, percussive attack
-    attackGain.gain.setValueAtTime(vel * 0.15, now);
-    attackGain.gain.exponentialRampToValueAtTime(0.001, now + 0.015);
-
-    attackOsc.connect(attackFilter);
-    attackFilter.connect(attackGain);
-    attackGain.connect(filter);
-    oscs.push(attackOsc);
-    gains.push(attackGain);
-
-    // === SOUNDBOARD RESONANCE (low frequency body resonance) ===
-    if (isBass || isMid) {
-      const bodyOsc = ctx.createOscillator();
-      const bodyGain = ctx.createGain();
-
-      bodyOsc.type = 'sine';
-      bodyOsc.frequency.value = Math.max(freq * 0.5, 40);
-
-      bodyGain.gain.setValueAtTime(vel * 0.08, now);
-      bodyGain.gain.exponentialRampToValueAtTime(vel * 0.04, now + 0.3);
-      bodyGain.gain.exponentialRampToValueAtTime(0.001, now + 3);
-
-      bodyOsc.connect(bodyGain);
-      bodyGain.connect(filter);
-      oscs.push(bodyOsc);
-      gains.push(bodyGain);
-    }
-
-    // === ENVELOPE (realistic piano decay) ===
-    // Bass notes sustain longer, treble decays faster
-    const attackTime = 0.005;
-    const decayTime = isBass ? 0.4 : isMid ? 0.25 : 0.15;
-    const sustainLevel = isBass ? 0.5 : isMid ? 0.4 : 0.3;
-    const decayTotal = isBass ? 8 : isMid ? 5 : 3;
-
-    mainGain.gain.setValueAtTime(0.001, now);
-    mainGain.gain.exponentialRampToValueAtTime(vel * 0.8, now + attackTime);
-    mainGain.gain.exponentialRampToValueAtTime(vel * sustainLevel, now + decayTime);
-    mainGain.gain.exponentialRampToValueAtTime(0.001, now + decayTotal);
-  }
-
-  // Concert grand - extra sparkle and projection
-  private createConcertPianoSound(freq: number, vel: number, now: number, oscs: OscillatorNode[], gains: GainNode[], mainGain: GainNode, filter: BiquadFilterNode) {
-    this.createGrandPianoSound(freq, vel, now, oscs, gains, mainGain, filter);
-
-    // Add extra brilliance for concert projection
-    const ctx = this.audioContext!;
-    const brillianceOsc = ctx.createOscillator();
-    const brillianceGain = ctx.createGain();
-
-    brillianceOsc.type = 'sine';
-    brillianceOsc.frequency.value = freq * 4;
-
-    brillianceGain.gain.setValueAtTime(vel * 0.06, now);
-    brillianceGain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
-
-    brillianceOsc.connect(brillianceGain);
-    brillianceGain.connect(filter);
-    oscs.push(brillianceOsc);
-    gains.push(brillianceGain);
-
-    // Boost filter for more presence
-    filter.frequency.value *= 1.3;
-  }
-
-  // Intimate piano - softer, more mellow
-  private createIntimatePianoSound(freq: number, vel: number, now: number, oscs: OscillatorNode[], gains: GainNode[], mainGain: GainNode, filter: BiquadFilterNode) {
-    const ctx = this.audioContext!;
-
-    // Warmer, softer fundamental
-    const osc1 = ctx.createOscillator();
-    const gain1 = ctx.createGain();
-
-    const real = new Float32Array([0, 1, 0.6, 0.35, 0.2, 0.1]);
-    const imag = new Float32Array(real.length);
-    const wave = ctx.createPeriodicWave(real, imag);
-    osc1.setPeriodicWave(wave);
-    osc1.frequency.value = freq;
-
-    gain1.gain.value = vel * 0.5;
-    osc1.connect(gain1);
-    gain1.connect(filter);
-    oscs.push(osc1);
-    gains.push(gain1);
-
-    // Soft second string
-    const osc2 = ctx.createOscillator();
-    const gain2 = ctx.createGain();
-    osc2.type = 'sine';
-    osc2.frequency.value = freq;
-    osc2.detune.value = 3;
-    gain2.gain.value = vel * 0.3;
-    osc2.connect(gain2);
-    gain2.connect(filter);
-    oscs.push(osc2);
-    gains.push(gain2);
-
-    // Gentle harmonics
-    const osc3 = ctx.createOscillator();
-    const gain3 = ctx.createGain();
-    osc3.type = 'sine';
-    osc3.frequency.value = freq * 2;
-    gain3.gain.value = vel * 0.15;
-    osc3.connect(gain3);
-    gain3.connect(filter);
-    oscs.push(osc3);
-    gains.push(gain3);
-
-    // Very soft filter
-    filter.frequency.setValueAtTime(freq * 5, now);
-    filter.frequency.exponentialRampToValueAtTime(freq * 2, now + 0.5);
-
-    // Gentle envelope
-    mainGain.gain.setValueAtTime(0.001, now);
-    mainGain.gain.exponentialRampToValueAtTime(vel * 0.6, now + 0.01);
-    mainGain.gain.exponentialRampToValueAtTime(vel * 0.35, now + 0.4);
-    mainGain.gain.exponentialRampToValueAtTime(0.001, now + 5);
-  }
-
-  // Bright piano - crisp, clear attack
-  private createBrightPianoSound(freq: number, vel: number, now: number, oscs: OscillatorNode[], gains: GainNode[], mainGain: GainNode, filter: BiquadFilterNode) {
-    const ctx = this.audioContext!;
-
-    // Strong fundamental with overtones
-    const osc1 = ctx.createOscillator();
-    const gain1 = ctx.createGain();
-
-    const real = new Float32Array([0, 1, 0.7, 0.5, 0.4, 0.3, 0.2, 0.15, 0.1]);
-    const imag = new Float32Array(real.length);
-    const wave = ctx.createPeriodicWave(real, imag);
-    osc1.setPeriodicWave(wave);
-    osc1.frequency.value = freq;
-
-    gain1.gain.value = vel * 0.4;
-    osc1.connect(gain1);
-    gain1.connect(filter);
-    oscs.push(osc1);
-    gains.push(gain1);
-
-    // Bright harmonics
-    [2, 3, 4, 5].forEach((ratio, i) => {
-      if (freq * ratio > 12000) return;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = freq * ratio;
-      gain.gain.value = vel * 0.15 / (i + 1);
-      osc.connect(gain);
-      gain.connect(filter);
-      oscs.push(osc);
-      gains.push(gain);
-    });
-
-    // Sharp attack
-    const attackOsc = ctx.createOscillator();
-    const attackGain = ctx.createGain();
-    attackOsc.type = 'sawtooth';
-    attackOsc.frequency.value = freq * 2;
-    attackGain.gain.setValueAtTime(vel * 0.2, now);
-    attackGain.gain.exponentialRampToValueAtTime(0.001, now + 0.01);
-    attackOsc.connect(attackGain);
-    attackGain.connect(filter);
-    oscs.push(attackOsc);
-    gains.push(attackGain);
-
-    // Bright filter
-    filter.frequency.setValueAtTime(freq * 12, now);
-    filter.frequency.exponentialRampToValueAtTime(freq * 4, now + 0.5);
-
-    mainGain.gain.setValueAtTime(0.001, now);
-    mainGain.gain.exponentialRampToValueAtTime(vel * 0.85, now + 0.003);
-    mainGain.gain.exponentialRampToValueAtTime(vel * 0.4, now + 0.2);
-    mainGain.gain.exponentialRampToValueAtTime(0.001, now + 3.5);
-  }
-
-  // Warm piano - rich bass, mellow treble
-  private createWarmPianoSound(freq: number, vel: number, now: number, oscs: OscillatorNode[], gains: GainNode[], mainGain: GainNode, filter: BiquadFilterNode) {
-    const ctx = this.audioContext!;
-
-    // Rich fundamental
-    const osc1 = ctx.createOscillator();
-    const gain1 = ctx.createGain();
-    osc1.type = 'sine';
-    osc1.frequency.value = freq;
-    gain1.gain.value = vel * 0.55;
-    osc1.connect(gain1);
-    gain1.connect(filter);
-    oscs.push(osc1);
-    gains.push(gain1);
-
-    // Sub-harmonic warmth
-    if (freq > 80) {
-      const subOsc = ctx.createOscillator();
-      const subGain = ctx.createGain();
-      subOsc.type = 'sine';
-      subOsc.frequency.value = freq / 2;
-      subGain.gain.value = vel * 0.12;
-      subOsc.connect(subGain);
-      subGain.connect(filter);
-      oscs.push(subOsc);
-      gains.push(subGain);
-    }
-
-    // Warm harmonics (emphasize lower partials)
-    const osc2 = ctx.createOscillator();
-    const gain2 = ctx.createGain();
-    osc2.type = 'sine';
-    osc2.frequency.value = freq * 2;
-    gain2.gain.value = vel * 0.25;
-    osc2.connect(gain2);
-    gain2.connect(filter);
-    oscs.push(osc2);
-    gains.push(gain2);
-
-    const osc3 = ctx.createOscillator();
-    const gain3 = ctx.createGain();
-    osc3.type = 'sine';
-    osc3.frequency.value = freq * 3;
-    gain3.gain.value = vel * 0.1;
-    osc3.connect(gain3);
-    gain3.connect(filter);
-    oscs.push(osc3);
-    gains.push(gain3);
-
-    // Warm, rolled-off filter
-    filter.frequency.setValueAtTime(freq * 4, now);
-    filter.frequency.exponentialRampToValueAtTime(freq * 1.5, now + 0.8);
-
-    // Long, warm envelope
-    mainGain.gain.setValueAtTime(0.001, now);
-    mainGain.gain.exponentialRampToValueAtTime(vel * 0.7, now + 0.008);
-    mainGain.gain.exponentialRampToValueAtTime(vel * 0.45, now + 0.5);
-    mainGain.gain.exponentialRampToValueAtTime(0.001, now + 6);
-  }
-
-  releaseNote(noteId: string) {
-    const active = this.activeNotes.get(noteId);
-    if (!active || !this.audioContext) return;
-
-    const now = this.audioContext.currentTime;
-    const releaseTime = 0.5; // Longer release for grand piano
-
-    try {
-      active.mainGain.gain.cancelScheduledValues(now);
-      const currentValue = Math.max(active.mainGain.gain.value, 0.001);
-      active.mainGain.gain.setValueAtTime(currentValue, now);
-      active.mainGain.gain.exponentialRampToValueAtTime(0.001, now + releaseTime);
-
-      // Also fade the filter for natural damper effect
-      if (active.filterNode) {
-        const currentFreq = active.filterNode.frequency.value;
-        active.filterNode.frequency.exponentialRampToValueAtTime(
-          Math.max(currentFreq * 0.3, 200),
-          now + releaseTime * 0.5
-        );
-      }
-
-      active.releaseTimeout = setTimeout(() => {
-        this.stopNoteImmediate(noteId);
-      }, releaseTime * 1000 + 100);
-    } catch {
-      this.stopNoteImmediate(noteId);
-    }
-  }
-
-  private stopNoteImmediate(noteId: string) {
-    const active = this.activeNotes.get(noteId);
-    if (!active) return;
-
-    if (active.releaseTimeout) {
-      clearTimeout(active.releaseTimeout);
-    }
-
-    try {
-      active.oscillators.forEach(osc => {
-        try { osc.stop(); } catch {}
-      });
-    } catch {}
-
-    this.activeNotes.delete(noteId);
-  }
-
-  setVolume(volume: number) {
-    this.volumeMultiplier = volume;
-    if (this.masterGain) {
-      this.masterGain.gain.value = volume;
-    }
-  }
-
-  setReverb(amount: number) {
-    this.reverbAmount = amount;
-    this.updateReverbMix();
-  }
-
-  stopAllNotes() {
-    this.activeNotes.forEach((_, noteId) => {
-      this.stopNoteImmediate(noteId);
-    });
-  }
-}
-
-// Piano Key Component with press animation
+// Instrument definitions
+const INSTRUMENTS: Record<string, { name: string; icon: string }> = {
+  piano: { name: 'Piano', icon: 'musical-notes' },
+  rhodes: { name: 'Rhodes', icon: 'radio' },
+  musicbox: { name: 'Music Box', icon: 'gift' },
+  strings: { name: 'Strings', icon: 'disc' },
+  organ: { name: 'Organ', icon: 'home' },
+  synth: { name: 'Synth', icon: 'pulse' },
+};
+
+// Tone.js types
+let Tone: any = null;
+
+// Piano Key Component
 interface PianoKeyProps {
-  pianoKey: PianoKey;
-  isPressed: boolean;
-  isHighlighted: boolean;
-  onPressIn: () => void;
-  onPressOut: () => void;
+  noteObj: NoteDefinition;
+  isActive: boolean;
+  onPress: () => void;
+  onRelease: () => void;
   whiteKeyWidth: number;
   whiteKeyHeight: number;
-  showLabels: boolean;
+  whiteKeyIndex: number;
+  animationDelay: number;
+  isAnimating: boolean;
 }
 
-function PianoKeyComponent({
-  pianoKey,
-  isPressed,
-  isHighlighted,
-  onPressIn,
-  onPressOut,
+function PianoKey({
+  noteObj,
+  isActive,
+  onPress,
+  onRelease,
   whiteKeyWidth,
   whiteKeyHeight,
-  showLabels,
+  whiteKeyIndex,
+  animationDelay,
+  isAnimating,
 }: PianoKeyProps) {
-  const isActive = isPressed || isHighlighted;
   const pressAnim = useSharedValue(0);
+  const entryAnim = useSharedValue(0);
 
-  // Use instant timing instead of spring to avoid delay
+  // Entry animation - keys dance in
+  useEffect(() => {
+    if (isAnimating) {
+      entryAnim.value = withDelay(
+        animationDelay,
+        withSequence(
+          withSpring(1.1, { damping: 8, stiffness: 200 }),
+          withSpring(1, { damping: 12, stiffness: 150 })
+        )
+      );
+    } else {
+      entryAnim.value = 1;
+    }
+  }, [isAnimating, animationDelay]);
+
   useEffect(() => {
     pressAnim.value = withTiming(isActive ? 1 : 0, {
-      duration: isActive ? 0 : 80, // Instant press, quick release
+      duration: isActive ? 0 : 80,
     });
   }, [isActive]);
 
-  const blackKeyWidth = whiteKeyWidth * 0.6;
-  const blackKeyHeight = whiteKeyHeight * 0.6;
+  const blackKeyWidth = whiteKeyWidth * 0.65;
+  const blackKeyHeight = whiteKeyHeight * 0.62;
 
-  const noteLabel = `${pianoKey.note}${pianoKey.octave}`;
-  const keyboardShortcut = Object.entries(KEYBOARD_MAP).find(
-    ([, note]) => note === noteLabel
-  )?.[0]?.toUpperCase();
-
-  // Animated styles for white key
   const whiteKeyAnimatedStyle = useAnimatedStyle(() => {
-    const translateY = interpolate(
-      pressAnim.value,
-      [0, 1],
-      [0, 4],
-      Extrapolation.CLAMP
-    );
-    const scale = interpolate(
-      pressAnim.value,
-      [0, 1],
-      [1, 0.98],
-      Extrapolation.CLAMP
-    );
-
+    const translateY = interpolate(pressAnim.value, [0, 1], [0, 3], Extrapolation.CLAMP);
+    const scale = entryAnim.value;
+    const entryTranslateY = interpolate(entryAnim.value, [0, 1], [50, 0], Extrapolation.CLAMP);
     return {
       transform: [
-        { translateY },
-        { scale },
+        { translateY: translateY + entryTranslateY },
+        { scale }
       ],
+      opacity: entryAnim.value,
     };
   });
 
-  // Animated styles for black key
   const blackKeyAnimatedStyle = useAnimatedStyle(() => {
-    const translateY = interpolate(
-      pressAnim.value,
-      [0, 1],
-      [0, 3],
-      Extrapolation.CLAMP
-    );
-    const scaleY = interpolate(
-      pressAnim.value,
-      [0, 1],
-      [1, 0.95],
-      Extrapolation.CLAMP
-    );
-
+    const translateY = interpolate(pressAnim.value, [0, 1], [0, 2], Extrapolation.CLAMP);
+    const scale = entryAnim.value;
+    const entryTranslateY = interpolate(entryAnim.value, [0, 1], [30, 0], Extrapolation.CLAMP);
     return {
       transform: [
-        { translateY },
-        { scaleY },
+        { translateY: translateY + entryTranslateY },
+        { scale }
       ],
+      opacity: entryAnim.value,
     };
   });
 
-  if (pianoKey.isBlack) {
+  // Handle tap - play note and auto-release after short duration
+  const handleTap = () => {
+    onPress();
+    setTimeout(() => {
+      onRelease();
+    }, 200);
+  };
+
+  if (noteObj.type === 'black') {
+    const leftPos = whiteKeyIndex * (whiteKeyWidth + 2) - blackKeyWidth / 2;
+
     return (
       <Animated.View
         style={[
           {
             position: 'absolute',
+            left: leftPos,
             width: blackKeyWidth,
             height: blackKeyHeight,
-            marginLeft: -blackKeyWidth / 2,
-            zIndex: 2,
+            zIndex: 10,
           },
           blackKeyAnimatedStyle,
         ]}
       >
         <Pressable
-          onPressIn={onPressIn}
-          onPressOut={onPressOut}
-          style={{
+          onPress={handleTap}
+          style={({ pressed }) => ({
             flex: 1,
+            backgroundColor: isActive || pressed ? '#4c1d95' : '#1a1a1a',
             borderRadius: 4,
             borderBottomLeftRadius: 6,
             borderBottomRightRadius: 6,
-            overflow: 'hidden',
-          }}
+            borderWidth: 1,
+            borderColor: isActive ? '#7c3aed' : '#000',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.5,
+            shadowRadius: 4,
+            elevation: 8,
+          })}
         >
-          {/* Black key gradient effect */}
           <View
             style={{
-              flex: 1,
-              backgroundColor: isHighlighted ? '#6d28d9' : isPressed ? '#2d2d2d' : '#1a1a1a',
-              borderWidth: isHighlighted ? 2 : 1,
-              borderColor: isHighlighted ? '#a78bfa' : '#000',
-              borderRadius: 4,
-              borderBottomLeftRadius: 6,
-              borderBottomRightRadius: 6,
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '25%',
+              backgroundColor: isActive ? 'rgba(139,92,246,0.3)' : 'rgba(255,255,255,0.08)',
+              borderTopLeftRadius: 4,
+              borderTopRightRadius: 4,
             }}
-          >
-            {/* Highlight on top */}
-            <View
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: '30%',
-                backgroundColor: isHighlighted ? 'rgba(167,139,250,0.3)' : isPressed ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                borderTopLeftRadius: 4,
-                borderTopRightRadius: 4,
-              }}
-            />
-            {/* Labels at bottom */}
-            <View style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 8 }}>
-              {showLabels && (
-                <Text style={{ color: '#666', fontSize: 8, fontWeight: '600' }}>
-                  {pianoKey.note}
-                </Text>
-              )}
-              {keyboardShortcut && (
-                <Text style={{ color: '#555', fontSize: 7, marginTop: 2 }}>
-                  {keyboardShortcut}
-                </Text>
-              )}
-            </View>
-          </View>
+          />
         </Pressable>
       </Animated.View>
     );
@@ -840,77 +237,35 @@ function PianoKeyComponent({
       ]}
     >
       <Pressable
-        onPressIn={onPressIn}
-        onPressOut={onPressOut}
-        style={{
+        onPress={handleTap}
+        style={({ pressed }) => ({
           flex: 1,
+          backgroundColor: isActive || pressed ? '#e0e7ff' : '#fafafa',
           borderRadius: 6,
           borderBottomLeftRadius: 8,
           borderBottomRightRadius: 8,
-          overflow: 'hidden',
-        }}
+          borderWidth: isActive ? 2 : 1,
+          borderColor: isActive ? '#7c3aed' : '#ccc',
+          borderBottomColor: isActive ? '#6d28d9' : '#999',
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: isActive ? 2 : 5 },
+          shadowOpacity: isActive ? 0.15 : 0.25,
+          shadowRadius: isActive ? 2 : 6,
+          elevation: isActive ? 2 : 6,
+        })}
       >
-        {/* White key with realistic styling */}
         <View
           style={{
-            flex: 1,
-            backgroundColor: isHighlighted ? '#ddd6fe' : isPressed ? '#e8e8e8' : '#fafafa',
-            borderWidth: isHighlighted ? 2 : 1,
-            borderColor: isHighlighted ? '#8b5cf6' : '#ccc',
-            borderBottomColor: isHighlighted ? '#7c3aed' : '#999',
-            borderRadius: 6,
-            borderBottomLeftRadius: 8,
-            borderBottomRightRadius: 8,
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '15%',
+            backgroundColor: isActive ? 'rgba(139,92,246,0.15)' : 'rgba(255,255,255,0.8)',
+            borderTopLeftRadius: 6,
+            borderTopRightRadius: 6,
           }}
-        >
-          {/* Subtle gradient effect */}
-          <View
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '20%',
-              backgroundColor: isHighlighted ? 'rgba(139,92,246,0.2)' : 'rgba(255,255,255,0.8)',
-              borderTopLeftRadius: 6,
-              borderTopRightRadius: 6,
-            }}
-          />
-          {/* Side shadows */}
-          <View
-            style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              bottom: 0,
-              width: 2,
-              backgroundColor: 'rgba(0,0,0,0.05)',
-            }}
-          />
-          <View
-            style={{
-              position: 'absolute',
-              right: 0,
-              top: 0,
-              bottom: 0,
-              width: 2,
-              backgroundColor: 'rgba(0,0,0,0.03)',
-            }}
-          />
-          {/* Labels at bottom */}
-          <View style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 12 }}>
-            {showLabels && (
-              <Text style={{ color: '#555', fontSize: 11, fontWeight: '600' }}>
-                {pianoKey.note}{pianoKey.octave}
-              </Text>
-            )}
-            {keyboardShortcut && (
-              <Text style={{ color: '#999', fontSize: 9, marginTop: 2 }}>
-                {keyboardShortcut}
-              </Text>
-            )}
-          </View>
-        </View>
+        />
       </Pressable>
     </Animated.View>
   );
@@ -918,375 +273,514 @@ function PianoKeyComponent({
 
 export default function VirtualPianoScreen() {
   const { width, height } = useWindowDimensions();
-  const { isMobile } = useDeviceType();
+  const { isMobile, isMobileWeb } = useDeviceType();
   const isLandscape = width > height;
+  const isNarrowMobile = isMobile || isMobileWeb || width < 768;
 
-  const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
-  const [volume, setVolume] = useState(0.7);
-  const [reverb, setReverb] = useState(1.0); // Default 100%
-  const [showLabels, setShowLabels] = useState(true);
-  const [soundPreset, setSoundPreset] = useState<SoundPreset>('grand');
-  const [currentOctave, setCurrentOctave] = useState(4);
+  const [activeKeys, setActiveKeys] = useState<Set<string>>(new Set());
+  const [instrument, setInstrument] = useState('piano');
+  const [reverb, setReverb] = useState(30);
+  const [audioStarted, setAudioStarted] = useState(false);
+  const [toneLoaded, setToneLoaded] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(true);
 
-  const synthRef = useRef<RealisticPianoSynth | null>(null);
+  const synthRef = useRef<any>(null);
+  const hammerSynthRef = useRef<any>(null);
+  const harmonicsSynthRef = useRef<any>(null);
+  const reverbRef = useRef<any>(null);
   const scrollViewRef = useRef<ScrollView>(null);
 
-  // Initialize synth
+  // Stop animation after it completes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsAnimating(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Load Tone.js dynamically (web only)
   useEffect(() => {
     if (Platform.OS === 'web') {
-      synthRef.current = new RealisticPianoSynth();
-      synthRef.current.init();
+      import('tone').then((ToneModule) => {
+        Tone = ToneModule;
+        setToneLoaded(true);
+      }).catch((err) => {
+        console.warn('Failed to load Tone.js:', err);
+      });
     }
+
     return () => {
-      synthRef.current?.stopAllNotes();
+      if (synthRef.current) synthRef.current.dispose?.();
+      if (hammerSynthRef.current) hammerSynthRef.current.dispose?.();
+      if (harmonicsSynthRef.current) harmonicsSynthRef.current.dispose?.();
+      if (reverbRef.current) reverbRef.current.dispose?.();
     };
   }, []);
 
-  // Update volume, reverb, and preset
+  // Create synth based on instrument
+  const createSynth = useCallback(() => {
+    if (!Tone) return;
+
+    if (synthRef.current) synthRef.current.dispose?.();
+    if (hammerSynthRef.current) hammerSynthRef.current.dispose?.();
+    if (harmonicsSynthRef.current) harmonicsSynthRef.current.dispose?.();
+    if (reverbRef.current) reverbRef.current.dispose?.();
+
+    reverbRef.current = new Tone.Reverb({
+      decay: 2.5,
+      wet: reverb / 100,
+    }).toDestination();
+
+    const vol = new Tone.Volume(-6).connect(reverbRef.current);
+
+    switch (instrument) {
+      case 'piano':
+        synthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'fatsine', count: 3, spread: 20 },
+          envelope: { attack: 0.003, decay: 1.8, sustain: 0.15, release: 2.2 },
+          volume: -3,
+        }).connect(vol);
+
+        hammerSynthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'triangle' },
+          envelope: { attack: 0.001, decay: 0.06, sustain: 0, release: 0.08 },
+          volume: -8,
+        }).connect(vol);
+
+        harmonicsSynthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'custom', partials: [1, 0.7, 0.4, 0.25, 0.15, 0.08, 0.04] },
+          envelope: { attack: 0.005, decay: 2.5, sustain: 0.1, release: 3 },
+          volume: -6,
+        }).connect(vol);
+        break;
+
+      case 'rhodes':
+        synthRef.current = new Tone.PolySynth(Tone.FMSynth, {
+          harmonicity: 3.01,
+          modulationIndex: 1.5,
+          oscillator: { type: 'sine' },
+          envelope: { attack: 0.001, decay: 1.5, sustain: 0.2, release: 1.8 },
+          modulation: { type: 'sine' },
+          modulationEnvelope: { attack: 0.002, decay: 0.8, sustain: 0.1, release: 1.2 },
+          volume: -2,
+        }).connect(vol);
+
+        hammerSynthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'sine' },
+          envelope: { attack: 0.001, decay: 0.4, sustain: 0, release: 0.5 },
+          volume: -12,
+        }).connect(vol);
+        harmonicsSynthRef.current = null;
+        break;
+
+      case 'musicbox':
+        synthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'sine' },
+          envelope: { attack: 0.001, decay: 2.5, sustain: 0, release: 2 },
+          volume: -3,
+        }).connect(vol);
+
+        hammerSynthRef.current = new Tone.PolySynth(Tone.FMSynth, {
+          harmonicity: 8,
+          modulationIndex: 2,
+          oscillator: { type: 'sine' },
+          envelope: { attack: 0.001, decay: 0.8, sustain: 0, release: 0.5 },
+          modulation: { type: 'sine' },
+          modulationEnvelope: { attack: 0.001, decay: 0.3, sustain: 0, release: 0.3 },
+          volume: -15,
+        }).connect(vol);
+
+        harmonicsSynthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'sine', partials: [1, 0.5, 0.25] },
+          envelope: { attack: 0.001, decay: 1.5, sustain: 0, release: 1.5 },
+          volume: -10,
+        }).connect(vol);
+        break;
+
+      case 'strings':
+        synthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'fatsawtooth', count: 4, spread: 30 },
+          envelope: { attack: 0.3, decay: 0.5, sustain: 0.8, release: 1.5 },
+          volume: -4,
+        }).connect(vol);
+
+        hammerSynthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'fatsawtooth', count: 3, spread: 25 },
+          envelope: { attack: 0.35, decay: 0.4, sustain: 0.7, release: 1.8 },
+          volume: -8,
+        }).connect(vol);
+
+        harmonicsSynthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'sine' },
+          envelope: { attack: 0.4, decay: 0.3, sustain: 0.5, release: 2 },
+          volume: -12,
+        }).connect(vol);
+        break;
+
+      case 'organ':
+        synthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'custom', partials: [1, 1, 0.5, 0.5, 0.25, 0.25, 0.125, 0.125, 0.0625] },
+          envelope: { attack: 0.02, decay: 0.1, sustain: 0.9, release: 0.1 },
+          volume: -3,
+        }).connect(vol);
+
+        hammerSynthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'sine' },
+          envelope: { attack: 0.001, decay: 0.15, sustain: 0, release: 0.1 },
+          volume: -8,
+        }).connect(vol);
+        harmonicsSynthRef.current = null;
+        break;
+
+      case 'synth':
+        synthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'fatsawtooth', count: 3, spread: 20 },
+          envelope: { attack: 0.01, decay: 0.3, sustain: 0.5, release: 0.8 },
+          volume: -4,
+        }).connect(vol);
+
+        hammerSynthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'pulse', width: 0.4 },
+          envelope: { attack: 0.01, decay: 0.25, sustain: 0.4, release: 0.7 },
+          volume: -8,
+        }).connect(vol);
+        harmonicsSynthRef.current = null;
+        break;
+
+      default:
+        synthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'triangle' },
+          envelope: { attack: 0.005, decay: 0.3, sustain: 0.4, release: 1.2 },
+        }).connect(vol);
+        hammerSynthRef.current = null;
+        harmonicsSynthRef.current = null;
+    }
+  }, [instrument, reverb]);
+
+  // Update synth when settings change
   useEffect(() => {
-    synthRef.current?.setVolume(volume);
-  }, [volume]);
+    if (audioStarted && toneLoaded) {
+      createSynth();
+    }
+  }, [instrument, reverb, audioStarted, toneLoaded, createSynth]);
 
+  // Play a note
+  const playNote = useCallback(async (note: string) => {
+    if (Platform.OS !== 'web' || !Tone) return;
+
+    if (!audioStarted) {
+      await Tone.start();
+      setAudioStarted(true);
+      createSynth();
+    }
+
+    if (!synthRef.current) {
+      createSynth();
+    }
+
+    const velocity = 0.6 + Math.random() * 0.4;
+    const now = Tone.now();
+
+    synthRef.current?.triggerAttack(note, now, velocity);
+    hammerSynthRef.current?.triggerAttack(note, now, velocity * 1.2);
+    harmonicsSynthRef.current?.triggerAttack(note, now, velocity * 0.7);
+  }, [audioStarted, createSynth]);
+
+  // Release a note
+  const releaseNote = useCallback((note: string) => {
+    if (Platform.OS !== 'web' || !Tone) return;
+
+    const now = Tone.now();
+    synthRef.current?.triggerRelease(note, now);
+    hammerSynthRef.current?.triggerRelease(note, now);
+    harmonicsSynthRef.current?.triggerRelease(note, now);
+  }, []);
+
+  // Handle key press (desktop only)
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.repeat) return;
+    const key = e.key.toLowerCase();
+
+    const noteObj = NOTES.find((n) => n.key === key);
+    if (noteObj && !activeKeys.has(key)) {
+      setActiveKeys((prev) => new Set([...prev, key]));
+      playNote(noteObj.note);
+    }
+  }, [activeKeys, playNote]);
+
+  // Handle key release (desktop only)
+  const handleKeyUp = useCallback((e: KeyboardEvent) => {
+    const key = e.key.toLowerCase();
+
+    const noteObj = NOTES.find((n) => n.key === key);
+    if (noteObj) {
+      setActiveKeys((prev) => {
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
+      releaseNote(noteObj.note);
+    }
+  }, [releaseNote]);
+
+  // Keyboard event listeners (desktop only)
   useEffect(() => {
-    synthRef.current?.setReverb(reverb);
-  }, [reverb]);
-
-  useEffect(() => {
-    synthRef.current?.setPreset(soundPreset);
-  }, [soundPreset]);
-
-  // Keyboard handlers
-  useEffect(() => {
-    if (Platform.OS !== 'web') return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.repeat) return;
-
-      const key = e.key.toLowerCase();
-
-      if (key === 'arrowleft') {
-        setCurrentOctave((prev) => Math.max(1, prev - 1));
-        return;
-      }
-      if (key === 'arrowright') {
-        setCurrentOctave((prev) => Math.min(7, prev + 1));
-        return;
-      }
-
-      const noteStr = KEYBOARD_MAP[key];
-      if (noteStr) {
-        const match = noteStr.match(/([A-G]#?)(\d)/);
-        if (match) {
-          const [, note, octaveStr] = match;
-          const baseOctave = parseInt(octaveStr);
-          const adjustedOctave = baseOctave + (currentOctave - 4);
-          const adjustedNoteId = `${note}${adjustedOctave}`;
-
-          const pianoKey = ALL_PIANO_KEYS.find(
-            (k) => `${k.note}${k.octave}` === adjustedNoteId
-          );
-
-          if (pianoKey) {
-            handleKeyPress(adjustedNoteId, pianoKey.frequency);
-          }
-        }
-      }
-    };
-
-    const handleKeyUp = (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase();
-
-      const noteStr = KEYBOARD_MAP[key];
-      if (noteStr) {
-        const match = noteStr.match(/([A-G]#?)(\d)/);
-        if (match) {
-          const [, note, octaveStr] = match;
-          const baseOctave = parseInt(octaveStr);
-          const adjustedOctave = baseOctave + (currentOctave - 4);
-          const adjustedNoteId = `${note}${adjustedOctave}`;
-          handleKeyRelease(adjustedNoteId);
-        }
-      }
-    };
+    if (Platform.OS !== 'web' || isNarrowMobile) return;
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
-
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [currentOctave]);
+  }, [handleKeyDown, handleKeyUp, isNarrowMobile]);
 
-  const handleKeyPress = useCallback((noteId: string, frequency: number) => {
-    setPressedKeys((prev) => new Set(prev).add(noteId));
-    synthRef.current?.playNote(frequency, noteId, 0.8);
-  }, []);
+  // Calculate dimensions based on orientation and device
+  const whiteKeys = NOTES.filter((n) => n.type === 'white');
+  const blackKeys = NOTES.filter((n) => n.type === 'black');
 
-  const handleKeyRelease = useCallback((noteId: string) => {
-    setPressedKeys((prev) => {
-      const next = new Set(prev);
-      next.delete(noteId);
-      return next;
-    });
-    synthRef.current?.releaseNote(noteId);
-  }, []);
+  // Responsive key sizing
+  const getKeyWidth = () => {
+    if (isLandscape) {
+      // Landscape: fit more keys, smaller width
+      return Math.max(32, Math.floor((width - 48) / whiteKeys.length) - 2);
+    } else if (isNarrowMobile) {
+      // Portrait mobile: balance between visibility and scrolling
+      return 36;
+    } else {
+      // Desktop/tablet
+      return 52;
+    }
+  };
 
-  // Calculate dimensions
-  const whiteKeys = ALL_PIANO_KEYS.filter((k) => !k.isBlack);
-  const whiteKeyWidth = isMobile ? 42 : 50;
-  const whiteKeyHeight = isLandscape ? Math.min(height * 0.5, 260) : Math.min(height * 0.35, 200);
+  const whiteKeyWidth = getKeyWidth();
+  const whiteKeyHeight = isLandscape
+    ? Math.min(height * 0.55, 280)
+    : Math.min(height * 0.35, 240);
 
-  // Scroll to middle C on mount
+  // Scroll to center on mount and orientation change
   useEffect(() => {
-    const middleCIndex = whiteKeys.findIndex((k) => k.note === 'C' && k.octave === 4);
-    const scrollPosition = middleCIndex * (whiteKeyWidth + 2) - width / 2 + whiteKeyWidth / 2;
-
+    const middleIndex = Math.floor(whiteKeys.length / 2);
+    const scrollPosition = middleIndex * (whiteKeyWidth + 2) - width / 2 + whiteKeyWidth / 2;
     setTimeout(() => {
       scrollViewRef.current?.scrollTo({ x: Math.max(0, scrollPosition), animated: false });
-    }, 100);
-  }, []);
+    }, 150);
+  }, [width, whiteKeyWidth, whiteKeys.length]);
 
-  // Build piano layout
-  const pianoLayout = useMemo(() => {
-    const layout: { key: PianoKey; position: number }[] = [];
-    let whiteKeyIndex = 0;
+  // Calculate black key positions
+  const getWhiteKeyIndexForBlackKey = (blackNote: NoteDefinition): number => {
+    const noteIndex = NOTES.indexOf(blackNote);
+    return NOTES.filter((n, i) => i < noteIndex && n.type === 'white').length;
+  };
 
-    ALL_PIANO_KEYS.forEach((key) => {
-      if (key.isBlack) {
-        const position = whiteKeyIndex * (whiteKeyWidth + 2);
-        layout.push({ key, position });
-      } else {
-        const position = whiteKeyIndex * (whiteKeyWidth + 2);
-        layout.push({ key, position });
-        whiteKeyIndex++;
-      }
-    });
-
-    return layout;
-  }, [whiteKeyWidth]);
+  // Calculate animation delays for wave effect
+  const getAnimationDelay = (index: number, total: number) => {
+    const center = Math.floor(total / 2);
+    const distance = Math.abs(index - center);
+    return distance * 30; // 30ms delay per key from center
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#1a1a2e' }}>
       <StatusBar style="light" />
 
-      {/* Header */}
+      {/* Header - compact on mobile */}
       <View
         style={{
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
-          paddingHorizontal: 16,
-          paddingVertical: 12,
+          paddingHorizontal: isNarrowMobile ? 12 : 16,
+          paddingVertical: isNarrowMobile ? 8 : 12,
           borderBottomWidth: 1,
           borderBottomColor: '#2a2a4a',
         }}
       >
         <Pressable
           onPress={() => router.back()}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: 8 }}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 6, padding: 6 }}
         >
-          <FontAwesome name="arrow-left" size={20} color="#fff" />
-          <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>Back</Text>
+          <FontAwesome name="arrow-left" size={isNarrowMobile ? 18 : 20} color="#fff" />
+          {!isNarrowMobile && (
+            <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>Back</Text>
+          )}
         </Pressable>
 
-        <Text style={{ color: '#fff', fontSize: 20, fontWeight: '700' }}>Virtual Piano</Text>
+        <Text style={{ color: '#fff', fontSize: isNarrowMobile ? 16 : 20, fontWeight: '700' }}>
+          Virtual Piano
+        </Text>
 
-        <View style={{ width: 40 }} />
+        <View style={{ width: isNarrowMobile ? 30 : 80 }} />
       </View>
 
-      {/* Controls */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          paddingVertical: 10,
-          paddingHorizontal: 12,
-          gap: 16,
-          backgroundColor: '#252545',
-          flexWrap: 'wrap',
-        }}
-      >
-        {/* Octave Controls */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          <Text style={{ color: '#94a3b8', fontSize: 11 }}>Octave</Text>
-          <Pressable
-            onPress={() => setCurrentOctave((prev) => Math.max(1, prev - 1))}
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: 14,
-              backgroundColor: '#3a3a5a',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <FontAwesome name="minus" size={12} color="#fff" />
-          </Pressable>
-          <Text style={{ color: '#fff', fontSize: 16, fontWeight: '700', minWidth: 24, textAlign: 'center' }}>
-            {currentOctave}
-          </Text>
-          <Pressable
-            onPress={() => setCurrentOctave((prev) => Math.min(7, prev + 1))}
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: 14,
-              backgroundColor: '#3a3a5a',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <FontAwesome name="plus" size={12} color="#fff" />
-          </Pressable>
-        </View>
-
-        {/* Echo/Reverb Controls */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          <Pressable
-            onPress={() => setReverb((prev) => Math.max(0, prev - 0.2))}
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: 14,
-              backgroundColor: '#3a3a5a',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Ionicons name="remove" size={14} color="#fff" />
-          </Pressable>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            <Ionicons name="water" size={14} color="#94a3b8" />
-            <Text style={{ color: '#fff', fontSize: 11, fontWeight: '600', minWidth: 28 }}>
-              {Math.round(reverb * 100)}%
-            </Text>
-          </View>
-          <Pressable
-            onPress={() => setReverb((prev) => Math.min(1, prev + 0.2))}
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: 14,
-              backgroundColor: '#3a3a5a',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Ionicons name="add" size={14} color="#fff" />
-          </Pressable>
-        </View>
-
-        {/* Labels Toggle */}
-        <Pressable
-          onPress={() => setShowLabels(!showLabels)}
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 6,
-            paddingHorizontal: 10,
-            paddingVertical: 6,
-            borderRadius: 14,
-            backgroundColor: showLabels ? '#4f46e5' : '#3a3a5a',
-          }}
-        >
-          <Ionicons name="text" size={14} color="#fff" />
-          <Text style={{ color: '#fff', fontSize: 11, fontWeight: '600' }}>Labels</Text>
-        </Pressable>
-      </View>
-
-      {/* Sound Presets */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
+      {/* Instrument Selection - scrollable chips */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingHorizontal: 10,
           paddingVertical: 8,
-          paddingHorizontal: 12,
-          gap: 8,
+          gap: 6,
+        }}
+        style={{ backgroundColor: '#252545', maxHeight: isNarrowMobile ? 48 : 56 }}
+      >
+        {Object.entries(INSTRUMENTS).map(([key, { name, icon }]) => (
+          <Pressable
+            key={key}
+            onPress={async () => {
+              if (!audioStarted && Tone) {
+                await Tone.start();
+                setAudioStarted(true);
+              }
+              setInstrument(key);
+            }}
+            style={{
+              paddingHorizontal: isNarrowMobile ? 10 : 14,
+              paddingVertical: isNarrowMobile ? 6 : 8,
+              borderRadius: 14,
+              backgroundColor: instrument === key ? '#7c3aed' : 'rgba(255,255,255,0.08)',
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 4,
+            }}
+          >
+            <Ionicons name={icon as any} size={isNarrowMobile ? 12 : 14} color={instrument === key ? '#fff' : '#94a3b8'} />
+            <Text style={{ color: '#fff', fontSize: isNarrowMobile ? 11 : 12, fontWeight: '600' }}>{name}</Text>
+          </Pressable>
+        ))}
+      </ScrollView>
+
+      {/* Controls Row - simplified on mobile */}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingVertical: isNarrowMobile ? 6 : 10,
+          paddingHorizontal: 10,
+          gap: isNarrowMobile ? 10 : 16,
           backgroundColor: '#1e1e3a',
         }}
       >
-        <Text style={{ color: '#94a3b8', fontSize: 11, marginRight: 4 }}>Sound:</Text>
-        {SOUND_PRESETS.map((preset) => (
-          <Pressable
-            key={preset.id}
-            onPress={() => setSoundPreset(preset.id)}
-            style={{
-              paddingHorizontal: 12,
-              paddingVertical: 6,
-              borderRadius: 14,
-              backgroundColor: soundPreset === preset.id ? '#7c3aed' : '#3a3a5a',
-            }}
-          >
-            <Text style={{ color: '#fff', fontSize: 11, fontWeight: '600' }}>{preset.name}</Text>
-          </Pressable>
-        ))}
+        {/* Reverb Control */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+          <Ionicons name="water" size={isNarrowMobile ? 14 : 16} color="#94a3b8" />
+          <View style={{ flexDirection: 'row', gap: 3 }}>
+            {[0, 30, 60, 100].map((r) => (
+              <Pressable
+                key={r}
+                onPress={() => setReverb(r)}
+                style={{
+                  width: isNarrowMobile ? 24 : 28,
+                  height: isNarrowMobile ? 24 : 28,
+                  borderRadius: 6,
+                  backgroundColor: reverb === r ? '#0891b2' : '#3a3a5a',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Text style={{ color: '#fff', fontSize: isNarrowMobile ? 9 : 10 }}>{r}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
       </View>
 
-      {/* Keyboard Hints */}
-      {Platform.OS === 'web' && (
-        <View style={{ paddingVertical: 8, paddingHorizontal: 16, backgroundColor: '#1a1a2e' }}>
-          <Text style={{ color: '#64748b', fontSize: 11, textAlign: 'center' }}>
-            Keyboard: A-J lower, K-; upper | Arrows: Change octave
+      {/* Keyboard Hints - desktop only */}
+      {Platform.OS === 'web' && !isNarrowMobile && (
+        <View style={{ paddingVertical: 6, paddingHorizontal: 16, backgroundColor: '#1a1a2e' }}>
+          <Text style={{ color: '#475569', fontSize: 10, textAlign: 'center' }}>
+            White keys: A S D F G H J K L ; | Black keys: W E T Y U O P
           </Text>
         </View>
       )}
 
       {/* Piano */}
-      <View style={{ flex: 1, justifyContent: 'flex-end', paddingBottom: 16 }}>
-        <ScrollView
-          ref={scrollViewRef}
-          horizontal
-          showsHorizontalScrollIndicator={true}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 10 }}
+      <View style={{ flex: 1, justifyContent: 'center' }}>
+        <View
+          style={{
+            backgroundColor: '#252545',
+            paddingVertical: isNarrowMobile ? 10 : 16,
+            paddingHorizontal: 4,
+            marginHorizontal: 4,
+            borderRadius: 12,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 10,
+          }}
         >
-          <View style={{ flexDirection: 'row', height: whiteKeyHeight + 10, position: 'relative' }}>
-            {/* White keys */}
-            {pianoLayout
-              .filter(({ key }) => !key.isBlack)
-              .map(({ key }) => {
-                const noteId = `${key.note}${key.octave}`;
-                return (
-                  <PianoKeyComponent
-                    key={noteId}
-                    pianoKey={key}
-                    isPressed={pressedKeys.has(noteId)}
-                    isHighlighted={false}
-                    onPressIn={() => handleKeyPress(noteId, key.frequency)}
-                    onPressOut={() => handleKeyRelease(noteId)}
-                    whiteKeyWidth={whiteKeyWidth}
-                    whiteKeyHeight={whiteKeyHeight}
-                    showLabels={showLabels}
-                  />
-                );
-              })}
+          <ScrollView
+            ref={scrollViewRef}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 4 }}
+          >
+            <View style={{ flexDirection: 'row', height: whiteKeyHeight, position: 'relative' }}>
+              {/* White Keys */}
+              {whiteKeys.map((noteObj, index) => (
+                <PianoKey
+                  key={noteObj.note}
+                  noteObj={noteObj}
+                  isActive={noteObj.key ? activeKeys.has(noteObj.key) : false}
+                  onPress={() => {
+                    if (noteObj.key) {
+                      setActiveKeys((prev) => new Set([...prev, noteObj.key]));
+                    }
+                    playNote(noteObj.note);
+                  }}
+                  onRelease={() => {
+                    if (noteObj.key) {
+                      setActiveKeys((prev) => {
+                        const next = new Set(prev);
+                        next.delete(noteObj.key);
+                        return next;
+                      });
+                    }
+                    releaseNote(noteObj.note);
+                  }}
+                  whiteKeyWidth={whiteKeyWidth}
+                  whiteKeyHeight={whiteKeyHeight}
+                  whiteKeyIndex={index}
+                  animationDelay={getAnimationDelay(index, whiteKeys.length)}
+                  isAnimating={isAnimating}
+                />
+              ))}
 
-            {/* Black keys */}
-            {pianoLayout
-              .filter(({ key }) => key.isBlack)
-              .map(({ key, position }) => {
-                const noteId = `${key.note}${key.octave}`;
-                return (
-                  <View key={noteId} style={{ position: 'absolute', left: position, top: 0 }}>
-                    <PianoKeyComponent
-                      pianoKey={key}
-                      isPressed={pressedKeys.has(noteId)}
-                      isHighlighted={false}
-                      onPressIn={() => handleKeyPress(noteId, key.frequency)}
-                      onPressOut={() => handleKeyRelease(noteId)}
-                      whiteKeyWidth={whiteKeyWidth}
-                      whiteKeyHeight={whiteKeyHeight}
-                      showLabels={showLabels}
-                    />
-                  </View>
-                );
-              })}
-          </View>
-        </ScrollView>
+              {/* Black Keys */}
+              {blackKeys.map((noteObj, index) => (
+                <PianoKey
+                  key={noteObj.note}
+                  noteObj={noteObj}
+                  isActive={noteObj.key ? activeKeys.has(noteObj.key) : false}
+                  onPress={() => {
+                    if (noteObj.key) {
+                      setActiveKeys((prev) => new Set([...prev, noteObj.key]));
+                    }
+                    playNote(noteObj.note);
+                  }}
+                  onRelease={() => {
+                    if (noteObj.key) {
+                      setActiveKeys((prev) => {
+                        const next = new Set(prev);
+                        next.delete(noteObj.key);
+                        return next;
+                      });
+                    }
+                    releaseNote(noteObj.note);
+                  }}
+                  whiteKeyWidth={whiteKeyWidth}
+                  whiteKeyHeight={whiteKeyHeight}
+                  whiteKeyIndex={getWhiteKeyIndexForBlackKey(noteObj)}
+                  animationDelay={getAnimationDelay(index, blackKeys.length) + 100}
+                  isAnimating={isAnimating}
+                />
+              ))}
+            </View>
+          </ScrollView>
+        </View>
       </View>
-
     </SafeAreaView>
   );
 }

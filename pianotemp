@@ -1,0 +1,1381 @@
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import * as Tone from 'tone';
+
+// Extended to 3+ octaves (C3 to C6)
+const NOTES = [
+  // Octave 3
+  { note: 'C3', key: '1', type: 'white', label: '1' },
+  { note: 'C#3', key: '2', type: 'black', label: '2' },
+  { note: 'D3', key: '3', type: 'white', label: '3' },
+  { note: 'D#3', key: '4', type: 'black', label: '4' },
+  { note: 'E3', key: '5', type: 'white', label: '5' },
+  { note: 'F3', key: '6', type: 'white', label: '6' },
+  { note: 'F#3', key: '7', type: 'black', label: '7' },
+  { note: 'G3', key: '8', type: 'white', label: '8' },
+  { note: 'G#3', key: '9', type: 'black', label: '9' },
+  { note: 'A3', key: '0', type: 'white', label: '0' },
+  { note: 'A#3', key: '-', type: 'black', label: '-' },
+  { note: 'B3', key: '=', type: 'white', label: '=' },
+  // Octave 4
+  { note: 'C4', key: 'q', type: 'white', label: 'Q' },
+  { note: 'C#4', key: 'w', type: 'black', label: 'W' },
+  { note: 'D4', key: 'e', type: 'white', label: 'E' },
+  { note: 'D#4', key: 'r', type: 'black', label: 'R' },
+  { note: 'E4', key: 't', type: 'white', label: 'T' },
+  { note: 'F4', key: 'y', type: 'white', label: 'Y' },
+  { note: 'F#4', key: 'u', type: 'black', label: 'U' },
+  { note: 'G4', key: 'i', type: 'white', label: 'I' },
+  { note: 'G#4', key: 'o', type: 'black', label: 'O' },
+  { note: 'A4', key: 'p', type: 'white', label: 'P' },
+  { note: 'A#4', key: '[', type: 'black', label: '[' },
+  { note: 'B4', key: ']', type: 'white', label: ']' },
+  // Octave 5
+  { note: 'C5', key: 'a', type: 'white', label: 'A' },
+  { note: 'C#5', key: 's', type: 'black', label: 'S' },
+  { note: 'D5', key: 'd', type: 'white', label: 'D' },
+  { note: 'D#5', key: 'f', type: 'black', label: 'F' },
+  { note: 'E5', key: 'g', type: 'white', label: 'G' },
+  { note: 'F5', key: 'h', type: 'white', label: 'H' },
+  { note: 'F#5', key: 'j', type: 'black', label: 'J' },
+  { note: 'G5', key: 'k', type: 'white', label: 'K' },
+  { note: 'G#5', key: 'l', type: 'black', label: 'L' },
+  { note: 'A5', key: ';', type: 'white', label: ';' },
+  { note: 'A#5', key: "'", type: 'black', label: "'" },
+  { note: 'B5', key: 'z', type: 'white', label: 'Z' },
+  // Extra high notes
+  { note: 'C6', key: 'x', type: 'white', label: 'X' },
+];
+
+const INSTRUMENTS = {
+  piano: { name: 'Grand Piano', emoji: '🎹' },
+  rhodes: { name: 'Rhodes', emoji: '🎷' },
+  clavinet: { name: 'Clavinet', emoji: '🎸' },
+  musicbox: { name: 'Music Box', emoji: '🎁' },
+  strings: { name: 'Strings', emoji: '🎻' },
+  bass: { name: 'Synth Bass', emoji: '🔊' },
+  organ: { name: 'Organ', emoji: '⛪' },
+  synth: { name: 'Synth Lead', emoji: '🎛️' },
+};
+
+const DEMO_SONGS = {
+  'Twinkle Twinkle': [
+    // Verse 1: Twinkle twinkle little star
+    { note: 'C4', duration: 400 }, { note: 'C4', duration: 400 },
+    { note: 'G4', duration: 400 }, { note: 'G4', duration: 400 },
+    { note: 'A4', duration: 400 }, { note: 'A4', duration: 400 },
+    { note: 'G4', duration: 800 },
+    // How I wonder what you are
+    { note: 'F4', duration: 400 }, { note: 'F4', duration: 400 },
+    { note: 'E4', duration: 400 }, { note: 'E4', duration: 400 },
+    { note: 'D4', duration: 400 }, { note: 'D4', duration: 400 },
+    { note: 'C4', duration: 800 },
+    // Up above the world so high
+    { note: 'G4', duration: 400 }, { note: 'G4', duration: 400 },
+    { note: 'F4', duration: 400 }, { note: 'F4', duration: 400 },
+    { note: 'E4', duration: 400 }, { note: 'E4', duration: 400 },
+    { note: 'D4', duration: 800 },
+    // Like a diamond in the sky
+    { note: 'G4', duration: 400 }, { note: 'G4', duration: 400 },
+    { note: 'F4', duration: 400 }, { note: 'F4', duration: 400 },
+    { note: 'E4', duration: 400 }, { note: 'E4', duration: 400 },
+    { note: 'D4', duration: 800 },
+    // Twinkle twinkle little star
+    { note: 'C4', duration: 400 }, { note: 'C4', duration: 400 },
+    { note: 'G4', duration: 400 }, { note: 'G4', duration: 400 },
+    { note: 'A4', duration: 400 }, { note: 'A4', duration: 400 },
+    { note: 'G4', duration: 800 },
+    // How I wonder what you are
+    { note: 'F4', duration: 400 }, { note: 'F4', duration: 400 },
+    { note: 'E4', duration: 400 }, { note: 'E4', duration: 400 },
+    { note: 'D4', duration: 400 }, { note: 'D4', duration: 400 },
+    { note: 'C4', duration: 800 },
+  ],
+  'Happy Birthday': [
+    // Happy birthday to you
+    { note: 'C4', duration: 300 }, { note: 'C4', duration: 200 },
+    { note: 'D4', duration: 500 }, { note: 'C4', duration: 500 },
+    { note: 'F4', duration: 500 }, { note: 'E4', duration: 900 },
+    // Happy birthday to you
+    { note: 'C4', duration: 300 }, { note: 'C4', duration: 200 },
+    { note: 'D4', duration: 500 }, { note: 'C4', duration: 500 },
+    { note: 'G4', duration: 500 }, { note: 'F4', duration: 900 },
+    // Happy birthday dear [name]
+    { note: 'C4', duration: 300 }, { note: 'C4', duration: 200 },
+    { note: 'C5', duration: 500 }, { note: 'A4', duration: 500 },
+    { note: 'F4', duration: 500 }, { note: 'E4', duration: 500 },
+    { note: 'D4', duration: 800 },
+    // Happy birthday to you
+    { note: 'A#4', duration: 300 }, { note: 'A#4', duration: 200 },
+    { note: 'A4', duration: 500 }, { note: 'F4', duration: 500 },
+    { note: 'G4', duration: 500 }, { note: 'F4', duration: 900 },
+  ],
+  'Für Elise': [
+    // Main theme - Section A (first time)
+    { note: 'E5', duration: 280 }, { note: 'D#5', duration: 280 },
+    { note: 'E5', duration: 280 }, { note: 'D#5', duration: 280 },
+    { note: 'E5', duration: 280 }, { note: 'B4', duration: 280 },
+    { note: 'D5', duration: 280 }, { note: 'C5', duration: 280 },
+    { note: 'A4', duration: 560 },
+    { note: 'C4', duration: 280 }, { note: 'E4', duration: 280 },
+    { note: 'A4', duration: 280 }, { note: 'B4', duration: 560 },
+    { note: 'E4', duration: 280 }, { note: 'G#4', duration: 280 },
+    { note: 'B4', duration: 280 }, { note: 'C5', duration: 560 },
+    { note: 'E4', duration: 280 },
+    // Main theme repeat
+    { note: 'E5', duration: 280 }, { note: 'D#5', duration: 280 },
+    { note: 'E5', duration: 280 }, { note: 'D#5', duration: 280 },
+    { note: 'E5', duration: 280 }, { note: 'B4', duration: 280 },
+    { note: 'D5', duration: 280 }, { note: 'C5', duration: 280 },
+    { note: 'A4', duration: 560 },
+    { note: 'C4', duration: 280 }, { note: 'E4', duration: 280 },
+    { note: 'A4', duration: 280 }, { note: 'B4', duration: 560 },
+    { note: 'E4', duration: 280 }, { note: 'C5', duration: 280 },
+    { note: 'B4', duration: 280 }, { note: 'A4', duration: 560 },
+    // Section B
+    { note: 'B4', duration: 280 }, { note: 'C5', duration: 280 },
+    { note: 'D5', duration: 280 }, { note: 'E5', duration: 420 },
+    { note: 'G4', duration: 280 }, { note: 'F5', duration: 280 },
+    { note: 'E5', duration: 280 }, { note: 'D5', duration: 420 },
+    { note: 'F4', duration: 280 }, { note: 'E5', duration: 280 },
+    { note: 'D5', duration: 280 }, { note: 'C5', duration: 420 },
+    { note: 'E4', duration: 280 }, { note: 'D5', duration: 280 },
+    { note: 'C5', duration: 280 }, { note: 'B4', duration: 560 },
+    { note: 'E4', duration: 280 },
+    // Return to main theme
+    { note: 'E5', duration: 280 }, { note: 'D#5', duration: 280 },
+    { note: 'E5', duration: 280 }, { note: 'D#5', duration: 280 },
+    { note: 'E5', duration: 280 }, { note: 'B4', duration: 280 },
+    { note: 'D5', duration: 280 }, { note: 'C5', duration: 280 },
+    { note: 'A4', duration: 560 },
+    { note: 'C4', duration: 280 }, { note: 'E4', duration: 280 },
+    { note: 'A4', duration: 280 }, { note: 'B4', duration: 560 },
+    { note: 'E4', duration: 280 }, { note: 'G#4', duration: 280 },
+    { note: 'B4', duration: 280 }, { note: 'C5', duration: 560 },
+    { note: 'E4', duration: 280 },
+    // Final statement
+    { note: 'E5', duration: 280 }, { note: 'D#5', duration: 280 },
+    { note: 'E5', duration: 280 }, { note: 'D#5', duration: 280 },
+    { note: 'E5', duration: 280 }, { note: 'B4', duration: 280 },
+    { note: 'D5', duration: 280 }, { note: 'C5', duration: 280 },
+    { note: 'A4', duration: 560 },
+    { note: 'C4', duration: 280 }, { note: 'E4', duration: 280 },
+    { note: 'A4', duration: 280 }, { note: 'B4', duration: 560 },
+    { note: 'E4', duration: 280 }, { note: 'C5', duration: 280 },
+    { note: 'B4', duration: 280 }, { note: 'A4', duration: 800 },
+  ],
+  'Ode to Joy': [
+    // Main theme line 1
+    { note: 'E4', duration: 400 }, { note: 'E4', duration: 400 },
+    { note: 'F4', duration: 400 }, { note: 'G4', duration: 400 },
+    { note: 'G4', duration: 400 }, { note: 'F4', duration: 400 },
+    { note: 'E4', duration: 400 }, { note: 'D4', duration: 400 },
+    { note: 'C4', duration: 400 }, { note: 'C4', duration: 400 },
+    { note: 'D4', duration: 400 }, { note: 'E4', duration: 400 },
+    { note: 'E4', duration: 600 }, { note: 'D4', duration: 200 },
+    { note: 'D4', duration: 800 },
+    // Main theme line 2
+    { note: 'E4', duration: 400 }, { note: 'E4', duration: 400 },
+    { note: 'F4', duration: 400 }, { note: 'G4', duration: 400 },
+    { note: 'G4', duration: 400 }, { note: 'F4', duration: 400 },
+    { note: 'E4', duration: 400 }, { note: 'D4', duration: 400 },
+    { note: 'C4', duration: 400 }, { note: 'C4', duration: 400 },
+    { note: 'D4', duration: 400 }, { note: 'E4', duration: 400 },
+    { note: 'D4', duration: 600 }, { note: 'C4', duration: 200 },
+    { note: 'C4', duration: 800 },
+    // Bridge section
+    { note: 'D4', duration: 400 }, { note: 'D4', duration: 400 },
+    { note: 'E4', duration: 400 }, { note: 'C4', duration: 400 },
+    { note: 'D4', duration: 400 }, { note: 'E4', duration: 200 },
+    { note: 'F4', duration: 200 }, { note: 'E4', duration: 400 },
+    { note: 'C4', duration: 400 },
+    { note: 'D4', duration: 400 }, { note: 'E4', duration: 200 },
+    { note: 'F4', duration: 200 }, { note: 'E4', duration: 400 },
+    { note: 'D4', duration: 400 },
+    { note: 'C4', duration: 400 }, { note: 'D4', duration: 400 },
+    { note: 'G3', duration: 800 },
+    // Final section
+    { note: 'E4', duration: 400 }, { note: 'E4', duration: 400 },
+    { note: 'F4', duration: 400 }, { note: 'G4', duration: 400 },
+    { note: 'G4', duration: 400 }, { note: 'F4', duration: 400 },
+    { note: 'E4', duration: 400 }, { note: 'D4', duration: 400 },
+    { note: 'C4', duration: 400 }, { note: 'C4', duration: 400 },
+    { note: 'D4', duration: 400 }, { note: 'E4', duration: 400 },
+    { note: 'D4', duration: 600 }, { note: 'C4', duration: 200 },
+    { note: 'C4', duration: 800 },
+  ],
+};
+
+export default function PianoGame() {
+  const [activeKeys, setActiveKeys] = useState(new Set());
+  const [instrument, setInstrument] = useState('piano');
+  const [volume, setVolume] = useState(75);
+  const [octaveShift, setOctaveShift] = useState(0);
+  const [sustain, setSustain] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recording, setRecording] = useState([]);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showLabels, setShowLabels] = useState(true);
+  const [particles, setParticles] = useState([]);
+  const [stats, setStats] = useState({ notesPlayed: 0, streak: 0, maxStreak: 0 });
+  const [audioStarted, setAudioStarted] = useState(false);
+  const [reverb, setReverb] = useState(30);
+  
+  const synthRef = useRef(null);
+  const hammerSynthRef = useRef(null);
+  const harmonicsSynthRef = useRef(null);
+  const reverbRef = useRef(null);
+  const recordingStartRef = useRef(null);
+  const sustainedNotesRef = useRef(new Set());
+  const particleIdRef = useRef(0);
+
+  useEffect(() => {
+    return () => {
+      if (synthRef.current) synthRef.current.dispose();
+      if (hammerSynthRef.current) hammerSynthRef.current.dispose();
+      if (harmonicsSynthRef.current) harmonicsSynthRef.current.dispose();
+      if (reverbRef.current) reverbRef.current.dispose();
+    };
+  }, []);
+
+  const createSynth = useCallback(() => {
+    if (synthRef.current) synthRef.current.dispose();
+    if (hammerSynthRef.current) hammerSynthRef.current.dispose();
+    if (harmonicsSynthRef.current) harmonicsSynthRef.current.dispose();
+    if (reverbRef.current) reverbRef.current.dispose();
+
+    // Create reverb for realistic room sound
+    reverbRef.current = new Tone.Reverb({
+      decay: 2.5,
+      wet: reverb / 100,
+    }).toDestination();
+
+    const vol = new Tone.Volume(Tone.gainToDb(volume / 100)).connect(reverbRef.current);
+    
+    switch (instrument) {
+      case 'piano':
+        // REALISTIC GRAND PIANO
+        // Main body - rich fundamental tone with natural decay
+        synthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: {
+            type: 'fatsine',
+            count: 3,
+            spread: 20,
+          },
+          envelope: {
+            attack: 0.003,
+            decay: 1.8,
+            sustain: 0.15,
+            release: 2.2,
+          },
+          volume: -3,
+        }).connect(vol);
+        
+        // Hammer attack - percussive initial transient
+        hammerSynthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: {
+            type: 'triangle',
+          },
+          envelope: {
+            attack: 0.001,
+            decay: 0.06,
+            sustain: 0,
+            release: 0.08,
+          },
+          volume: -8,
+        }).connect(vol);
+        
+        // Harmonics layer - adds richness and overtones
+        harmonicsSynthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: {
+            type: 'custom',
+            partials: [1, 0.7, 0.4, 0.25, 0.15, 0.08, 0.04],
+          },
+          envelope: {
+            attack: 0.005,
+            decay: 2.5,
+            sustain: 0.1,
+            release: 3,
+          },
+          volume: -6,
+        }).connect(vol);
+        break;
+
+      case 'rhodes':
+        // RHODES ELECTRIC PIANO - warm, bell-like, smooth jazz tone
+        synthRef.current = new Tone.PolySynth(Tone.FMSynth, {
+          harmonicity: 3.01,
+          modulationIndex: 1.5,
+          oscillator: { type: 'sine' },
+          envelope: {
+            attack: 0.001,
+            decay: 1.5,
+            sustain: 0.2,
+            release: 1.8,
+          },
+          modulation: { type: 'sine' },
+          modulationEnvelope: {
+            attack: 0.002,
+            decay: 0.8,
+            sustain: 0.1,
+            release: 1.2,
+          },
+          volume: -2,
+        }).connect(vol);
+        
+        // Bell-like overtone for that classic Rhodes shimmer
+        hammerSynthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'sine' },
+          envelope: {
+            attack: 0.001,
+            decay: 0.4,
+            sustain: 0,
+            release: 0.5,
+          },
+          volume: -12,
+        }).connect(vol);
+        
+        harmonicsSynthRef.current = null;
+        break;
+
+      case 'clavinet':
+        // CLAVINET - funky, percussive, wah-like
+        synthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: {
+            type: 'sawtooth',
+          },
+          envelope: {
+            attack: 0.001,
+            decay: 0.3,
+            sustain: 0.15,
+            release: 0.2,
+          },
+          volume: -4,
+        }).connect(vol);
+        
+        // Add the characteristic pluck/bark
+        hammerSynthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'square' },
+          envelope: {
+            attack: 0.001,
+            decay: 0.08,
+            sustain: 0,
+            release: 0.05,
+          },
+          volume: -10,
+        }).connect(vol);
+        
+        harmonicsSynthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'pulse', width: 0.3 },
+          envelope: {
+            attack: 0.001,
+            decay: 0.25,
+            sustain: 0.1,
+            release: 0.15,
+          },
+          volume: -8,
+        }).connect(vol);
+        break;
+
+      case 'musicbox':
+        // MUSIC BOX - delicate, crystalline, nostalgic
+        synthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: {
+            type: 'sine',
+          },
+          envelope: {
+            attack: 0.001,
+            decay: 2.5,
+            sustain: 0,
+            release: 2,
+          },
+          volume: -3,
+        }).connect(vol);
+        
+        // Metallic tine sound - using FM for bell-like quality
+        hammerSynthRef.current = new Tone.PolySynth(Tone.FMSynth, {
+          harmonicity: 8,
+          modulationIndex: 2,
+          oscillator: { type: 'sine' },
+          envelope: {
+            attack: 0.001,
+            decay: 0.8,
+            sustain: 0,
+            release: 0.5,
+          },
+          modulation: { type: 'sine' },
+          modulationEnvelope: {
+            attack: 0.001,
+            decay: 0.3,
+            sustain: 0,
+            release: 0.3,
+          },
+          volume: -15,
+        }).connect(vol);
+        
+        // Shimmer overtone
+        harmonicsSynthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: {
+            type: 'sine',
+            partials: [1, 0.5, 0.25],
+          },
+          envelope: {
+            attack: 0.001,
+            decay: 1.5,
+            sustain: 0,
+            release: 1.5,
+          },
+          volume: -10,
+        }).connect(vol);
+        break;
+
+      case 'strings':
+        // ORCHESTRAL STRINGS - lush, warm, cinematic
+        synthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: {
+            type: 'fatsawtooth',
+            count: 4,
+            spread: 30,
+          },
+          envelope: {
+            attack: 0.3,
+            decay: 0.5,
+            sustain: 0.8,
+            release: 1.5,
+          },
+          volume: -4,
+        }).connect(vol);
+        
+        // Second layer for richness
+        hammerSynthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: {
+            type: 'fatsawtooth',
+            count: 3,
+            spread: 25,
+          },
+          envelope: {
+            attack: 0.35,
+            decay: 0.4,
+            sustain: 0.7,
+            release: 1.8,
+          },
+          volume: -8,
+        }).connect(vol);
+        
+        // High shimmer
+        harmonicsSynthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: {
+            type: 'sine',
+          },
+          envelope: {
+            attack: 0.4,
+            decay: 0.3,
+            sustain: 0.5,
+            release: 2,
+          },
+          volume: -12,
+        }).connect(vol);
+        break;
+
+      case 'bass':
+        // SYNTH BASS - fat, punchy Moog-style
+        synthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: {
+            type: 'fatsawtooth',
+            count: 2,
+            spread: 10,
+          },
+          envelope: {
+            attack: 0.01,
+            decay: 0.3,
+            sustain: 0.4,
+            release: 0.4,
+          },
+          volume: 0,
+        }).connect(vol);
+        
+        // Sub bass layer
+        hammerSynthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'sine' },
+          envelope: {
+            attack: 0.01,
+            decay: 0.4,
+            sustain: 0.5,
+            release: 0.5,
+          },
+          volume: -3,
+        }).connect(vol);
+        
+        // Gritty overtone
+        harmonicsSynthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'square' },
+          envelope: {
+            attack: 0.01,
+            decay: 0.2,
+            sustain: 0.2,
+            release: 0.3,
+          },
+          volume: -12,
+        }).connect(vol);
+        break;
+
+      case 'organ':
+        // HAMMOND ORGAN - classic B3 sound
+        synthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: {
+            type: 'custom',
+            partials: [1, 1, 0.5, 0.5, 0.25, 0.25, 0.125, 0.125, 0.0625],
+          },
+          envelope: { attack: 0.02, decay: 0.1, sustain: 0.9, release: 0.1 },
+          volume: -3,
+        }).connect(vol);
+        
+        // Percussion click
+        hammerSynthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'sine' },
+          envelope: {
+            attack: 0.001,
+            decay: 0.15,
+            sustain: 0,
+            release: 0.1,
+          },
+          volume: -8,
+        }).connect(vol);
+        
+        harmonicsSynthRef.current = null;
+        break;
+        
+      case 'synth':
+        // SYNTH LEAD - bright, cutting
+        synthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { 
+            type: 'fatsawtooth',
+            count: 3,
+            spread: 20,
+          },
+          envelope: { attack: 0.01, decay: 0.3, sustain: 0.5, release: 0.8 },
+          volume: -4,
+        }).connect(vol);
+        
+        // PWM layer
+        hammerSynthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'pulse', width: 0.4 },
+          envelope: { attack: 0.01, decay: 0.25, sustain: 0.4, release: 0.7 },
+          volume: -8,
+        }).connect(vol);
+        
+        harmonicsSynthRef.current = null;
+        break;
+        
+      default:
+        synthRef.current = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'triangle' },
+          envelope: { attack: 0.005, decay: 0.3, sustain: 0.4, release: 1.2 }
+        }).connect(vol);
+        hammerSynthRef.current = null;
+        harmonicsSynthRef.current = null;
+    }
+  }, [instrument, volume, reverb]);
+
+  useEffect(() => {
+    if (audioStarted) {
+      createSynth();
+    }
+  }, [instrument, volume, reverb, createSynth, audioStarted]);
+
+  const shiftNote = (note) => {
+    if (octaveShift === 0) return note;
+    const match = note.match(/([A-G]#?)(\d)/);
+    if (match) {
+      const [, pitch, octave] = match;
+      return `${pitch}${parseInt(octave) + octaveShift}`;
+    }
+    return note;
+  };
+
+  const createParticle = (note) => {
+    const noteIndex = NOTES.findIndex(n => n.note === note);
+    const isBlack = NOTES[noteIndex]?.type === 'black';
+    const whiteKeysBefore = NOTES.filter((n, i) => i <= noteIndex && n.type === 'white').length - 1;
+    
+    const colors = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#9b59b6', '#ff85a1', '#00d4ff', '#ff9f43'];
+    
+    for (let i = 0; i < 8; i++) {
+      const id = particleIdRef.current++;
+      const particle = {
+        id,
+        x: isBlack ? (whiteKeysBefore * 46 + 28) : (whiteKeysBefore * 46 + 23),
+        y: isBlack ? 70 : 180,
+        vx: (Math.random() - 0.5) * 10,
+        vy: -Math.random() * 12 - 6,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        size: Math.random() * 10 + 5,
+        life: 1,
+      };
+      setParticles(prev => [...prev, particle]);
+    }
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setParticles(prev => {
+        return prev
+          .map(p => ({
+            ...p,
+            x: p.x + p.vx,
+            y: p.y + p.vy,
+            vy: p.vy + 0.6,
+            life: p.life - 0.025,
+          }))
+          .filter(p => p.life > 0);
+      });
+    }, 30);
+    return () => clearInterval(interval);
+  }, []);
+
+  const playNote = useCallback(async (note) => {
+    if (!audioStarted) {
+      await Tone.start();
+      setAudioStarted(true);
+      createSynth();
+    }
+    
+    if (!synthRef.current) {
+      createSynth();
+    }
+    
+    const shiftedNote = shiftNote(note);
+    
+    // Add velocity variation for more realistic sound
+    const velocity = 0.6 + Math.random() * 0.4;
+    const now = Tone.now();
+    
+    synthRef.current?.triggerAttack(shiftedNote, now, velocity);
+    hammerSynthRef.current?.triggerAttack(shiftedNote, now, velocity * 1.2);
+    harmonicsSynthRef.current?.triggerAttack(shiftedNote, now, velocity * 0.7);
+    
+    if (sustain) {
+      sustainedNotesRef.current.add(shiftedNote);
+    }
+    
+    createParticle(note);
+    
+    setStats(prev => ({
+      notesPlayed: prev.notesPlayed + 1,
+      streak: prev.streak + 1,
+      maxStreak: Math.max(prev.maxStreak, prev.streak + 1)
+    }));
+    
+    if (isRecording) {
+      setRecording(prev => [...prev, {
+        note,
+        time: Date.now() - recordingStartRef.current,
+        type: 'attack'
+      }]);
+    }
+  }, [octaveShift, sustain, isRecording, audioStarted, createSynth]);
+
+  const releaseNote = useCallback((note) => {
+    const shiftedNote = shiftNote(note);
+    const now = Tone.now();
+    
+    if (!sustain) {
+      synthRef.current?.triggerRelease(shiftedNote, now);
+      hammerSynthRef.current?.triggerRelease(shiftedNote, now);
+      harmonicsSynthRef.current?.triggerRelease(shiftedNote, now);
+    }
+    
+    if (isRecording) {
+      setRecording(prev => [...prev, {
+        note,
+        time: Date.now() - recordingStartRef.current,
+        type: 'release'
+      }]);
+    }
+  }, [octaveShift, sustain, isRecording]);
+
+  const handleKeyDown = useCallback((e) => {
+    if (e.repeat) return;
+    const key = e.key.toLowerCase();
+    
+    if (key === ' ') {
+      e.preventDefault();
+      setSustain(true);
+      return;
+    }
+    
+    if (key === 'backspace') {
+      e.preventDefault();
+      setOctaveShift(prev => Math.max(prev - 1, -2));
+      return;
+    }
+    if (key === '\\') {
+      setOctaveShift(prev => Math.min(prev + 1, 2));
+      return;
+    }
+    
+    const noteObj = NOTES.find(n => n.key === key);
+    if (noteObj && !activeKeys.has(key)) {
+      setActiveKeys(prev => new Set([...prev, key]));
+      playNote(noteObj.note);
+    }
+  }, [activeKeys, playNote]);
+
+  const handleKeyUp = useCallback((e) => {
+    const key = e.key.toLowerCase();
+    
+    if (key === ' ') {
+      setSustain(false);
+      const now = Tone.now();
+      sustainedNotesRef.current.forEach(note => {
+        synthRef.current?.triggerRelease(note, now);
+        hammerSynthRef.current?.triggerRelease(note, now);
+        harmonicsSynthRef.current?.triggerRelease(note, now);
+      });
+      sustainedNotesRef.current.clear();
+      return;
+    }
+    
+    const noteObj = NOTES.find(n => n.key === key);
+    if (noteObj) {
+      setActiveKeys(prev => {
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
+      releaseNote(noteObj.note);
+    }
+  }, [releaseNote]);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [handleKeyDown, handleKeyUp]);
+
+  const startRecording = () => {
+    setRecording([]);
+    setIsRecording(true);
+    recordingStartRef.current = Date.now();
+  };
+
+  const stopRecording = () => {
+    setIsRecording(false);
+  };
+
+  const playRecording = async () => {
+    if (recording.length === 0) return;
+    setIsPlaying(true);
+    
+    for (const event of recording) {
+      await new Promise(resolve => setTimeout(resolve, event.time - (recording[recording.indexOf(event) - 1]?.time || 0)));
+      const noteObj = NOTES.find(n => n.note === event.note);
+      if (noteObj) {
+        if (event.type === 'attack') {
+          setActiveKeys(prev => new Set([...prev, noteObj.key]));
+          playNote(event.note);
+        } else {
+          setActiveKeys(prev => {
+            const next = new Set(prev);
+            next.delete(noteObj.key);
+            return next;
+          });
+          releaseNote(event.note);
+        }
+      }
+    }
+    
+    setIsPlaying(false);
+    setActiveKeys(new Set());
+  };
+
+  const playDemo = async (songName) => {
+    const song = DEMO_SONGS[songName];
+    if (!song) return;
+    
+    setIsPlaying(true);
+    
+    for (const { note, duration } of song) {
+      const noteObj = NOTES.find(n => n.note === note);
+      if (noteObj) {
+        setActiveKeys(prev => new Set([...prev, noteObj.key]));
+        playNote(note);
+        await new Promise(resolve => setTimeout(resolve, duration * 0.8));
+        setActiveKeys(prev => {
+          const next = new Set(prev);
+          next.delete(noteObj.key);
+          return next;
+        });
+        releaseNote(note);
+        await new Promise(resolve => setTimeout(resolve, duration * 0.2));
+      }
+    }
+    
+    setIsPlaying(false);
+  };
+
+  const whiteKeys = NOTES.filter(n => n.type === 'white');
+  const blackKeys = NOTES.filter(n => n.type === 'black');
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #0d0d12 0%, #1a1a2e 40%, #16213e 100%)',
+      fontFamily: "'Courier New', monospace",
+      padding: '15px',
+      overflow: 'hidden',
+      position: 'relative',
+    }}>
+      {/* Background glow effects */}
+      <div style={{
+        position: 'absolute',
+        top: '15%',
+        left: '5%',
+        width: '400px',
+        height: '400px',
+        background: 'radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%)',
+        borderRadius: '50%',
+        filter: 'blur(60px)',
+        pointerEvents: 'none',
+      }} />
+      <div style={{
+        position: 'absolute',
+        bottom: '5%',
+        right: '10%',
+        width: '350px',
+        height: '350px',
+        background: 'radial-gradient(circle, rgba(236, 72, 153, 0.12) 0%, transparent 70%)',
+        borderRadius: '50%',
+        filter: 'blur(60px)',
+        pointerEvents: 'none',
+      }} />
+      <div style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '600px',
+        height: '300px',
+        background: 'radial-gradient(ellipse, rgba(0, 212, 255, 0.08) 0%, transparent 70%)',
+        borderRadius: '50%',
+        filter: 'blur(80px)',
+        pointerEvents: 'none',
+      }} />
+
+      {/* Particles */}
+      {particles.map(p => (
+        <div
+          key={p.id}
+          style={{
+            position: 'absolute',
+            left: `calc(50% - ${whiteKeys.length * 23}px + ${p.x}px)`,
+            top: `calc(50% + 20px + ${p.y}px)`,
+            width: p.size,
+            height: p.size,
+            borderRadius: '50%',
+            background: p.color,
+            opacity: p.life,
+            boxShadow: `0 0 ${p.size * 2}px ${p.color}`,
+            pointerEvents: 'none',
+            transform: 'translate(-50%, -50%)',
+          }}
+        />
+      ))}
+
+      {/* Header */}
+      <div style={{
+        textAlign: 'center',
+        marginBottom: '12px',
+      }}>
+        <h1 style={{
+          fontSize: '2.5rem',
+          fontWeight: '300',
+          color: '#fff',
+          letterSpacing: '0.3em',
+          textTransform: 'uppercase',
+          margin: 0,
+          textShadow: '0 0 30px rgba(139, 92, 246, 0.5), 0 0 60px rgba(236, 72, 153, 0.3)',
+        }}>
+          🎹 GRAND PIANO STUDIO
+        </h1>
+        <p style={{
+          color: 'rgba(255,255,255,0.4)',
+          fontSize: '0.75rem',
+          letterSpacing: '0.15em',
+          marginTop: '5px',
+        }}>
+          3+ OCTAVES • REALISTIC SOUND • PRESS ANY KEY TO START
+        </p>
+      </div>
+
+      {/* Stats Bar */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '25px',
+        marginBottom: '12px',
+      }}>
+        {[
+          { label: 'NOTES', value: stats.notesPlayed, color: '#6bcb77' },
+          { label: 'STREAK', value: stats.streak, color: '#ffd93d' },
+          { label: 'BEST', value: stats.maxStreak, color: '#ff6b6b' },
+          { label: 'OCTAVE', value: octaveShift >= 0 ? `+${octaveShift}` : octaveShift, color: '#4d96ff' },
+        ].map(stat => (
+          <div key={stat.label} style={{
+            textAlign: 'center',
+            padding: '8px 16px',
+            background: 'rgba(255,255,255,0.03)',
+            borderRadius: '10px',
+            border: '1px solid rgba(255,255,255,0.08)',
+          }}>
+            <div style={{
+              fontSize: '1.5rem',
+              fontWeight: 'bold',
+              color: stat.color,
+              textShadow: `0 0 20px ${stat.color}50`,
+            }}>{stat.value}</div>
+            <div style={{
+              fontSize: '0.65rem',
+              color: 'rgba(255,255,255,0.5)',
+              letterSpacing: '0.15em',
+            }}>{stat.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Controls */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '10px',
+        flexWrap: 'wrap',
+        marginBottom: '12px',
+      }}>
+        {/* Instrument Selection */}
+        <div style={{
+          display: 'flex',
+          gap: '6px',
+          background: 'rgba(255,255,255,0.03)',
+          padding: '6px',
+          borderRadius: '10px',
+          border: '1px solid rgba(255,255,255,0.08)',
+        }}>
+          {Object.entries(INSTRUMENTS).map(([key, { name, emoji }]) => (
+            <button
+              key={key}
+              onClick={async () => {
+                if (!audioStarted) {
+                  await Tone.start();
+                  setAudioStarted(true);
+                }
+                setInstrument(key);
+              }}
+              style={{
+                padding: '8px 12px',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '0.75rem',
+                fontFamily: 'inherit',
+                transition: 'all 0.2s',
+                background: instrument === key 
+                  ? 'linear-gradient(135deg, #8b5cf6, #ec4899)'
+                  : 'rgba(255,255,255,0.05)',
+                color: '#fff',
+                boxShadow: instrument === key 
+                  ? '0 0 20px rgba(139, 92, 246, 0.5)'
+                  : 'none',
+              }}
+            >
+              {emoji} {name}
+            </button>
+          ))}
+        </div>
+
+        {/* Volume */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          background: 'rgba(255,255,255,0.03)',
+          padding: '6px 12px',
+          borderRadius: '10px',
+          border: '1px solid rgba(255,255,255,0.08)',
+        }}>
+          <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem' }}>🔊</span>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={volume}
+            onChange={(e) => setVolume(parseInt(e.target.value))}
+            style={{
+              width: '80px',
+              accentColor: '#8b5cf6',
+            }}
+          />
+          <span style={{ color: '#fff', fontSize: '0.75rem', width: '30px' }}>{volume}%</span>
+        </div>
+
+        {/* Reverb */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          background: 'rgba(255,255,255,0.03)',
+          padding: '6px 12px',
+          borderRadius: '10px',
+          border: '1px solid rgba(255,255,255,0.08)',
+        }}>
+          <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem' }}>🏛️</span>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={reverb}
+            onChange={(e) => setReverb(parseInt(e.target.value))}
+            style={{
+              width: '80px',
+              accentColor: '#00d4ff',
+            }}
+          />
+          <span style={{ color: '#fff', fontSize: '0.75rem', width: '30px' }}>{reverb}%</span>
+        </div>
+
+        {/* Sustain Indicator */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          background: sustain 
+            ? 'rgba(107, 203, 119, 0.2)'
+            : 'rgba(255,255,255,0.03)',
+          padding: '6px 12px',
+          borderRadius: '10px',
+          border: sustain 
+            ? '1px solid rgba(107, 203, 119, 0.5)'
+            : '1px solid rgba(255,255,255,0.08)',
+          transition: 'all 0.2s',
+        }}>
+          <span style={{ 
+            color: sustain ? '#6bcb77' : 'rgba(255,255,255,0.4)',
+            fontSize: '0.75rem',
+          }}>
+            ⏸️ SUSTAIN {sustain ? 'ON' : 'OFF'}
+          </span>
+        </div>
+
+        {/* Show Labels Toggle */}
+        <button
+          onClick={() => setShowLabels(!showLabels)}
+          style={{
+            padding: '8px 12px',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            fontSize: '0.75rem',
+            fontFamily: 'inherit',
+            background: showLabels 
+              ? 'rgba(77, 150, 255, 0.2)'
+              : 'rgba(255,255,255,0.03)',
+            color: showLabels ? '#4d96ff' : 'rgba(255,255,255,0.6)',
+            transition: 'all 0.2s',
+          }}
+        >
+          🏷️ Labels
+        </button>
+      </div>
+
+      {/* Recording Controls */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '10px',
+        marginBottom: '15px',
+        flexWrap: 'wrap',
+      }}>
+        <button
+          onClick={isRecording ? stopRecording : startRecording}
+          disabled={isPlaying}
+          style={{
+            padding: '10px 20px',
+            border: 'none',
+            borderRadius: '20px',
+            cursor: isPlaying ? 'not-allowed' : 'pointer',
+            fontSize: '0.8rem',
+            fontFamily: 'inherit',
+            fontWeight: 'bold',
+            letterSpacing: '0.1em',
+            background: isRecording 
+              ? 'linear-gradient(135deg, #ff6b6b, #ee5a5a)'
+              : 'linear-gradient(135deg, #333, #444)',
+            color: '#fff',
+            boxShadow: isRecording 
+              ? '0 0 30px rgba(255, 107, 107, 0.5)'
+              : 'none',
+            transition: 'all 0.3s',
+            opacity: isPlaying ? 0.5 : 1,
+          }}
+        >
+          {isRecording ? '⏹️ STOP' : '⏺️ RECORD'}
+        </button>
+        
+        <button
+          onClick={playRecording}
+          disabled={recording.length === 0 || isPlaying || isRecording}
+          style={{
+            padding: '10px 20px',
+            border: 'none',
+            borderRadius: '20px',
+            cursor: (recording.length === 0 || isPlaying || isRecording) ? 'not-allowed' : 'pointer',
+            fontSize: '0.8rem',
+            fontFamily: 'inherit',
+            fontWeight: 'bold',
+            letterSpacing: '0.1em',
+            background: 'linear-gradient(135deg, #6bcb77, #5ab868)',
+            color: '#fff',
+            opacity: (recording.length === 0 || isPlaying || isRecording) ? 0.3 : 1,
+            transition: 'all 0.3s',
+          }}
+        >
+          ▶️ PLAY ({recording.filter(r => r.type === 'attack').length})
+        </button>
+
+        {/* Demo Songs */}
+        {Object.keys(DEMO_SONGS).map(song => (
+          <button
+            key={song}
+            onClick={() => playDemo(song)}
+            disabled={isPlaying || isRecording}
+            style={{
+              padding: '10px 14px',
+              border: '1px solid rgba(255, 217, 61, 0.3)',
+              borderRadius: '20px',
+              cursor: (isPlaying || isRecording) ? 'not-allowed' : 'pointer',
+              fontSize: '0.75rem',
+              fontFamily: 'inherit',
+              background: 'rgba(255, 217, 61, 0.1)',
+              color: '#ffd93d',
+              opacity: (isPlaying || isRecording) ? 0.3 : 1,
+              transition: 'all 0.3s',
+            }}
+          >
+            🎵 {song}
+          </button>
+        ))}
+      </div>
+
+      {/* Piano */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        position: 'relative',
+        padding: '10px',
+        overflowX: 'auto',
+      }}>
+        <div style={{
+          position: 'relative',
+          background: 'linear-gradient(180deg, #1a1a2e 0%, #0d0d12 100%)',
+          padding: '20px 15px 15px',
+          borderRadius: '16px',
+          boxShadow: '0 30px 100px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.08)',
+          border: '1px solid rgba(255,255,255,0.05)',
+        }}>
+          {/* Piano body decoration */}
+          <div style={{
+            position: 'absolute',
+            top: '8px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '80px',
+            height: '3px',
+            background: 'linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent)',
+            borderRadius: '2px',
+          }} />
+
+          {/* Octave labels */}
+          <div style={{
+            display: 'flex',
+            position: 'absolute',
+            top: '-18px',
+            left: '15px',
+            right: '15px',
+          }}>
+            {['C3', 'C4', 'C5', 'C6'].map((octave) => {
+              const whiteKeyIndex = whiteKeys.findIndex(k => k.note === octave);
+              if (whiteKeyIndex === -1) return null;
+              return (
+                <div
+                  key={octave}
+                  style={{
+                    position: 'absolute',
+                    left: `${whiteKeyIndex * 46 + 10}px`,
+                    color: 'rgba(255,255,255,0.3)',
+                    fontSize: '0.65rem',
+                    letterSpacing: '0.1em',
+                  }}
+                >
+                  {octave}
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={{
+            display: 'flex',
+            position: 'relative',
+          }}>
+            {/* White Keys */}
+            {whiteKeys.map((noteObj, index) => {
+              const isActive = activeKeys.has(noteObj.key);
+              return (
+                <div
+                  key={noteObj.note}
+                  onMouseDown={() => {
+                    setActiveKeys(prev => new Set([...prev, noteObj.key]));
+                    playNote(noteObj.note);
+                  }}
+                  onMouseUp={() => {
+                    setActiveKeys(prev => {
+                      const next = new Set(prev);
+                      next.delete(noteObj.key);
+                      return next;
+                    });
+                    releaseNote(noteObj.note);
+                  }}
+                  onMouseLeave={() => {
+                    if (activeKeys.has(noteObj.key)) {
+                      setActiveKeys(prev => {
+                        const next = new Set(prev);
+                        next.delete(noteObj.key);
+                        return next;
+                      });
+                      releaseNote(noteObj.note);
+                    }
+                  }}
+                  style={{
+                    width: '44px',
+                    height: '200px',
+                    background: isActive
+                      ? 'linear-gradient(180deg, #e0e0e0 0%, #c8c8c8 100%)'
+                      : 'linear-gradient(180deg, #ffffff 0%, #f5f5f5 30%, #e8e8e8 70%, #d8d8d8 100%)',
+                    border: '1px solid #aaa',
+                    borderRadius: '0 0 6px 6px',
+                    marginRight: index < whiteKeys.length - 1 ? '2px' : '0',
+                    cursor: 'pointer',
+                    position: 'relative',
+                    transition: 'all 0.04s',
+                    transform: isActive ? 'translateY(2px)' : 'none',
+                    boxShadow: isActive
+                      ? 'inset 0 -2px 8px rgba(0,0,0,0.15), 0 0 25px rgba(139, 92, 246, 0.4)'
+                      : '0 6px 12px rgba(0,0,0,0.25), inset 0 -2px 0 #c5c5c5',
+                  }}
+                >
+                  {showLabels && (
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '12px',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      color: isActive ? '#8b5cf6' : '#777',
+                      fontSize: '0.7rem',
+                      fontWeight: 'bold',
+                      textTransform: 'uppercase',
+                      transition: 'color 0.1s',
+                    }}>
+                      {noteObj.label}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            {/* Black Keys */}
+            {blackKeys.map((noteObj) => {
+              const isActive = activeKeys.has(noteObj.key);
+              const whiteIndex = NOTES.filter((n, i) => i < NOTES.indexOf(noteObj) && n.type === 'white').length;
+              const leftPos = whiteIndex * 46 - 14;
+              
+              return (
+                <div
+                  key={noteObj.note}
+                  onMouseDown={() => {
+                    setActiveKeys(prev => new Set([...prev, noteObj.key]));
+                    playNote(noteObj.note);
+                  }}
+                  onMouseUp={() => {
+                    setActiveKeys(prev => {
+                      const next = new Set(prev);
+                      next.delete(noteObj.key);
+                      return next;
+                    });
+                    releaseNote(noteObj.note);
+                  }}
+                  onMouseLeave={() => {
+                    if (activeKeys.has(noteObj.key)) {
+                      setActiveKeys(prev => {
+                        const next = new Set(prev);
+                        next.delete(noteObj.key);
+                        return next;
+                      });
+                      releaseNote(noteObj.note);
+                    }
+                  }}
+                  style={{
+                    position: 'absolute',
+                    left: `${leftPos}px`,
+                    width: '28px',
+                    height: '125px',
+                    background: isActive
+                      ? 'linear-gradient(180deg, #3a3a4a 0%, #252535 100%)'
+                      : 'linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 40%, #0f0f0f 100%)',
+                    border: '1px solid #111',
+                    borderRadius: '0 0 4px 4px',
+                    cursor: 'pointer',
+                    zIndex: 10,
+                    transition: 'all 0.04s',
+                    transform: isActive ? 'translateY(2px)' : 'none',
+                    boxShadow: isActive
+                      ? 'inset 0 -2px 6px rgba(0,0,0,0.4), 0 0 20px rgba(236, 72, 153, 0.5)'
+                      : '0 5px 10px rgba(0,0,0,0.5), inset 0 -1px 0 #000',
+                  }}
+                >
+                  {showLabels && (
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '8px',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      color: isActive ? '#ec4899' : '#555',
+                      fontSize: '0.6rem',
+                      fontWeight: 'bold',
+                      textTransform: 'uppercase',
+                      transition: 'color 0.1s',
+                    }}>
+                      {noteObj.label}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Instructions */}
+      <div style={{
+        textAlign: 'center',
+        marginTop: '15px',
+        color: 'rgba(255,255,255,0.3)',
+        fontSize: '0.7rem',
+        letterSpacing: '0.08em',
+      }}>
+        <p style={{ margin: '3px 0' }}>OCTAVE 3: 1-= • OCTAVE 4: Q-] • OCTAVE 5: A-Z</p>
+        <p style={{ margin: '3px 0' }}>SPACE = SUSTAIN PEDAL • BACKSLASH/BACKSPACE = OCTAVE SHIFT</p>
+      </div>
+    </div>
+  );
+}

@@ -1,7 +1,7 @@
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { FontAwesome } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
+import { FontAwesome } from '@expo/vector-icons';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, LinearGradient, Path, Stop, Text as SvgText } from 'react-native-svg';
 
 function LogoLarge() {
@@ -145,10 +145,10 @@ export default function AboutScreen() {
           </Text>
         </View>
 
-        <View style={styles.footer}>
+        {/* <View style={styles.footer}>
           <Text style={styles.footerText}>Made with love for the Jewish community</Text>
           <Text style={styles.version}>Version 1.0.0</Text>
-        </View>
+        </View> */}
       </ScrollView>
     </SafeAreaView>
   );
