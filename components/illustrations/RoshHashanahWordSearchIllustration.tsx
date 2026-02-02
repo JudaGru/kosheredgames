@@ -1,4 +1,4 @@
-import Svg, { Circle, Defs, G, LinearGradient, Path, Rect, Stop, Text as SvgText, Ellipse } from 'react-native-svg';
+import Svg, { Circle, Defs, G, LinearGradient, Path, Rect, Stop, Text as SvgText } from 'react-native-svg';
 
 interface RoshHashanahWordSearchIllustrationProps {
   width: number;
@@ -37,13 +37,15 @@ export function RoshHashanahWordSearchIllustration({
 
       {/* Rosh Hashanah icons at top - Shofar, Apple and Honey */}
       <G transform="translate(60, 3)">
-        {/* Shofar */}
-        <G transform="translate(0, 5)">
+        {/* Shofar - curved ram's horn */}
+        <G transform="translate(-10, 0) scale(0.7)">
           <Path
-            d="M10 30 Q2 26 2 18 Q2 10 10 6 Q18 2 30 2 Q38 4 42 10 L38 14 Q34 10 30 8 Q22 6 14 10 Q8 14 8 20 Q8 24 12 26 Z"
-            fill="#8b4513"
+            d="M10 35 Q5 30 8 20 Q12 10 25 8 Q40 5 55 15 Q65 22 70 25 Q75 30 72 35 Q68 38 60 35 Q50 30 35 28 Q20 27 15 32 Q12 36 10 35"
+            fill="#a0785c"
+            stroke="#8b6914"
+            strokeWidth="1"
           />
-          <Ellipse cx="40" cy="12" rx="4" ry="6" fill="#654321" />
+          <Path d="M8 25 Q15 20 25 18" stroke="#8b6914" strokeWidth="1" fill="none" />
         </G>
 
         {/* Apple */}
