@@ -27,12 +27,11 @@ export async function submitGameSuggestion(
   }
 
   try {
-    // Use the existing feedback table with a special format
-    // Rating of 0 indicates this is a game suggestion, not regular feedback
+    // Use the existing feedback table with game_id='suggestion' to distinguish from regular feedback
     const { error } = await supabase.from('feedback').insert({
       game_id: 'suggestion',
       game_name: data.gameName,
-      rating: 0, // Special marker for game suggestions
+      rating: 1, // Default valid rating; game_id='suggestion' distinguishes this from regular feedback
       feedback_text: data.gameDescription || '',
       email: data.email || null,
       age_range: null,
